@@ -1,12 +1,12 @@
 from flask_restful import Resource
-from shutter_api.config import mysql
+from shutter_api import MYSQL
 from flask import jsonify
 
 
 class HelloWorld(Resource):
     def get(self):
         try:
-            conn = mysql.connect()
+            conn = MYSQL.connect()
             cursor = conn.cursor()
             cmd = "select * from Transactions;"
             cursor.execute(cmd)

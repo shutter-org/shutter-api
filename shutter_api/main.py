@@ -1,11 +1,15 @@
 
-from .Resources import *
-from shutter_api import app
+from .App import *
+from flask import Flask
+from flask_restful import Api
 
 
 def start():
-    app.api.add_resource(HelloWorld, '/')
-    app.api.add_resource(User, '/user')
+    app = Flask(__name__)
+    api = Api(app)
     
-    app.app.run()
+    addConfig(app)
+    addResources(api)
+    
+    app.run()
 
