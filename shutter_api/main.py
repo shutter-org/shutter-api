@@ -4,7 +4,10 @@ from flask import Flask
 from flask_restful import Api
 
 
-def start():
+def start() -> None:
+    """
+    start Server
+    """
     app = Flask(__name__)
     api = Api(app)
     
