@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "shutter-api"
+version = "0.1.0"
+description = "Api For Shutter"
+authors = ["Jeremi Girard <jeremigirard@hotmail.com>"]
+readme = "README.md"
+packages = [{include = "shutter_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+flask = "^2.2.3"
+flask-mysql = "^1.5.2"
+flask-restful = "^0.3.9"
+
+[tool.poetry.scripts]
+serve = "shutter_api.main:start"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
