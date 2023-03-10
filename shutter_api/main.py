@@ -1,4 +1,3 @@
-
 from .App import *
 from flask import Flask
 from flask_restful import Api
@@ -12,6 +11,7 @@ def start() -> None:
     api = Api(app)
     
     addConfig(app)
+    addRouters(app)
     addResources(api)
     
     app.run()
