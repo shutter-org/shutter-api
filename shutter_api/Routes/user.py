@@ -1,3 +1,4 @@
+
 def user(app) -> None:
     
     @app.route("/users/<username>", methods=["GET"])
