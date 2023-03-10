@@ -12,7 +12,6 @@ def start() -> None:
     
     addConfig(app)
     addRouters(app)
-    addResources(api)
     
     app.run()
 
