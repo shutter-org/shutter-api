@@ -1,5 +1,5 @@
 from .home import home
-from .singUp import signUp
+from .signUp import signUp
 from .signIn import signIn
 from .user import user
 from .publication import publication

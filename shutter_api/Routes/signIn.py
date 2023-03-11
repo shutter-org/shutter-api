@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from shutter_api.MySQL_command import *
 
 class SighInError(Exception):
     pass
@@ -25,4 +26,7 @@ def signIn(app) -> None:
             "password": password
         }
         
-        return jsonify(data), 200
+        if isUserPasswordValid(data):
+            return jsonify({"Connection status": "Succes"}), 200
+        else:
+            return jsonify({"Connection status": "Fail"}), 400

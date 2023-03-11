@@ -1,5 +1,7 @@
 from flask import jsonify, request
 from datetime import datetime
+from shutter_api.MySQL_command import *
+import re
 
 class SighUnError(Exception):
     def __init__(self, *args: object) -> None:
@@ -12,24 +14,36 @@ def signUp(app) -> None:
         
         data = request.get_json()
         try:
-            userName = data["username"]
-            password = data["password"]
-            email = data["email"]
-            name = data["name"]
-            birthdate = data["birthdate"]
-            bio = data["bio"]
+            userName = data["username"].strip()
+            password = data["password"].strip()
+            email = data["email"].strip()
+            name = data["name"].strip()
+            try:
+                birthdate = datetime.strptime(data["birthdate"].strip(), '%Y/%m/%d')
+            except ValueError:
+                raise SighUnError("invalid birthdate")
+            bio = data["bio"].strip()
             
+            pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    
+
             if userName == "":
                 raise SighUnError("invalid username")
-            elif password == "":
+            if doesUsernameExist(userName):
+                raise SighUnError("username already taken")
+            if password == "":
                 raise SighUnError("invalid password")
-            elif email == "":
+            if not re.match(pattern, email):
                 raise SighUnError("invalid email")
-            elif name == "":
+            if not isEmailValid(email):
+                raise SighUnError("email already taken")
+            if name == "":
                 raise SighUnError("invalid name")
-            elif birthdate == "":
+            
+            if birthdate.date() > datetime.now().date():
                 raise SighUnError("invalid birthdate")
-            elif bio == "":
+            
+            if bio == "":
                 raise SighUnError("invalid bio")
             
             
@@ -37,6 +51,7 @@ def signUp(app) -> None:
             return jsonify({'error': "missing json param"}), 400
         except SighUnError as e:
             return jsonify({'Invalid': e.args[0]}), 400
+        
         
         
         data = {
@@ -49,4 +64,11 @@ def signUp(app) -> None:
             "created_date" : datetime.utcnow().replace(microsecond=0).isoformat()
         }
         
-        return jsonify(data),200
+        if createNewUser(data):
+            getAllUser()
+            return jsonify({"username" : userName}),201
+        else:
+            return jsonify({"Creation status" : "fail"}),400
+        
+        
+        
