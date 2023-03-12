@@ -10,7 +10,7 @@ class GalleryError(Exception):
 def gallery(app) -> None:
     
     @app.route("/gallerys", methods=["Post"])
-    def postCreateGallery():
+    def post_gallerys():
         data = request.get_json()
         try:
             username = data["username"]
@@ -38,14 +38,13 @@ def gallery(app) -> None:
         }
         
         if createGallery(data):
-            getAllGallery()
             return jsonify({"gallery_id": data["gallery_id"]}), 201
         else:
             return jsonify({"creation status": "Fail"}), 400
         
     
     @app.route("/gallerys/<gallery_id>", methods=["Post"])
-    def postAddPublicationTogallery(gallery_id):
+    def post_gallerys_galleryId(gallery_id):
         data = request.get_json()
         try:
             publication_id = data["publication_id"]
@@ -62,12 +61,16 @@ def gallery(app) -> None:
             "publication_id": publication_id,
             "gallery_id": gallery_id
         }
+        getAllSave()
+        if addPublicationToGallery(data):
+            return "ok", 201
+        else:
+            return jsonify({"adding status": "Fail"}), 400
         
-        return jsonify(data), 200
 
     
     @app.route("/gallerys/<gallery_id>/like", methods=["Post"])
-    def postLikegallery(gallery_id):
+    def post_gallerys_galleryId_like(gallery_id):
         data = request.get_json()
         try:
             rating = data["rating"]
@@ -94,7 +97,8 @@ def gallery(app) -> None:
             return jsonify({"status": "Fail"}), 400
         
     @app.route("/gallerys/<gallery_id>", methods=["DELETE"])
-    def deleteGallery(gallery_id):
+    def delete_gallerys_galleryId(gallery_id):
+
         
         if deleteGalleryFromDB(gallery_id):
             getAllGallery()
@@ -104,7 +108,7 @@ def gallery(app) -> None:
     
     
     @app.route("/gallerys/<gallery_id>", methods=["GET"])
-    def getGalleryFromId(gallery_id):
+    def get_gallerys_galleryId(gallery_id):
         
         data = getGalleryById(gallery_id)
         if data is None:

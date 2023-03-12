@@ -7,7 +7,7 @@ def isUserPasswordValid(data:dict) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT password FROM {USER_TABLE_NAME} WHERE username = '{data["username"]}' ''')
+        cursor.execute(f'''SELECT password FROM {TABLE_USER} WHERE username = '{data["username"]}' ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
         

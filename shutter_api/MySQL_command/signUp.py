@@ -8,7 +8,7 @@ def createNewUser(data:dict) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {USER_TABLE_NAME} (username, password, email, name, biography, created_date, birthdate) VALUES (
+        cursor.execute(f'''INSERT INTO {TABLE_USER} (username, password, email, name, biography, created_date, birthdate) VALUES (
             '{data["username"]}',
             '{data["password"]}',
             '{data["email"]}',

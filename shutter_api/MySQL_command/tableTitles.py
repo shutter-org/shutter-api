@@ -1,4 +1,4 @@
-USER_TITLES = (
+TITLES_USER = (
     "username",
     "password",
     "email",
@@ -8,7 +8,7 @@ USER_TITLES = (
     "birthdate",
     "profile_picture")
 
-PUBLICATION_TITLES = (
+TITLES_PUBLICATION = (
     "publication_id",
     "poster_username",
     "description",
@@ -16,7 +16,7 @@ PUBLICATION_TITLES = (
     "created_date"
 )
 
-GALLERY_TITLES = (
+TITLES_GALLERY = (
     "gallery_id",
     "creator_username",
     "description",
@@ -24,11 +24,16 @@ GALLERY_TITLES = (
     "private"
 )
 
-TAG_TITLES = (
+TITLES_TAG = (
     "value",
 )
 
-COMMENT_TITLES = (
+TITLE_SAVE = (
+    "gallery_id",
+    "publication_id"
+)
+
+TITLES_COMMENT = (
     "comment_id",
     "commenter_username",
     "publication_id",
@@ -36,29 +41,29 @@ COMMENT_TITLES = (
     "created_date"
 )
 
-FOLLOW_TITLES = (
+TITLES_FOLLOW = (
     "follower_username",
     "followed_username"
 )
 
-IDENTIFY_TITLES = (
+TITLES_IDENTIFY = (
     "publication_id",
     "tag_value"
 )
 
-RATE_GALLERY_TITLES = (
+TITLES_RATE_GALLERY = (
     "username",
     "gallery_id",
     "rating"
 )
 
-RATE_PUBLICATION_TITLES = (
+TITLES_RATE_PUBLICATION = (
     "username",
     "publication_id",
     "rating"
 )
 
-RATE_COMMENT_TITLES = (
+TITLES_RATE_COMMENT = (
     "username",
     "comment_id",
     "rating"

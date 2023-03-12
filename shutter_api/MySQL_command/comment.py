@@ -1,13 +1,35 @@
 from shutter_api import MYSQL
 from .tableName import *
 from .tableTitles import *
+from datetime import datetime
+
+def getCommentById(comment_id:str) -> dict or None:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''SELECT * FROM {TABLE_COMMENT} WHERE comment_id = '{comment_id}' ''')
+        result = cursor.fetchall()
+        
+        cursor.close()
+        
+        data = {}
+        for x,title in enumerate(TITLES_COMMENT):
+            respond = result[0][x]
+            if type(respond) is datetime:
+                respond = respond.strftime('%Y-%m-%d %H:%M:%S')
+                
+            data[title] = respond
+        return data
+    except Exception as e:
+        return None
 
 def createComment(data:dict) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {COMMENT_TABLE_NAME} (comment_id, commenter_username, publication_id, message, created_date) VALUES (
+        cursor.execute(f'''INSERT INTO {TABLE_COMMENT} (comment_id, commenter_username, publication_id, message, created_date) VALUES (
             '{data["comment_id"]}',
             '{data["commenter_username"]}',
             '{data["publication_id"]}',
@@ -26,7 +48,7 @@ def deleteCommentFromDB(comment_id:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''DELETE FROM {COMMENT_TABLE_NAME} WHERE comment_id = '{comment_id}' ''')
+        cursor.execute(f'''DELETE FROM {TABLE_COMMENT} WHERE comment_id = '{comment_id}' ''')
         conn.commit()
         
         cursor.close()
@@ -39,7 +61,7 @@ def likeComment(data:dict) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {RATE_COMMENT_RELATION_TABLE_NAME} (username, comment_id, rating) VALUES (
+        cursor.execute(f'''INSERT INTO {RELATION_TABLE_RATE_COMMENT} (username, comment_id, rating) VALUES (
             '{data["username"]}',
             '{data["comment_id"]}',
             {data["rating"]})''')
@@ -55,7 +77,7 @@ def getAllComment() -> None:
     conn = MYSQL.get_db()
     cursor = conn.cursor()
     
-    cursor.execute(f'''SELECT * FROM {COMMENT_TABLE_NAME} ''')
+    cursor.execute(f'''SELECT * FROM {TABLE_COMMENT} ''')
     result = cursor.fetchall()
     print(result)
     
@@ -65,7 +87,7 @@ def getAllRateComment() -> None:
     conn = MYSQL.get_db()
     cursor = conn.cursor()
     
-    cursor.execute(f'''SELECT * FROM {RATE_COMMENT_RELATION_TABLE_NAME} ''')
+    cursor.execute(f'''SELECT * FROM {RELATION_TABLE_RATE_COMMENT} ''')
     result = cursor.fetchall()
     print(result)
     

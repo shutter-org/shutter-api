@@ -7,7 +7,7 @@ class SighInError(Exception):
 def signIn(app) -> None:
     
     @app.route("/signin", methods=["GET"])
-    def getSignIn():
+    def get_signin():
         data = request.get_json()
         try:
             userName = data["username"]

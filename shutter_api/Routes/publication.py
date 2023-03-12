@@ -11,12 +11,12 @@ class PublicationError(Exception):
 def publication(app) -> None:
     
     @app.route("/publications", methods=["GET"])
-    def getPublication():
+    def get_publications():
         tag = request.args.get('tag')
         return f"get publication with tag : {tag}"
     
     @app.route("/publications", methods=["POST"])
-    def postPublication():
+    def post_publications():
         
         data = request.get_json()
         try:
@@ -49,7 +49,7 @@ def publication(app) -> None:
             return jsonify({"creation status": "Fail"}), 400
         
     @app.route("/publications/<publication_id>", methods=["GET"])
-    def getPublicationFromId(publication_id):
+    def get_publication_publicationId(publication_id):
         
         data = getPublicationById(publication_id)
         if data is None:
@@ -58,7 +58,7 @@ def publication(app) -> None:
             return jsonify(data),200
     
     @app.route("/publications/<publication_id>/comments", methods=["POST"])
-    def postcommentPublication(publication_id):
+    def post_publications_publicationId_comments(publication_id):
         
         data = request.get_json()
         try:
@@ -85,7 +85,6 @@ def publication(app) -> None:
         
 
         if createComment(data):
-            #getAllComment()
             return jsonify({"comment_id": data["comment_id"]}), 201
         else:
             return jsonify({"creation status": "Fail"}), 400
@@ -93,7 +92,7 @@ def publication(app) -> None:
     
     
     @app.route("/publications/<publication_id>/like", methods=["POST"])
-    def postLikePublication(publication_id):
+    def post_publication_publicationId_like(publication_id):
         
         data = request.get_json()
         try:
@@ -115,19 +114,42 @@ def publication(app) -> None:
         }
         
         if likePublication(data):
-            #getAllRatePublication()
             return jsonify({"status": "succes"}), 200
         else:
             return jsonify({"status": "Fail"}), 400
 
     
     @app.route("/publications/<publication_id>", methods=["DELETE"])
-    def deletePublication(publication_id):
+    def delete_publication_publicationId(publication_id):
         
         if deletePublicationFromDB(publication_id):
-            #getAllPublication()
             return jsonify({"deleted status": "succes"}),200
         else:
             return jsonify({"deleted status": "fail"}),400
+        
+    @app.route("/publications/<publication_id>/comments", methods=["GET"])
+    def get_publication_publicationId_comments(publication_id):
+        
+        
+        try:
+            if publication_id == "" or not doesPublicationExist(publication_id):
+                raise PublicationError("publication oaram invalid")
+            data = request.get_json()
+            username = data["username"]
+            if username == "" or not doesUsernameExist(username):
+                raise PublicationError("username param invalid")
+            
+            
+        except PublicationError as e:
+            return jsonify({'error': e.args[0]}), 400
+        except Exception as e:
+            username = None
+        
+        
+        data = getCommentsOfPublication(publication_id, username = username)
+        if data is None:
+            return jsonify({'error': "bad request"}), 400
+        else:
+            return jsonify({"publication_comments": data}),200
     
     

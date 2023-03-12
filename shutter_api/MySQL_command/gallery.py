@@ -9,7 +9,8 @@ def createGallery(data:dict) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {GALLERY_TABLE_NAME} (gallery_id, creator_username, description, created_date, private) VALUES (
+        
+        cursor.execute(f'''INSERT INTO {TABLE_GALLERY} (gallery_id, creator_username, description, created_date, private) VALUES (
             '{data["gallery_id"]}',
             '{data["creator_username"]}',
             '{data["description"]}',
@@ -28,7 +29,7 @@ def deleteGalleryFromDB(comment_id:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''DELETE FROM {GALLERY_TABLE_NAME} WHERE gallery_id = '{comment_id}' ''')
+        cursor.execute(f'''DELETE FROM {TABLE_GALLERY} WHERE gallery_id = '{comment_id}' ''')
         conn.commit()
         
         cursor.close()
@@ -41,7 +42,7 @@ def likeGallery(data:dict) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {RATE_GALLEY_RELATION_TABLE_NAME} (username, gallery_id, rating) VALUES (
+        cursor.execute(f'''INSERT INTO {RELATION_TABLE_RATE_GALLERY} (username, gallery_id, rating) VALUES (
             '{data["username"]}',
             '{data["gallery_id"]}',
             {data["rating"]})''')
@@ -53,39 +54,59 @@ def likeGallery(data:dict) -> bool:
     except Exception as e:
         return False
     
-def getGalleryById(gallery_Id:str) -> dict or None:
+def getGalleryById(gallery_Id:str, username:str="jegir69") -> dict or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT * FROM {GALLERY_TABLE_NAME} WHERE gallery_id = '{gallery_Id}' ''')
-        result = cursor.fetchall()
-        
+        cursor.execute(f'''
+                       SELECT g.gallery_id, g.creator_username, g.description, g.created_date, g.private, SUM(CASE WHEN rg.rating = 0 THEN -1 ELSE rg.rating END) {f""", rg.rating AS user_rating""" if username != "" else ""}
+                       FROM {TABLE_GALLERY} g
+                       LEFT JOIN {RELATION_TABLE_RATE_GALLERY} rg ON g.gallery_id = rg.gallery_id
+                       {f"""LEFT JOIN {RELATION_TABLE_RATE_GALLERY} urg ON g.gallery_id = rg.gallery_id AND urg.username = '{username}' """ if username != "" else ""}
+                       WHERE g.gallery_id = '{gallery_Id}'
+                       AND (g.private = 0 OR (g.private = 1 AND g.creator_username = '{username}')) 
+                       GROUP BY g.gallery_id
+                       ORDER BY g.created_date DESC;
+                       ''')
+        resultGallery = cursor.fetchall()[0]
+
+        cursor.execute(f'''
+                       SELECT publication_id
+                       FROM {RELATION_TABLE_SAVE}
+                       WHERE gallery_id = '{gallery_Id}'
+                       ''')
+        resultPublication = cursor.fetchall()
+
         cursor.close()
         
-        data = {}
-        for x,title in enumerate(GALLERY_TITLES):
-            respond = result[0][x]
-            if type(respond) is bytes:
-                respond = struct.unpack('<?',respond)[0]
-            if type(respond) is datetime:
-                respond = respond.strftime('%Y-%m-%d %H:%M:%S')
-                
-            data[title] = respond
+        data = {
+            "gallery_id": resultGallery[0],
+            "creator_username": resultGallery[1],
+            "description": resultGallery[2],
+            "created_date": resultGallery[3].strftime('%Y-%m-%d %H:%M:%S'),
+            "private": struct.unpack('<?',resultGallery[4])[0],
+            "rating": resultGallery[5],
+            "publications":[x[0] for x in resultPublication]
+        }
+        if username != "":
+            data["username_rating"] = struct.unpack('<?',resultGallery[6])[0] if resultGallery[6] is not None else None
+        
         return data
-    except Exception as e:
+    except Exception:
         return None
     
-def addPublicationToGallery(publication_id:str) -> bool:
+    
+def addPublicationToGallery(data:dict) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        """
-        cursor.execute(f'''INSERT INTO rate_gallery (username, gallery_id, rating) VALUES (
-            '{data["username"]}',
+
+        cursor.execute(f'''INSERT INTO {RELATION_TABLE_SAVE} (gallery_id, publication_id) VALUES (
             '{data["gallery_id"]}',
-            {data["rating"]})''')
-        """
+            '{data["publication_id"]}' 
+            )''')
+
         cursor.close()
         conn.commit()
         
@@ -97,7 +118,7 @@ def getAllGallery() -> None:
     conn = MYSQL.get_db()
     cursor = conn.cursor()
     
-    cursor.execute(f'''SELECT * FROM {GALLERY_TABLE_NAME} ''')
+    cursor.execute(f'''SELECT * FROM {TABLE_GALLERY} ''')
     result = cursor.fetchall()
     print(result)
     
@@ -107,7 +128,17 @@ def getAllRateGallery() -> None:
     conn = MYSQL.get_db()
     cursor = conn.cursor()
     
-    cursor.execute(f'''SELECT * FROM {RATE_GALLEY_RELATION_TABLE_NAME} ''')
+    cursor.execute(f'''SELECT * FROM {RELATION_TABLE_RATE_GALLERY} ''')
+    result = cursor.fetchall()
+    print(result)
+    
+    cursor.close()
+    
+def getAllSave() -> None:
+    conn = MYSQL.get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute(f'''SELECT * FROM {RELATION_TABLE_SAVE} ''')
     result = cursor.fetchall()
     print(result)
     

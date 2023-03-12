@@ -7,8 +7,17 @@ class CommentError(Exception):
 
 def comment(app) -> None:
     
+    @app.route("/comments/<comment_id>", methods=["GET"])
+    def get_comments_commentId(comment_id):
+        
+        data = getCommentById(comment_id)
+        if data is None:
+            return jsonify({"Error": f"comment_id : '{comment_id}' does not exist"}),400
+        else:
+            return jsonify(data),200
+    
     @app.route("/comments/<comment_id>/like", methods=["Post"])
-    def postLikeComment(comment_id):
+    def post_comments_commentId_like(comment_id):
         
         data = request.get_json()
         try:
@@ -30,16 +39,14 @@ def comment(app) -> None:
         }
         
         if likeComment(data):
-            getAllRateComment()
             return jsonify({"status": "succes"}), 200
         else:
             return jsonify({"status": "Fail"}), 400
         
     @app.route("/comments/<comment_id>", methods=["DELETE"])
-    def deleteComment(comment_id):
+    def delete_comments_commentID(comment_id):
         
         if deleteCommentFromDB(comment_id):
-            getAllComment()
             return jsonify({"deleted status": "succes"}),200
         else:
             return jsonify({"deleted status": "fail"}),400

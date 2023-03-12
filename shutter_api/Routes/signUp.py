@@ -10,7 +10,7 @@ class SighUnError(Exception):
 def signUp(app) -> None:
     
     @app.route("/signup", methods=["POST"])
-    def postSignUp():
+    def post_signUp():
         
         data = request.get_json()
         try:

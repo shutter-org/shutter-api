@@ -8,7 +8,7 @@ class UserError(Exception):
 def user(app) -> None:
     
     @app.route("/users/<username>", methods=["GET"])
-    def getUser(username):
+    def get_users_username(username):
         data = getUserByUsernname(username)
         print(data)
         follow = getFollowUser(username)
@@ -31,7 +31,7 @@ def user(app) -> None:
             return jsonify({"deleted status": "fail"}),400
         
     @app.route("/users/<username>/follow", methods=["POST"])
-    def postFollowUser(username):
+    def post_users_username_follow(username):
         data = request.get_json()
         try:
             follow_username = data["follow_username"]
@@ -62,7 +62,7 @@ def user(app) -> None:
             return jsonify({"creation status": "Fail"}), 400
     
     @app.route("/users/<username>/followed/publications", methods=["GET"])
-    def userFollowedPublications(username):
+    def get_usersusername_followed_publications(username):
         
         if username == "" or not doesUsernameExist(username):
             return jsonify({'error': "username param invalid"}), 400

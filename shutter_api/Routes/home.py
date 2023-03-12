@@ -1,5 +1,5 @@
 def home(app) -> None:
     
     @app.route("/", methods=["GET"])
-    def getHome():
+    def get_home():
         return "Home Page"  

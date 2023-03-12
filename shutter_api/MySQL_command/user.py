@@ -9,7 +9,7 @@ def doesUsernameExist(userName:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT username FROM {USER_TABLE_NAME} WHERE username = '{userName}' ''')
+        cursor.execute(f'''SELECT username FROM {TABLE_USER} WHERE username = '{userName}' ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -24,7 +24,7 @@ def isEmailValid(email:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT email FROM {USER_TABLE_NAME} WHERE email = '{email}' ''')
+        cursor.execute(f'''SELECT email FROM {TABLE_USER} WHERE email = '{email}' ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -38,7 +38,7 @@ def deleteUserFromDB(userName:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''DELETE FROM {USER_TABLE_NAME} WHERE username = '{userName}' ''')
+        cursor.execute(f'''DELETE FROM {TABLE_USER} WHERE username = '{userName}' ''')
         conn.commit()
         
         cursor.close()
@@ -51,7 +51,7 @@ def usernameFollowUser(data:dict) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {FOLLOW_RELATION_TABLE_NAME} (follower_username, followed_username) VALUES (
+        cursor.execute(f'''INSERT INTO {RELATION_TABLE_FOLLOW} (follower_username, followed_username) VALUES (
             '{data["follower_username"]}',
             '{data["followed_username"]}')''')
         conn.commit()
@@ -66,7 +66,7 @@ def getFollowUser(username:str) -> list:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT followed_username FROM {FOLLOW_RELATION_TABLE_NAME} WHERE follower_username = '{username}' ''')
+        cursor.execute(f'''SELECT followed_username FROM {RELATION_TABLE_FOLLOW} WHERE follower_username = '{username}' ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -79,7 +79,7 @@ def getFollowedUser(username:str) -> list:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT follower_username FROM {FOLLOW_RELATION_TABLE_NAME} WHERE followed_username = '{username}' ''')
+        cursor.execute(f'''SELECT follower_username FROM {RELATION_TABLE_FOLLOW} WHERE followed_username = '{username}' ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -91,26 +91,31 @@ def getuserFollowedPublication(username:str) -> list:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
-                       SELECT *
-                       FROM {PUBLICATION_TABLE_NAME}
-                       WHERE poster_username IN  (
-                           SELECT followed_username
-                           FROM follow
-                           WHERE follower_username = '{username}')''')
+                        SELECT p.publication_id, p.poster_username, p.description, p.picture, p.created_date, SUM(IF(rp.rating = 0, -1, rp.rating)) AS sum_ratings, rp.rating AS user_rating 
+                        FROM {TABLE_PUBLICATION} p 
+                        JOIN {RELATION_TABLE_FOLLOW} f ON p.poster_username = f.followed_username
+                        LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
+                        WHERE f.follower_username = '{username}'
+                        GROUP BY p.publication_id
+                        ORDER BY p.created_date DESC;
+                        ''')
         result = cursor.fetchall()
+        print(result)
         cursor.close()
         data = []
-        for respond in result:
-            post = {}
-            for x,title in enumerate(PUBLICATION_TITLES):
-                tempo = respond[x]
-                if type(tempo) is datetime:
-                    tempo = tempo.strftime('%Y-%m-%d %H:%M:%S')
-                    
-                post[title] = tempo
-
+        
+        for row in result:
+            post = {
+                "publication_id": row[0],
+                "poster_id": row[1],
+                "description": row[2],
+                "picture": row[3],
+                "created_date": row[4].strftime('%Y-%m-%d %H:%M:%S'),
+                "rating": row[5] if row[5] is not None else 0,
+                "user_rating":row[6] if row[6] is None else struct.unpack('<?',row[6])[0]
+            }
             data.append(post)
         
         return data
@@ -123,13 +128,13 @@ def getUserByUsernname(username:str) -> dict:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT * FROM {USER_TABLE_NAME} WHERE username = '{username}' ''')
+        cursor.execute(f'''SELECT * FROM {TABLE_USER} WHERE username = '{username}' ''')
         result = cursor.fetchall()
         
         cursor.close()
         
         data = {}
-        for x,title in enumerate(USER_TITLES):
+        for x,title in enumerate(TITLES_USER):
             respond = result[0][x]
             if type(respond) is bytes:
                 respond = struct.unpack('<?',respond)[0]
@@ -148,7 +153,7 @@ def getAllUser() -> None:
     conn = MYSQL.get_db()
     cursor = conn.cursor()
     
-    cursor.execute(f'''SELECT * FROM {USER_TABLE_NAME} ''')
+    cursor.execute(f'''SELECT * FROM {TABLE_USER} ''')
     result = cursor.fetchall()
     
     cursor.close()
@@ -157,7 +162,7 @@ def getALLFollow() -> None:
     conn = MYSQL.get_db()
     cursor = conn.cursor()
     
-    cursor.execute(f'''SELECT * FROM {FOLLOW_RELATION_TABLE_NAME} ''')
+    cursor.execute(f'''SELECT * FROM {RELATION_TABLE_FOLLOW} ''')
     result = cursor.fetchall()
     
     cursor.close()
