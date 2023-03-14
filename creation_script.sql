@@ -42,15 +42,15 @@ CREATE TABLE save(gallery_id VARCHAR(36) NOT NULL, publication_id VARCHAR(36) NO
 
 CREATE TABLE rate_gallery(username VARCHAR(50) NOT NULL, gallery_id VARCHAR(36) NOT NULL, rating BIT(1),
  PRIMARY KEY(username, gallery_id),
-  FOREIGN KEY(username) REFERENCES user(username) ON UPDATE CASCADE,
+  FOREIGN KEY(username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
    FOREIGN KEY(gallery_id) REFERENCES gallery(gallery_id) ON DELETE CASCADE ON UPDATE CASCADE);
 
 CREATE TABLE rate_publication(username VARCHAR(50) NOT NULL, publication_id VARCHAR(36) NOT NULL, rating BIT(1),
  PRIMARY KEY (username, publication_id),
-  FOREIGN KEY(username) REFERENCES user(username) ON UPDATE CASCADE,
+  FOREIGN KEY(username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
    FOREIGN KEY(publication_id) REFERENCES publication(publication_id) ON DELETE CASCADE ON UPDATE CASCADE);
 
 CREATE TABLE rate_comment(username VARCHAR(50) NOT NULL, comment_id VARCHAR(36) NOT NULL, rating BIT(1),
  PRIMARY KEY (username, comment_id),
-  FOREIGN KEY(username) REFERENCES user(username) ON UPDATE CASCADE,
+  FOREIGN KEY(username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
    FOREIGN KEY(comment_id) REFERENCES comment(comment_id) ON DELETE CASCADE ON UPDATE CASCADE);

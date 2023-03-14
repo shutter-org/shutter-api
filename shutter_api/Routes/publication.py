@@ -12,8 +12,26 @@ def publication(app) -> None:
     
     @app.route("/publications", methods=["GET"])
     def get_publications():
-        tag = request.args.get('tag')
-        return f"get publication with tag : {tag}"
+        try:
+            tag = request.args.get('tag')
+        except ValueError:
+            tag = []
+        try:
+            username = request.args.get('username')
+        except ValueError:
+            username = None
+        try:
+            page = int(request.args.get('page'))
+        except (ValueError, TypeError):
+            page = 1
+            
+        data = getPublicationsFromTag(tag=tag,username=username,offset=page)
+            
+        if data is None:
+            return jsonify({"Error": f"No publication for tag '{tag}'"}),400
+        else:
+            return jsonify(data),200
+        
     
     @app.route("/publications", methods=["POST"])
     def post_publications():
@@ -23,6 +41,10 @@ def publication(app) -> None:
             description = data["description"]
             username = data["username"]
             picture = data["picture"]
+            try:
+                tags = data["tags"]
+            except KeyError:
+                tags = []
             
             if description == "":
                 raise PublicationError("description param invalid")
@@ -30,20 +52,31 @@ def publication(app) -> None:
                 raise PublicationError("username param invalid")
             elif picture == "":
                 raise PublicationError("picture param invalid")
+            elif type(tags) != list:
+                raise PublicationError("tags is not an array")
                 
         except KeyError:
             return jsonify({'error': "missing json param"}), 400
         except PublicationError as e:
             return jsonify({'error': e.args[0]}), 400
         
+        for tag in tags:
+            if type(tag) != str:
+                return jsonify({"Error": f"one of tag is not a string"}), 400
+            if not doesTagExist(tag):
+                if not createTag(tag):
+                    return jsonify({"Error": f"tag '{tag}' is not a valid tag"}), 400
+                
         data = {
             "poster_username" : username,
             "publication_id": uuid.uuid4(),
             "description" : description,
             "created_date" :  datetime.utcnow().isoformat(),
-            "picture" : picture
+            "picture" : picture,
         }
         if createPublication(data):
+            for tag in tags:
+                addTagToPublication(tag, data["publication_id"])
             return jsonify({"publication_id": data["publication_id"]}), 201
         else:
             return jsonify({"creation status": "Fail"}), 400
@@ -131,21 +164,31 @@ def publication(app) -> None:
     def get_publication_publicationId_comments(publication_id):
         
         
-        try:
-            if publication_id == "" or not doesPublicationExist(publication_id):
-                raise PublicationError("publication oaram invalid")
-            data = request.get_json()
-            username = data["username"]
-            if username == "" or not doesUsernameExist(username):
-                raise PublicationError("username param invalid")
-            
-            
-        except PublicationError as e:
-            return jsonify({'error': e.args[0]}), 400
-        except Exception as e:
-            username = None
         
-        data = getCommentsOfPublication(publication_id, username = username)
+
+        try:
+            username = request.args.get('username')
+        except ValueError:
+            username = None
+            
+        try:
+            page = int(request.args.get('page'))
+            
+        except (ValueError,TypeError):
+            page = 1
+            
+        if publication_id == "" or not doesPublicationExist(publication_id):
+            return jsonify({'error': "publication param invalid"}), 400
+        
+        if page < 1:
+            return jsonify({'error': "page param invalid"}), 400
+            
+        if username is not None and not doesUsernameExist(username):
+            return jsonify({'error': "username param invalid"}), 400
+
+
+        
+        data = getCommentsOfPublication(publication_id, username=username, offset=page)
         if data is None:
             return jsonify({'error': "bad request"}), 400
         else:

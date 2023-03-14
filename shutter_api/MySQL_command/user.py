@@ -1,5 +1,5 @@
 from shutter_api import MYSQL
-import struct
+from .publication import getCommentsOfPublication
 from datetime import datetime, date
 from .tableName import *
 from .tableTitles import *
@@ -9,7 +9,7 @@ def doesUsernameExist(userName:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT username FROM {TABLE_USER} WHERE username = '{userName}' ''')
+        cursor.execute(f'''SELECT username FROM {TABLE_USER} WHERE username = "{userName}" ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -24,7 +24,7 @@ def isEmailValid(email:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT email FROM {TABLE_USER} WHERE email = '{email}' ''')
+        cursor.execute(f'''SELECT email FROM {TABLE_USER} WHERE email = "{email}" ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -38,12 +38,12 @@ def deleteUserFromDB(userName:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''DELETE FROM {TABLE_USER} WHERE username = '{userName}' ''')
+        cursor.execute(f'''DELETE FROM {TABLE_USER} WHERE username = "{userName}" ''')
         conn.commit()
         
         cursor.close()
         return True
-    except Exception:
+    except ValueError:
         return False
     
 def usernameFollowUser(data:dict) -> bool:
@@ -52,8 +52,8 @@ def usernameFollowUser(data:dict) -> bool:
         cursor = conn.cursor()
         
         cursor.execute(f'''INSERT INTO {RELATION_TABLE_FOLLOW} (follower_username, followed_username) VALUES (
-            '{data["follower_username"]}',
-            '{data["followed_username"]}')''')
+            "{data["follower_username"]}",
+            "{data["followed_username"]}")''')
         conn.commit()
         
         cursor.close()
@@ -66,7 +66,7 @@ def getFollowUser(username:str) -> list:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT followed_username FROM {RELATION_TABLE_FOLLOW} WHERE follower_username = '{username}' ''')
+        cursor.execute(f'''SELECT followed_username FROM {RELATION_TABLE_FOLLOW} WHERE follower_username = "{username}" ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -79,7 +79,7 @@ def getFollowedUser(username:str) -> list:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT follower_username FROM {RELATION_TABLE_FOLLOW} WHERE followed_username = '{username}' ''')
+        cursor.execute(f'''SELECT follower_username FROM {RELATION_TABLE_FOLLOW} WHERE followed_username = "{username}" ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -87,39 +87,44 @@ def getFollowedUser(username:str) -> list:
     except Exception:
         return []
     
-def getuserFollowedPublication(username:str) -> list:
+def getuserFollowedPublication(username:str, offset:int = 1) -> list:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-
         cursor.execute(f'''
-                        SELECT p.publication_id, p.poster_username, p.description, p.picture, p.created_date, SUM(IF(rp.rating = 0, -1, rp.rating)) AS sum_ratings, rp.rating AS user_rating 
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(IF(rp.rating = 0, -1, rp.rating)) AS sum_ratings, rp.rating AS user_rating 
                         FROM {TABLE_PUBLICATION} p 
                         JOIN {RELATION_TABLE_FOLLOW} f ON p.poster_username = f.followed_username
                         LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
-                        WHERE f.follower_username = '{username}'
+                        LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
+                        WHERE f.follower_username = "{username}"
                         GROUP BY p.publication_id
-                        ORDER BY p.created_date DESC;
+                        ORDER BY p.created_date DESC
+                        LIMIT 10
+                        OFFSET {(offset-1) * 10};
                         ''')
         result = cursor.fetchall()
-        print(result)
         cursor.close()
         data = []
         
         for row in result:
             post = {
                 "publication_id": row[0],
-                "poster_id": row[1],
-                "description": row[2],
-                "picture": row[3],
-                "created_date": row[4].strftime('%Y-%m-%d %H:%M:%S'),
-                "rating": row[5] if row[5] is not None else 0,
-                "user_rating":0 if row[6] is None else (1 if row[6] == b'\x01' else -1)
+                "poster_user": {
+                    "username":row[1],
+                    "profile_picture":row[2]
+                },
+                "description": row[3],
+                "picture": row[4],
+                "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
+                "rating": row[6] if row[6] is not None else 0,
+                "user_rating":0 if row[7] is None else (1 if row[7] == b'\x01' else -1),
+                "comment": getCommentsOfPublication(row[0],username=username)
             }
             data.append(post)
         
         return data
-    except Exception as e:
+    except ValueError:
         return None
 
 
@@ -128,23 +133,21 @@ def getUserByUsernname(username:str) -> dict:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT * FROM {TABLE_USER} WHERE username = '{username}' ''')
-        result = cursor.fetchall()
+        cursor.execute(f'''SELECT u.username, u.email, u.biography, u.name, u.created_date, u.birthdate, u.profile_picture FROM {TABLE_USER} u WHERE username = "{username}" ''')
+        result = cursor.fetchall()[0]
         
         cursor.close()
         
-        data = {}
-        for x,title in enumerate(TITLES_USER):
-            respond = result[0][x]
-            if type(respond) is bytes:
-                respond = struct.unpack('<?',respond)[0]
-            if type(respond) is datetime:
-                respond = respond.strftime('%Y-%m-%d %H:%M:%S')
-            if type(respond) is date:
-                respond = respond.strftime('%Y-%m-%d')
-                
-            data[title] = respond
-        
+        data = {
+            "username": result[0],
+            "email":result[1],
+            "biogreaphy":result[2],
+            "name":result[3],
+            "created_date": result[4].strftime('%Y-%m-%d %H:%M:%S'),
+            "birthdate":result[5].strftime('%Y-%m-%d'),
+            "profile_picture":result[6]
+        }
+    
         return data
     except Exception as e:
         return None
@@ -155,7 +158,7 @@ def getAllUser() -> None:
     
     cursor.execute(f'''SELECT * FROM {TABLE_USER} ''')
     result = cursor.fetchall()
-    
+    print(result)
     cursor.close()
     
 def getALLFollow() -> None:
@@ -164,6 +167,7 @@ def getALLFollow() -> None:
     
     cursor.execute(f'''SELECT * FROM {RELATION_TABLE_FOLLOW} ''')
     result = cursor.fetchall()
+    print(result)
     
     cursor.close()
     

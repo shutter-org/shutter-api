@@ -10,17 +10,14 @@ def user(app) -> None:
     @app.route("/users/<username>", methods=["GET"])
     def get_users_username(username):
         data = getUserByUsernname(username)
-        print(data)
         follow = getFollowUser(username)
-        print(follow)
         followed = getFollowedUser(username)
-        print(followed)
         
         if data is None or follow is None or followed is None:
             return jsonify({"Error": "username does not exist"}),400
         
-        data["follow"] = follow
-        data["followed"] = followed
+        data["following"] = follow
+        data["followers"] = followed
         return jsonify(data),200
     
     @app.route("/users/<username>", methods=["DELETE"])
@@ -43,9 +40,6 @@ def user(app) -> None:
             if follow_username == "" or not doesUsernameExist(follow_username):
                 raise UserError("follow_username param invalid")
             
-            
-            
-                
         except KeyError:
             return jsonify({'error': "missing json param"}), 400
         except UserError as e:
@@ -55,7 +49,6 @@ def user(app) -> None:
             "follower_username" : username,
             "followed_username": follow_username
         }
-        getALLFollow()
         if usernameFollowUser(data):
             return "ok", 201
         else:
@@ -67,8 +60,16 @@ def user(app) -> None:
         if username == "" or not doesUsernameExist(username):
             return jsonify({'error': "username param invalid"}), 400
         
-        data = getuserFollowedPublication(username)
+        try:
+            page = int(request.args.get('page'))
+        except (ValueError, TypeError):
+            page = 1
+        
+        if page < 1:
+            return jsonify({'error': "page param invalid"}), 400
+        
+        data = getuserFollowedPublication(username, offset=page)
         if data is None:
-            return jsonify({'error': "username invalid"}), 400
+            return jsonify({'error': "something went wrong"}), 400
         else:
-            return jsonify({"Followed_publication": data}),200
+            return jsonify(data),200

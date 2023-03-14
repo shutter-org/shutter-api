@@ -22,7 +22,6 @@ def signUp(app) -> None:
                 birthdate = datetime.strptime(data["birthdate"].strip(), '%Y/%m/%d')
             except ValueError:
                 raise SighUnError("invalid birthdate")
-            bio = data["bio"].strip()
             
             pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     
@@ -42,9 +41,7 @@ def signUp(app) -> None:
             
             if birthdate.date() > datetime.now().date():
                 raise SighUnError("invalid birthdate")
-            
-            if bio == "":
-                raise SighUnError("invalid bio")
+
             
             
         except KeyError:
@@ -60,7 +57,7 @@ def signUp(app) -> None:
             "email": email,
             "name": name,
             "birthdate": birthdate,
-            "biography": bio,
+
             "created_date" : datetime.utcnow().replace(microsecond=0).isoformat()
         }
         

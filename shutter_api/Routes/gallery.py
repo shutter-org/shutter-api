@@ -61,7 +61,6 @@ def gallery(app) -> None:
             "publication_id": publication_id,
             "gallery_id": gallery_id
         }
-        getAllSave()
         if addPublicationToGallery(data):
             return "ok", 201
         else:
@@ -91,7 +90,6 @@ def gallery(app) -> None:
         }
         
         if likeGallery(data):
-            getAllRateGallery()
             return jsonify({"status": "succes"}), 200
         else:
             return jsonify({"status": "Fail"}), 400
@@ -101,7 +99,6 @@ def gallery(app) -> None:
 
         
         if deleteGalleryFromDB(gallery_id):
-            getAllGallery()
             return jsonify({"deleted status": "succes"}),200
         else:
             return jsonify({"deleted status": "fail"}),400

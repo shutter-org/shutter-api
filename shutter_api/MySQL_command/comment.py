@@ -8,7 +8,7 @@ def getCommentById(comment_id:str) -> dict or None:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT * FROM {TABLE_COMMENT} WHERE comment_id = '{comment_id}' ''')
+        cursor.execute(f'''SELECT * FROM {TABLE_COMMENT} WHERE comment_id = "{comment_id}" ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -30,11 +30,11 @@ def createComment(data:dict) -> bool:
         cursor = conn.cursor()
         
         cursor.execute(f'''INSERT INTO {TABLE_COMMENT} (comment_id, commenter_username, publication_id, message, created_date) VALUES (
-            '{data["comment_id"]}',
-            '{data["commenter_username"]}',
-            '{data["publication_id"]}',
-            '{data["message"]}',
-            '{data["created_date"]}')''')
+            "{data["comment_id"]}",
+            "{data["commenter_username"]}",
+            "{data["publication_id"]}",
+            "{data["message"]}",
+            "{data["created_date"]}")''')
         
         cursor.close()
         conn.commit()
@@ -62,8 +62,8 @@ def likeComment(data:dict) -> bool:
         cursor = conn.cursor()
         
         cursor.execute(f'''INSERT INTO {RELATION_TABLE_RATE_COMMENT} (username, comment_id, rating) VALUES (
-            '{data["username"]}',
-            '{data["comment_id"]}',
+            "{data["username"]}",
+            "{data["comment_id"]}",
             {data["rating"]})''')
         
         cursor.close()
