@@ -24,8 +24,11 @@ def publication(app) -> None:
             page = int(request.args.get('page'))
         except (ValueError, TypeError):
             page = 1
-            
-        data = getPublicationsFromTag(tag=tag,username=username,offset=page)
+        
+        if tag == []:
+            data = getPublications(username=username, offset=page)
+        else:
+            data = getPublicationsFromTag(tag=tag,username=username,offset=page)
             
         if data is None:
             return jsonify({"Error": f"No publication for tag '{tag}'"}),400

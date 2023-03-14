@@ -136,7 +136,50 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
         return None
 
 def getPublications(username:str=None, offset:int=1):
-    pass
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(CASE WHEN rp.rating = 1 THEN 1 WHEN rp.rating = 0 THEN -1 ELSE 0 END){f""", urp.rating""" if username is not None else ""}
+                        FROM {TABLE_PUBLICATION} p
+                        LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
+                        LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
+                        {f"""LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} urp ON p.publication_id = urp.publication_id AND urp.username = "{username}" """ if username is not None else ""}
+                        GROUP BY i.publication_id
+                        ORDER BY p.created_date DESC
+                        LIMIT 10
+                        OFFSET {(offset-1) * 10};
+                        ''')
+        
+        result = cursor.fetchall()
+        print(result)
+        cursor.close()
+        data = []
+        
+        for row in result:
+            publication = {
+                "publication_id": row[0],
+                "poster_user":{
+                    "username":row[1],
+                    "profile_picture":row[2]
+                },
+                "description": row[3],
+                "picture":row[4],
+                "comments":getCommentsOfPublication(row[0],username=username),
+                "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
+                "rating": int(row[6]) if row[6] is not None else 0,
+            }
+            if username is not None:
+                publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
+            
+
+            
+            data.append(publication)
+        
+        return data
+    except ValueError:
+        return None
     
 def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 1):
     try:
