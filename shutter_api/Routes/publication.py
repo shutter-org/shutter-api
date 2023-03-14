@@ -145,7 +145,6 @@ def publication(app) -> None:
         except Exception as e:
             username = None
         
-        
         data = getCommentsOfPublication(publication_id, username = username)
         if data is None:
             return jsonify({'error': "bad request"}), 400

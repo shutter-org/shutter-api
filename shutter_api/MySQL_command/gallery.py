@@ -60,10 +60,10 @@ def getGalleryById(gallery_Id:str, username:str="jegir69") -> dict or None:
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                       SELECT g.gallery_id, g.creator_username, g.description, g.created_date, g.private, SUM(CASE WHEN rg.rating = 0 THEN -1 ELSE rg.rating END) {f""", rg.rating AS user_rating""" if username != "" else ""}
+                       SELECT g.gallery_id, g.creator_username, g.description, g.created_date, g.private, SUM(CASE WHEN rg.rating = 1 THEN 1 WHEN rg.rating = 0 THEN -1 ELSE 0 END) {f""", rg.rating AS user_rating""" if username != "" else ""}
                        FROM {TABLE_GALLERY} g
                        LEFT JOIN {RELATION_TABLE_RATE_GALLERY} rg ON g.gallery_id = rg.gallery_id
-                       {f"""LEFT JOIN {RELATION_TABLE_RATE_GALLERY} urg ON g.gallery_id = rg.gallery_id AND urg.username = '{username}' """ if username != "" else ""}
+                       {f"""LEFT JOIN {RELATION_TABLE_RATE_GALLERY} urg ON g.gallery_id = urg.gallery_id AND urg.username = '{username}' """ if username != "" else ""}
                        WHERE g.gallery_id = '{gallery_Id}'
                        AND (g.private = 0 OR (g.private = 1 AND g.creator_username = '{username}')) 
                        GROUP BY g.gallery_id
@@ -90,7 +90,7 @@ def getGalleryById(gallery_Id:str, username:str="jegir69") -> dict or None:
             "publications":[x[0] for x in resultPublication]
         }
         if username != "":
-            data["username_rating"] = struct.unpack('<?',resultGallery[6])[0] if resultGallery[6] is not None else None
+            data["username_rating"] = 0 if resultGallery[6] is None else (1 if resultGallery[6] == b'\x01' else -1)
         
         return data
     except Exception:

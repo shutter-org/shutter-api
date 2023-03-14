@@ -114,7 +114,7 @@ def getuserFollowedPublication(username:str) -> list:
                 "picture": row[3],
                 "created_date": row[4].strftime('%Y-%m-%d %H:%M:%S'),
                 "rating": row[5] if row[5] is not None else 0,
-                "user_rating":row[6] if row[6] is None else struct.unpack('<?',row[6])[0]
+                "user_rating":0 if row[6] is None else (1 if row[6] == b'\x01' else -1)
             }
             data.append(post)
         

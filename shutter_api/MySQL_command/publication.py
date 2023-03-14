@@ -94,10 +94,10 @@ def getCommentsOfPublication(publication_id:str, username:str=None):
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                        SELECT c.comment_id, c.commenter_username, c.message, c.created_date, SUM(IF(rc.rating = 0, -1, rc.rating)) AS sum_ratings{f""", rc.rating AS user_rating""" if username is not None else ""}
+                        SELECT c.comment_id, c.commenter_username, c.message, c.created_date, SUM(CASE WHEN rc.rating = 1 THEN 1 WHEN rc.rating = 0 THEN -1 ELSE 0 END){f""", urc.rating""" if username is not None else ""}
                         FROM {TABLE_COMMENT} c 
                         LEFT JOIN {RELATION_TABLE_RATE_COMMENT} rc ON c.comment_id = rc.comment_id
-                        {f"""LEFT JOIN {RELATION_TABLE_RATE_COMMENT} urc ON c.comment_id = rc.comment_id AND urc.username = '{username}'""" if username is not None else ""}
+                        {f"""LEFT JOIN {RELATION_TABLE_RATE_COMMENT} urc ON c.comment_id = urc.comment_id AND urc.username = '{username}'""" if username is not None else ""}
                         WHERE c.publication_id = '{publication_id}'
                         GROUP BY c.comment_id
                         ORDER BY c.created_date DESC;
@@ -113,10 +113,10 @@ def getCommentsOfPublication(publication_id:str, username:str=None):
                 "commenter_username": row[1],
                 "message": row[2],
                 "created_date": row[3].strftime('%Y-%m-%d %H:%M:%S'),
-                "rating": row[4] if row[4] is not None else 0,
+                "rating": int(row[4]) if row[4] is not None else 0,
             }
             if username is not None:
-                comment["user_rating"] = row[5] if row[5] is None else struct.unpack('<?',row[5])[0]
+                comment["user_rating"] = 0 if row[5] is None else (1 if row[5] == b'\x01' else -1)
             data.append(comment)
         
         return data
@@ -136,8 +136,10 @@ def getAllPublication() -> None:
 def getAllRatePublication() -> None:
     conn = MYSQL.get_db()
     cursor = conn.cursor()
-    
-    cursor.execute(f'''SELECT * FROM {RELATION_TABLE_RATE_PUBLICATION} ''')
+    print("ok")
+    cursor.execute(f'''SELECT * 
+                   FROM {RELATION_TABLE_RATE_PUBLICATION}
+                   ''')
     result = cursor.fetchall()
     print(result)
     
