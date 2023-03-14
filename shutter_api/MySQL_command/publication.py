@@ -141,7 +141,7 @@ def getPublications(username:str=None, offset:int=1):
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(CASE WHEN rp.rating = 1 THEN 1 WHEN rp.rating = 0 THEN -1 ELSE 0 END){f""", urp.rating""" if username is not None else ""}
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(CASE WHEN rp.rating = 0 THEN -1 END){f""", urp.rating""" if username is not None else ""}
                         FROM {TABLE_PUBLICATION} p
                         LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
