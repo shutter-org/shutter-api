@@ -67,25 +67,43 @@ def likePublication(data:dict) -> bool:
     except Exception:
         return False
     
-def getPublicationById(publication_id:str) -> dict or None:
+def getPublicationById(publication_id:str, username:str=None) -> dict or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT * FROM {TABLE_PUBLICATION} WHERE publication_id = "{publication_id}" ''')
-        result = cursor.fetchall()
+        cursor.execute(f'''
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(CASE WHEN rp.rating = 0 THEN -1 END){f""", urp.rating""" if username is not None else ""}
+                        FROM {TABLE_PUBLICATION} p
+                        LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
+                        LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
+                        {f"""LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} urp ON p.publication_id = urp.publication_id AND urp.username = "{username}" """ if username is not None else ""}
+                        WHERE p.publication_id = "{publication_id}"
+                        GROUP BY p.publication_id
+                        ORDER BY p.created_date DESC
+                        ''')
         
+        row = cursor.fetchall()[0]
         cursor.close()
         
-        data = {}
-        for x,title in enumerate(TITLES_PUBLICATION):
-            respond = result[0][x]
-            if type(respond) is datetime:
-                respond = respond.strftime('%Y-%m-%d %H:%M:%S')
-                
-            data[title] = respond
-        return data
-    except Exception:
+        
+        publication = {
+            "publication_id": row[0],
+            "poster_user":{
+                "username":row[1],
+                "profile_picture":row[2]
+            },
+            "description": row[3],
+            "picture":row[4],
+            "comments":getCommentsOfPublication(row[0],username=username),
+            "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
+            "rating": int(row[6]) if row[6] is not None else 0,
+        }
+        if username is not None:
+            publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
+            
+        return publication
+    except ValueError:
         return None
     
 def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
@@ -146,14 +164,13 @@ def getPublications(username:str=None, offset:int=1):
                         LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
                         {f"""LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} urp ON p.publication_id = urp.publication_id AND urp.username = "{username}" """ if username is not None else ""}
-                        GROUP BY i.publication_id
+                        GROUP BY p.publication_id
                         ORDER BY p.created_date DESC
                         LIMIT 10
                         OFFSET {(offset-1) * 10};
                         ''')
         
         result = cursor.fetchall()
-        print(result)
         cursor.close()
         data = []
         

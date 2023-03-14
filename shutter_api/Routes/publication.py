@@ -87,7 +87,14 @@ def publication(app) -> None:
     @app.route("/publications/<publication_id>", methods=["GET"])
     def get_publication_publicationId(publication_id):
         
-        data = getPublicationById(publication_id)
+        try:
+            username = request.args.get('username')
+            if not doesUsernameExist(username):
+                username = None
+        except ValueError:
+            username = None
+        
+        data = getPublicationById(publication_id, username=username)
         if data is None:
             return jsonify({"Error": "publication_id does not exist"}),400
         else:
@@ -167,8 +174,6 @@ def publication(app) -> None:
     def get_publication_publicationId_comments(publication_id):
         
         
-        
-
         try:
             username = request.args.get('username')
         except ValueError:

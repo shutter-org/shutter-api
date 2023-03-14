@@ -107,8 +107,18 @@ def gallery(app) -> None:
     @app.route("/gallerys/<gallery_id>", methods=["GET"])
     def get_gallerys_galleryId(gallery_id):
         
-        data = getGalleryById(gallery_id)
+        try:
+            username = request.args.get('username')
+            if not doesUsernameExist(username):
+                username = None
+        except ValueError:
+            username = None
+            
+        if username is None:
+            return jsonify({"Error": "invalid Username"}),200
+
+        data = getGalleryById(gallery_id, username)
         if data is None:
-            return jsonify({"Error": "gallery_id does not exist"}),400
+            return jsonify({"No access": "This gallery is private"}),200
         else:
             return jsonify(data),200
