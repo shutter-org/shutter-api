@@ -60,7 +60,7 @@ def getGalleryPublications(gallery_Id:str, username:str=None, offset:int = 1) ->
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                       SELECT p.publication_id
+                       SELECT p.publication_id, p.picture
                        FROM {RELATION_TABLE_SAVE} s
                        LEFT JOIN {TABLE_PUBLICATION} p ON s.publication_id = p.publication_id
                        WHERE s.gallery_id = "{gallery_Id}"
@@ -72,7 +72,7 @@ def getGalleryPublications(gallery_Id:str, username:str=None, offset:int = 1) ->
         print(result)
         cursor.close()
         
-        return [getPublicationById(x[0],username) for x in result]
+        return [{"publication_id": x[0], "picture":x[1]}for x in result]
     except Exception:
         return []
     
