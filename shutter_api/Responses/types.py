@@ -14,7 +14,7 @@ def creationSucces(data=None) -> tuple:
 
 def creationFail() -> tuple:
     return jsonify({
-        "Error": "Creation fail",
+        "Error": "Creation failure",
         "Code":422
         }),422
 
@@ -23,7 +23,7 @@ def deleteSucces() -> tuple:
 
 def deleteFail() -> tuple:
     return jsonify({
-        "Error": "delete fail",
+        "Error": "delete failure",
         "Code":422
         }),422
     
@@ -32,7 +32,7 @@ def noAcces() -> tuple:
     
 def requestFail() -> tuple:
      return jsonify({
-        "Error": "request fail",
+        "Error": "request failure",
         "Code":422
         }),422
 
@@ -55,7 +55,7 @@ def missingParameterInJson(param:str) -> tuple:
         }),400
     
 def connectionSucces() -> tuple:
-    return "connection succes",200
+    return "connection successful",200
 
 def connectionFail() -> tuple:
-    return "connection fail", 401
+    return "connection failure", 401
