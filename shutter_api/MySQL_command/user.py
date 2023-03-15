@@ -72,7 +72,25 @@ def getFollowUser(username:str) -> list:
         cursor.close()
         return [x[0] for x in result]
     except Exception:
-        return []
+        return None
+    
+def getUserGallery(username:str) -> list:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT g.gallery_id 
+                       FROM {TABLE_GALLERY} g
+                       WHERE g.creator_username = "{username}"
+                       ORDER BY g.created_date DESC
+                       ''')
+        result = cursor.fetchall()
+        
+        cursor.close()
+        return [x[0] for x in result]
+    except Exception:
+        return None
 
 def getFollowedUser(username:str) -> list:
     try:
@@ -85,7 +103,7 @@ def getFollowedUser(username:str) -> list:
         cursor.close()
         return [x[0] for x in result]
     except Exception:
-        return []
+        return None
     
 def getuserFollowedPublication(username:str, offset:int = 1) -> list:
     try:

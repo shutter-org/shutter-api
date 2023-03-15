@@ -102,6 +102,9 @@ def gallery(app) -> None:
             return jsonify({"deleted status": "succes"}),200
         else:
             return jsonify({"deleted status": "fail"}),400
+        
+    
+    
     
     
     @app.route("/gallerys/<gallery_id>", methods=["GET"])
@@ -118,6 +121,30 @@ def gallery(app) -> None:
             return jsonify({"Error": "invalid Username"}),200
 
         data = getGalleryById(gallery_id, username)
+        if data is None:
+            return jsonify({"No access": "This gallery is private"}),200
+        else:
+            return jsonify(data),200
+        
+    @app.route("/gallerys/<gallery_id>/publications", methods=["GET"])
+    def get_gallerys_galleryId_publications(gallery_id):
+        
+        try:
+            username = request.args.get('username')
+            if not doesUsernameExist(username):
+                username = None
+        except ValueError:
+            username = None
+            
+        try:
+            page = int(request.args.get('page'))
+        except (ValueError, TypeError):
+            page = 1
+            
+        if username is None:
+            return jsonify({"Error": "invalid Username"}),400
+
+        data = getGalleryPublications(gallery_id, username=username,offset=page)
         if data is None:
             return jsonify({"No access": "This gallery is private"}),200
         else:

@@ -12,12 +12,14 @@ def user(app) -> None:
         data = getUserByUsernname(username)
         follow = getFollowUser(username)
         followed = getFollowedUser(username)
+        gallerys = getUserGallery(username)
         
-        if data is None or follow is None or followed is None:
+        if data is None or follow is None or followed is None or gallery is None:
             return jsonify({"Error": "username does not exist"}),400
         
         data["following"] = follow
         data["followers"] = followed
+        data["gallerys"] = gallerys
         return jsonify(data),200
     
     @app.route("/users/<username>", methods=["DELETE"])
