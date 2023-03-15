@@ -73,15 +73,14 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(CASE WHEN rp.rating = 0 THEN -1 END){f""", urp.rating""" if username is not None else ""}
-                        FROM {TABLE_PUBLICATION} p
-                        LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
-                        LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
-                        {f"""LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} urp ON p.publication_id = urp.publication_id AND urp.username = "{username}" """ if username is not None else ""}
-                        WHERE p.publication_id = "{publication_id}"
-                        GROUP BY p.publication_id
-                        ORDER BY p.created_date DESC
-                        ''')
+                       SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
+                       {f""", get_user_publication_rating(u.username,p.publication_id)""" if username is not None else ""}
+                       FROM publication p
+                       LEFT JOIN user u ON p.poster_username = u.username
+                       WHERE p.publication_id = "{publication_id}"
+                       GROUP BY p.publication_id, p.created_date
+                       ORDER BY p.created_date DESC;
+                       ''')
         
         row = cursor.fetchall()[0]
         cursor.close()
@@ -112,14 +111,13 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                        SELECT i.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(CASE WHEN rp.rating = 1 THEN 1 WHEN rp.rating = 0 THEN -1 ELSE 0 END){f""", urp.rating""" if username is not None else ""}
+                        SELECT i.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
+                        {f""", get_user_publication_rating(u.username,p.publication_id)""" if username is not None else ""}
                         FROM {RELATION_TABLE_IDENTIFY} i
                         LEFT JOIN {TABLE_PUBLICATION} p ON i.publication_id = p.publication_id
-                        LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON i.publication_id = rp.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
-                        {f"""LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} urp ON p.publication_id = urp.publication_id AND urp.username = "{username}" """ if username is not None else ""}
                         WHERE i.tag_value = "{tag}"
-                        GROUP BY i.publication_id
+                        GROUP BY i.publication_id, p.created_date
                         ORDER BY p.created_date DESC
                         LIMIT 10
                         OFFSET {(offset-1) * 10};
@@ -159,12 +157,11 @@ def getPublications(username:str=None, offset:int=1):
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(CASE WHEN rp.rating = 0 THEN -1 END){f""", urp.rating""" if username is not None else ""}
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
+                        {f""", get_user_publication_rating(u.username,p.publication_id)""" if username is not None else ""}
                         FROM {TABLE_PUBLICATION} p
-                        LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
-                        {f"""LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} urp ON p.publication_id = urp.publication_id AND urp.username = "{username}" """ if username is not None else ""}
-                        GROUP BY p.publication_id
+                        GROUP BY p.publication_id, p.created_date
                         ORDER BY p.created_date DESC
                         LIMIT 10
                         OFFSET {(offset-1) * 10};
@@ -204,13 +201,12 @@ def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                        SELECT c.comment_id, c.commenter_username, u.profile_picture, c.message, c.created_date, SUM(CASE WHEN rc.rating = 1 THEN 1 WHEN rc.rating = 0 THEN -1 ELSE 0 END){f""", urc.rating""" if username is not None else ""}
+                        SELECT c.comment_id, c.commenter_username, u.profile_picture, c.message, c.created_date, c.rating
+                        {f""", get_user_comment_rating(u.username,c.comment_id)""" if username is not None else ""}
                         FROM {TABLE_COMMENT} c 
-                        LEFT JOIN {RELATION_TABLE_RATE_COMMENT} rc ON c.comment_id = rc.comment_id
                         LEFT JOIN {TABLE_USER} u ON c.commenter_username = u.username
-                        {f"""LEFT JOIN {RELATION_TABLE_RATE_COMMENT} urc ON c.comment_id = urc.comment_id AND urc.username = "{username}" """ if username is not None else ""}
                         WHERE c.publication_id = "{publication_id}"
-                        GROUP BY c.comment_id
+                        GROUP BY c.comment_id, c.created_date
                         ORDER BY c.created_date DESC
                         LIMIT 10
                         OFFSET {(offset-1) * 10};
@@ -240,24 +236,3 @@ def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 
     except Exception:
         return None
 
-    
-def getAllPublication() -> None:
-    conn = MYSQL.get_db()
-    cursor = conn.cursor()
-    cursor.execute(f'''SELECT * FROM {TABLE_PUBLICATION} ''')
-    result = cursor.fetchall()
-    print(result)
-    
-    cursor.close()
-    
-def getAllRatePublication() -> None:
-    conn = MYSQL.get_db()
-    cursor = conn.cursor()
-    print("ok")
-    cursor.execute(f'''SELECT * 
-                   FROM {RELATION_TABLE_RATE_PUBLICATION}
-                   ''')
-    result = cursor.fetchall()
-    print(result)
-    
-    cursor.close()

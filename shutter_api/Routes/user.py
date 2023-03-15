@@ -1,10 +1,7 @@
 from shutter_api.MySQL_command import *
-from flask import jsonify, request
+from flask import request
 from shutter_api.Responses import *
 
-class UserError(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
 
 def user(app) -> None:
     
@@ -27,6 +24,17 @@ def user(app) -> None:
         data["followers"] = followed
         data["gallerys"] = gallerys
         return ok(data=data)
+    
+    @app.route("/users/<username>", methods=["PUT"])
+    def put_users_username(username:str):
+        
+        username = username.strip()
+        if not doesUsernameExist(username):
+            return invalidParameter("username")
+        
+        data = request.get_json()
+        
+    
     
     @app.route("/users/<username>", methods=["DELETE"])
     def deleteUser(username:str):

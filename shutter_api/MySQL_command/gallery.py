@@ -98,14 +98,12 @@ def getGalleryById(gallery_Id:str, username:str, offset:int = 1) -> dict or None
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                       SELECT g.gallery_id, g.creator_username, u.profile_picture, g.description, g.created_date, SUM(CASE WHEN rg.rating = 1 THEN 1 WHEN rg.rating = 0 THEN -1 ELSE 0 END) , rg.rating
+                       SELECT g.gallery_id, g.creator_username, u.profile_picture, g.description, g.created_date, g.rating , 
+                       get_user_gallery_rating("{username}",g.gallery_id)
                        FROM {TABLE_GALLERY} g
-                       LEFT JOIN {RELATION_TABLE_RATE_GALLERY} rg ON g.gallery_id = rg.gallery_id
                        LEFT JOIN {TABLE_USER} u ON g.creator_username = u.username
-                       LEFT JOIN {RELATION_TABLE_RATE_GALLERY} urg ON g.gallery_id = urg.gallery_id AND urg.username = "{username}"
                        WHERE g.gallery_id = "{gallery_Id}"
                        AND (g.private = 0 OR (g.private = 1 AND g.creator_username = "{username}")) 
-                       GROUP BY g.gallery_id
                        ORDER BY g.created_date DESC;
                        ''')
         resultGallery = cursor.fetchall()[0]

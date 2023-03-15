@@ -1,12 +1,9 @@
-from flask import request, jsonify
+from flask import request
 import uuid
 from datetime import datetime
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
 
-class GalleryError(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
 
 def gallery(app) -> None:
     
@@ -118,9 +115,9 @@ def gallery(app) -> None:
         }
         
         if likeGallery(data):
-            return jsonify({"status": "succes"}), 200
+            return ok()
         else:
-            return jsonify({"status": "Fail"}), 400
+            return requestFail()
         
     @app.route("/gallerys/<gallery_id>", methods=["DELETE"])
     def delete_gallerys_galleryId(gallery_id):

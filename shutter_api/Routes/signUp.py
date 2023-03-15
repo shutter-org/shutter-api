@@ -1,12 +1,8 @@
-from flask import jsonify, request
+from flask import request
 from datetime import datetime
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
 import re
-
-class SighUnError(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
 
 def signUp(app) -> None:
     

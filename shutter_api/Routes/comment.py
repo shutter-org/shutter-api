@@ -1,10 +1,7 @@
-from flask import request, jsonify
+from flask import request
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
 
-class CommentError(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
 
 def comment(app) -> None:
     

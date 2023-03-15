@@ -70,33 +70,6 @@ def likeComment(data:dict) -> bool:
         conn.commit()
         
         return True
-    except Exception as e:
+    except ValueError:
         return False
     
-def getAllComment() -> None:
-    conn = MYSQL.get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute(f'''SELECT * 
-                   FROM {TABLE_COMMENT} 
-                   ''')
-    result = cursor.fetchall()
-    print(result)
-    
-    cursor.close()
-    
-def getAllRateComment() -> None:
-    conn = MYSQL.get_db()
-    cursor = conn.cursor()
-    
-    #cursor.execute(f'''SELECT SUM(CASE WHEN rating = 1 THEN 1 WHEN rating = 0 THEN -1 ELSE 0 END) 
-    #               FROM {RELATION_TABLE_RATE_COMMENT}
-    #               WHERE comment_id = 'cfa13586-f960-4418-816f-df74eb412ade' ''')
-    
-    cursor.execute(f'''SELECT *
-                   FROM {RELATION_TABLE_RATE_COMMENT}
-                   ''')
-    result = cursor.fetchall()
-    print(result)
-    
-    cursor.close()

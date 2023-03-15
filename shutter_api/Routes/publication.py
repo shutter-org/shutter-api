@@ -1,13 +1,10 @@
-from flask import request, jsonify
+from flask import request
 import uuid
 
 from datetime import datetime
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
 
-class PublicationError(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
 
 def publication(app) -> None:
     

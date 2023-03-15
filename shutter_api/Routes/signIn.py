@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
 
@@ -18,7 +18,6 @@ def signIn(app) -> None:
         except:
             return missingParameterInJson("username")
         
-        
         try:
             password = data["password"]
             if type(password) is not str:
@@ -26,6 +25,8 @@ def signIn(app) -> None:
             password = password.strip()
         except:
             return missingParameterInJson("password")
+        
+        
 
         data = {
             "username": username,
