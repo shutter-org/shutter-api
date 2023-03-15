@@ -3,6 +3,7 @@ import uuid
 
 from datetime import datetime
 from shutter_api.MySQL_command import *
+from shutter_api.Responses import *
 
 class PublicationError(Exception):
     def __init__(self, *args: object) -> None:
@@ -12,18 +13,28 @@ def publication(app) -> None:
     
     @app.route("/publications", methods=["GET"])
     def get_publications():
+        
         try:
-            tag = request.args.get('tag')
+            tag = request.args.get('tag').strip()
         except ValueError:
             tag = []
+            
         try:
-            username = request.args.get('username')
+            username = request.args.get('username').strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
         except ValueError:
             username = None
+            
         try:
-            page = int(request.args.get('page'))
-        except (ValueError, TypeError):
+            page = int(request.args.get('page').strip())
+            if page < 1:
+                return invalidParameter("page")
+        except ValueError:
             page = 1
+        except TypeError:
+            return invalidParameter("page")
+        
         
         if tag == []:
             data = getPublications(username=username, offset=page)
@@ -31,44 +42,58 @@ def publication(app) -> None:
             data = getPublicationsFromTag(tag=tag,username=username,offset=page)
             
         if data is None:
-            return jsonify({"Error": f"No publication for tag '{tag}'"}),400
+            return requestFail()
         else:
-            return jsonify(data),200
+            return ok(data=data)
         
     
     @app.route("/publications", methods=["POST"])
     def post_publications():
         
         data = request.get_json()
+        
         try:
             description = data["description"]
-            username = data["username"]
-            picture = data["picture"]
-            try:
-                tags = data["tags"]
-            except KeyError:
-                tags = []
-            
+            if type(description) is not str:
+                return invalidParameter("description")
+            description = description.strip()
             if description == "":
-                raise PublicationError("description param invalid")
-            elif username == "" or not doesUsernameExist(username):
-                raise PublicationError("username param invalid")
-            elif picture == "":
-                raise PublicationError("picture param invalid")
-            elif type(tags) != list:
-                raise PublicationError("tags is not an array")
-                
+                return invalidParameter("description")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except PublicationError as e:
-            return jsonify({'error': e.args[0]}), 400
+            return missingParameterInJson("description")
         
+        try:
+            username = data["username"]
+            if type(username) is not str:
+                return invalidParameter("username")
+            username = username.strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
+        except KeyError:
+            return missingParameterInJson("username")
+        
+        try:
+            picture = data["picture"]
+            if type(picture) is not str:
+                return invalidParameter("picture")
+            picture = picture.strip()
+        except KeyError:
+            return missingParameterInJson("picture")
+        
+        try:
+            tags = data["tags"]
+            if type(tags) != list:
+                return invalidParameter("tags")  
+        except KeyError:
+            return missingParameterInJson("tags")
+
         for tag in tags:
-            if type(tag) != str:
-                return jsonify({"Error": f"one of tag is not a string"}), 400
+            if type(tag) is not str:
+                return invalidParameter("tags")
+            tag = tag.strip()
             if not doesTagExist(tag):
                 if not createTag(tag):
-                    return jsonify({"Error": f"tag '{tag}' is not a valid tag"}), 400
+                    return invalidParameter(f"tag '{tag}'")
                 
         data = {
             "poster_username" : username,
@@ -77,46 +102,61 @@ def publication(app) -> None:
             "created_date" :  datetime.utcnow().isoformat(),
             "picture" : picture,
         }
+        
         if createPublication(data):
             for tag in tags:
                 addTagToPublication(tag, data["publication_id"])
-            return jsonify({"publication_id": data["publication_id"]}), 201
+            return creationSucces(data={"publication_id": data["publication_id"]})
         else:
-            return jsonify({"creation status": "Fail"}), 400
+            return creationFail()
         
     @app.route("/publications/<publication_id>", methods=["GET"])
     def get_publication_publicationId(publication_id):
         
+        if not doesPublicationExist(publication_id):
+            return invalidParameter(publication_id)
+        
         try:
-            username = request.args.get('username')
+            username = request.args.get('username').strip()
             if not doesUsernameExist(username):
-                username = None
+                return invalidParameter("username")
         except ValueError:
             username = None
         
         data = getPublicationById(publication_id, username=username)
         if data is None:
-            return jsonify({"Error": "publication_id does not exist"}),400
+            return requestFail()
         else:
-            return jsonify(data),200
+            return ok(data=data)
     
     @app.route("/publications/<publication_id>/comments", methods=["POST"])
     def post_publications_publicationId_comments(publication_id):
         
+        if not doesPublicationExist(publication_id):
+            return invalidParameter(publication_id)
+        
         data = request.get_json()
+        
+        try:
+            username = data["username"]
+            if type(username) is not str:
+                return invalidParameter("username")
+            username = username.strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
+        except KeyError:
+            return missingParameterInJson("username")
+        
         try:
             message = data["message"]
-            username = data["username"]
+            if type(message) is not str:
+                return invalidParameter("message")
+            message = message.strip()
             if message == "":
-                raise PublicationError("message param invalid")
-            elif username == "":
-                raise PublicationError("username param invalid")
-                
+                return invalidParameter("message")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except PublicationError as e:
-            return jsonify({'error': e.args[0]}), 400
-        
+            return missingParameterInJson(message)
+
         
         data = {
             "commenter_username" : username,
@@ -128,28 +168,37 @@ def publication(app) -> None:
         
 
         if createComment(data):
-            return jsonify({"comment_id": data["comment_id"]}), 201
+            return creationSucces(data={"comment_id": data["comment_id"]})
         else:
-            return jsonify({"creation status": "Fail"}), 400
+            return creationFail()
     
     
     
     @app.route("/publications/<publication_id>/like", methods=["POST"])
     def post_publication_publicationId_like(publication_id):
         
+        if not doesPublicationExist(publication_id):
+            return invalidParameter(publication_id)
+        
         data = request.get_json()
+        
+        try:
+            username = data["username"]
+            if type(username) is not str:
+                return invalidParameter("username")
+            username = username.strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
+        except KeyError:
+            return missingParameterInJson("username")
+        
         try:
             rating = data["rating"]
-            username = data["username"]
-            if username == "":
-                raise PublicationError("username param invalid")
             if type(rating) is not bool:
-                raise PublicationError("rating is not of boolean type")
+                return invalidParameter("rating")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except PublicationError as e:
-            return jsonify({'error': e.args[0]}), 400
-        
+            return missingParameterInJson("rating")
+
         data = {
             "rating": str(int(rating)),
             "publication_id": publication_id,
@@ -157,49 +206,49 @@ def publication(app) -> None:
         }
         
         if likePublication(data):
-            return jsonify({"status": "succes"}), 200
+            return ok()
         else:
-            return jsonify({"status": "Fail"}), 400
+            return requestFail()
 
     
     @app.route("/publications/<publication_id>", methods=["DELETE"])
     def delete_publication_publicationId(publication_id):
         
+        if not doesPublicationExist(publication_id):
+            return invalidParameter(publication_id)
+        
         if deletePublicationFromDB(publication_id):
-            return jsonify({"deleted status": "succes"}),200
+            return deleteSucces()
         else:
-            return jsonify({"deleted status": "fail"}),400
+            return deleteFail()
         
     @app.route("/publications/<publication_id>/comments", methods=["GET"])
     def get_publication_publicationId_comments(publication_id):
         
+        if not doesPublicationExist(publication_id):
+            return invalidParameter(publication_id)
         
         try:
-            username = request.args.get('username')
+            username = request.args.get('username').strip()
+            if not doesUsernameExist(username):
+                invalidParameter("username")
         except ValueError:
             username = None
             
         try:
             page = int(request.args.get('page'))
-            
-        except (ValueError,TypeError):
+            if page < 1:
+                return invalidParameter("page")
+        except ValueError:
             page = 1
-            
-        if publication_id == "" or not doesPublicationExist(publication_id):
-            return jsonify({'error': "publication param invalid"}), 400
-        
-        if page < 1:
-            return jsonify({'error': "page param invalid"}), 400
-            
-        if username is not None and not doesUsernameExist(username):
-            return jsonify({'error': "username param invalid"}), 400
-
-
+        except TypeError:
+            return invalidParameter("page")
         
         data = getCommentsOfPublication(publication_id, username=username, offset=page)
         if data is None:
-            return jsonify({'error': "bad request"}), 400
+            return requestFail
         else:
-            return jsonify({"publication_comments": data}),200
+            return ok(data=data)
+            
     
     

@@ -2,6 +2,7 @@ from flask import request, jsonify
 import uuid
 from datetime import datetime
 from shutter_api.MySQL_command import *
+from shutter_api.Responses import *
 
 class GalleryError(Exception):
     def __init__(self, *args: object) -> None:
@@ -12,22 +13,34 @@ def gallery(app) -> None:
     @app.route("/gallerys", methods=["Post"])
     def post_gallerys():
         data = request.get_json()
+        
         try:
             username = data["username"]
-            description = data["description"]
-            private = data["private"]
-            
-            if username == "":
-                raise GalleryError("username param invalid")
-            if description == "":
-                raise GalleryError("description param invalid")
-            if type(private) is not bool:
-                raise GalleryError("private is not bool")
-            
+            if type(username) is not str:
+                return invalidParameter("username")
+            username = username.strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except GalleryError as e:
-            return jsonify({'error': e.args[0]}), 400
+            return missingParameterInJson("username")
+        
+        try:
+            description = data["description"]
+            if type(description) is not str:
+                return invalidParameter("description")
+            description = description.strip()
+            if description == "":
+                return invalidParameter("description")
+        except KeyError:
+            return missingParameterInJson("description")
+        
+        try:
+            private = data["private"]
+            if type(private) is not bool:
+                return invalidParameter("private")
+        except KeyError:
+            return missingParameterInJson("private")
+
         
         data = {
             "gallery_id": uuid.uuid4(),
@@ -38,50 +51,65 @@ def gallery(app) -> None:
         }
         
         if createGallery(data):
-            return jsonify({"gallery_id": data["gallery_id"]}), 201
+            return creationSucces({"gallery_id": data["gallery_id"]})
         else:
-            return jsonify({"creation status": "Fail"}), 400
+            return creationFail()
         
     
     @app.route("/gallerys/<gallery_id>", methods=["Post"])
     def post_gallerys_galleryId(gallery_id):
         data = request.get_json()
+        
+        if not doesGalleryExist(gallery_id):
+            return invalidParameter("gallery_id")
+        
         try:
             publication_id = data["publication_id"]
-            
-            if publication_id == "":
-                raise GalleryError("publication_id param invalid")
-            
+            if type(publication_id) is not str:
+                return invalidParameter("publication_id")
+            publication_id = publication_id.strip()
+            if not doesPublicationExist(publication_id):
+                return invalidParameter("publication_id")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except GalleryError as e:
-            return jsonify({'error': e.args[0]}), 400
+            return missingParameterInJson("publication_id")
+       
         
         data = {
             "publication_id": publication_id,
             "gallery_id": gallery_id
         }
+        
         if addPublicationToGallery(data):
-            return "ok", 201
+            return ok()
         else:
-            return jsonify({"adding status": "Fail"}), 400
+            return requestFail()
         
 
     
     @app.route("/gallerys/<gallery_id>/like", methods=["Post"])
     def post_gallerys_galleryId_like(gallery_id):
         data = request.get_json()
+        
+        if not doesGalleryExist(gallery_id):
+            return invalidParameter("gallery_id")
+        
         try:
             rating = data["rating"]
-            username = data["username"]
             if type(rating) is not bool:
-                raise GalleryError("like is not of boolean type")
-            if username == "":
-                raise GalleryError("username param invalid")
+                invalidParameter("rating")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except GalleryError as e:
-            return jsonify({'error': e.args[0]}), 400
+            return missingParameterInJson("rating")
+        
+        try:
+            username = data["username"]
+            if type(username) is not str:
+                return invalidParameter("username")
+            username = username.strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
+        except KeyError:
+            return missingParameterInJson("username")
+        
         
         data = {
             "rating": int(rating),
@@ -97,55 +125,56 @@ def gallery(app) -> None:
     @app.route("/gallerys/<gallery_id>", methods=["DELETE"])
     def delete_gallerys_galleryId(gallery_id):
 
+        if not doesGalleryExist(gallery_id):
+            return invalidParameter("gallery_id")
         
         if deleteGalleryFromDB(gallery_id):
-            return jsonify({"deleted status": "succes"}),200
+            return deleteSucces()
         else:
-            return jsonify({"deleted status": "fail"}),400
+            return deleteFail()
         
-    
-    
-    
-    
     @app.route("/gallerys/<gallery_id>", methods=["GET"])
     def get_gallerys_galleryId(gallery_id):
         
+        if not doesGalleryExist(gallery_id):
+            return invalidParameter("gallery_id")
+        
         try:
-            username = request.args.get('username')
+            username = request.args.get('username').strip()
             if not doesUsernameExist(username):
-                username = None
+                return invalidParameter("username")
         except ValueError:
-            username = None
-            
-        if username is None:
-            return jsonify({"Error": "invalid Username"}),200
+            return missingParameter("username")
+
 
         data = getGalleryById(gallery_id, username)
+        
         if data is None:
-            return jsonify({"No access": "This gallery is private"}),200
+            return noAcces()
         else:
-            return jsonify(data),200
+            return ok(data=data)
         
     @app.route("/gallerys/<gallery_id>/publications", methods=["GET"])
     def get_gallerys_galleryId_publications(gallery_id):
         
         try:
-            username = request.args.get('username')
+            username = request.args.get('username').strip()
             if not doesUsernameExist(username):
-                username = None
+                return invalidParameter("username")
         except ValueError:
-            username = None
+            return missingParameter("username")
             
         try:
             page = int(request.args.get('page'))
-        except (ValueError, TypeError):
+            if page < 1: 
+                return invalidParameter("page")
+        except ValueError:
             page = 1
-            
-        if username is None:
-            return jsonify({"Error": "invalid Username"}),400
+        except TypeError:
+            return invalidParameter("page")
 
         data = getGalleryPublications(gallery_id, username=username,offset=page)
         if data is None:
-            return jsonify({"No access": "This gallery is private"}),200
+            return noAcces()
         else:
-            return jsonify(data),200
+            return ok(data=data)

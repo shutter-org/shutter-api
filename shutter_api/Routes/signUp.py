@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from datetime import datetime
 from shutter_api.MySQL_command import *
+from shutter_api.Responses import *
 import re
 
 class SighUnError(Exception):
@@ -14,58 +15,76 @@ def signUp(app) -> None:
         
         data = request.get_json()
         try:
-            userName = data["username"].strip()
-            password = data["password"].strip()
-            email = data["email"].strip()
-            name = data["name"].strip()
-            try:
-                birthdate = datetime.strptime(data["birthdate"].strip(), '%Y/%m/%d')
-            except ValueError:
-                raise SighUnError("invalid birthdate")
-            
-            pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    
-
-            if userName == "":
-                raise SighUnError("invalid username")
-            if doesUsernameExist(userName):
-                raise SighUnError("username already taken")
-            if password == "":
-                raise SighUnError("invalid password")
-            if not re.match(pattern, email):
-                raise SighUnError("invalid email")
-            if not isEmailValid(email):
-                raise SighUnError("email already taken")
-            if name == "":
-                raise SighUnError("invalid name")
-            
-            if birthdate.date() > datetime.now().date():
-                raise SighUnError("invalid birthdate")
-
-            
-            
+            username = data["username"]
+            if type(username) is not str:
+                return invalidParameter("username")
+            username = username.strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except SighUnError as e:
-            return jsonify({'Invalid': e.args[0]}), 400
+            return missingParameterInJson("username")
+        
+        try:
+            password = data["password"]
+            if type(password) is not str:
+                return invalidParameter("password")
+            password = password.strip()
+            if len(password) <= 5:
+                return invalidParameter("password")
+        except KeyError:
+            return missingParameterInJson("password")
+        
+        try:
+            email = data["email"]
+            if type(email) is not str:
+                return invalidParameter("email")
+            email = email.strip()
+            pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(pattern, email):
+                return invalidParameter("email")
+            if not isEmailValid(email):
+                return invalidParameter("email already taken") 
+        except KeyError:
+            return missingParameterInJson("email")
+        
+        try:
+            name = data["name"]
+            if type(name) is not str:
+                return invalidParameter("name")
+            name = name.strip()
+            if name == "":
+                return invalidParameter("name")
+        except KeyError:
+            return missingParameterInJson("name")
+        
+        try:
+            birthdate = data["birthdate"]
+            if type(birthdate) is not str:
+                return invalidParameter("birthdate")
+            birthdate = birthdate.strip()
+            birthdate = datetime.strptime(birthdate, '%Y/%m/%d')
+            if birthdate.date() > datetime.now().date():
+                return invalidParameter("birthdate")
+        except KeyError:
+            return missingParameterInJson("birthdate")
+        except ValueError:
+            return invalidParameter("birthdate")
         
         
         
         data = {
-            "username": userName,
+            "username": username,
             "password": password,
             "email": email,
             "name": name,
             "birthdate": birthdate,
-
             "created_date" : datetime.utcnow().replace(microsecond=0).isoformat()
         }
         
         if createNewUser(data):
-            getAllUser()
-            return jsonify({"username" : userName}),201
+            return creationSucces(data={"username" : username})
         else:
-            return jsonify({"Creation status" : "fail"}),400
+            return creationFail()
         
         
         

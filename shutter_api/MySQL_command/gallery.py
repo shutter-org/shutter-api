@@ -4,6 +4,20 @@ from .tableName import *
 from .tableTitles import *
 from .publication import getPublicationById
 
+def doesGalleryExist(gallery_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''SELECT gallery_id FROM {TABLE_GALLERY} WHERE gallery_id = "{gallery_id}" ''')
+        result = cursor.fetchall()
+        
+        cursor.close()
+        
+        return len(result) == 1
+    except Exception:
+        return False
+
 def createGallery(data:dict) -> bool:
     try:
         conn = MYSQL.get_db()
@@ -63,7 +77,9 @@ def getGalleryPublications(gallery_Id:str, username:str=None, offset:int = 1) ->
                        SELECT p.publication_id, p.picture
                        FROM {RELATION_TABLE_SAVE} s
                        LEFT JOIN {TABLE_PUBLICATION} p ON s.publication_id = p.publication_id
+                       LEFT JOIN {TABLE_GALLERY} g On s.gallery_id = g.gallery_id
                        WHERE s.gallery_id = "{gallery_Id}"
+                       AND (g.private = 0 OR (g.private = 1 AND g.creator_username = "{username}")) 
                        ORDER BY p.created_date DESC
                        LIMIT 10
                        OFFSET {(offset-1) * 10};

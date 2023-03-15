@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from shutter_api.MySQL_command import *
+from shutter_api.Responses import *
 
 class CommentError(Exception):
     def __init__(self, *args: object) -> None:
@@ -11,10 +12,11 @@ def comment(app) -> None:
     def get_comments_commentId(comment_id):
         
         data = getCommentById(comment_id)
+        
         if data is None:
-            return jsonify({"Error": f"comment_id : '{comment_id}' does not exist"}),400
+            return invalidParameter("comment_id")
         else:
-            return jsonify(data),200
+            return ok(data)
     
     @app.route("/comments/<comment_id>/like", methods=["Post"])
     def post_comments_commentId_like(comment_id):
@@ -22,15 +24,22 @@ def comment(app) -> None:
         data = request.get_json()
         try:
             rating = data["rating"]
-            username = data["username"]
             if type(rating) is not bool:
-                raise CommentError("like is not of boolean type")
-            if username == "":
-                raise CommentError("username param invalid")
+                invalidParameter("rating")
         except KeyError:
-            return jsonify({'error': "missing json param"}), 400
-        except CommentError as e:
-            return jsonify({'error': e.args[0]}), 400
+            return missingParameterInJson("rating")
+        
+        try:
+            username = data["username"]
+            if type(username) is not str:
+                return invalidParameter("username")
+            username = username.strip()
+            if not doesUsernameExist(username):
+                return invalidParameter("username")
+        except KeyError:
+            return missingParameterInJson("username")
+
+        
         
         data = {
             "rating": int(rating),
@@ -39,16 +48,16 @@ def comment(app) -> None:
         }
         
         if likeComment(data):
-            return jsonify({"status": "succes"}), 200
+            return creationSucces()
         else:
-            return jsonify({"status": "Fail"}), 400
+            return creationFail()
         
     @app.route("/comments/<comment_id>", methods=["DELETE"])
     def delete_comments_commentID(comment_id):
         
         if deleteCommentFromDB(comment_id):
-            return jsonify({"deleted status": "succes"}),200
+            return deleteSucces()
         else:
-            return jsonify({"deleted status": "fail"}),400
+            return deleteFail()
     
         
