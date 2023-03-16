@@ -3,6 +3,78 @@ from .tableName import *
 from .tableTitles import *
 from datetime import datetime
 
+def doesCommentExist(comment_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT c.comment_id 
+                       FROM {TABLE_COMMENT} c
+                       WHERE c.comment_id = "{comment_id}" ''')
+        result = cursor.fetchall()
+        
+        cursor.close()
+        
+        return len(result) == 1
+    except Exception:
+        return False
+    
+def doesCommentBelongToUser(username:str, comment_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT c.commenter_username
+                       FROM {TABLE_COMMENT} c
+                       WHERE c.comment_id = "{comment_id}" ''')
+        result = cursor.fetchall()[0][0]
+        
+        cursor.close()
+        
+        return username == result
+    except Exception:
+        return False
+    
+def isUserPublicationOwnerFromCommentId(username:str, comment_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT p.poster_username
+                       FROM {TABLE_COMMENT} c
+                       LEFT JOIN {TABLE_PUBLICATION} p ON c.publication_id = p.publication_id
+                       WHERE c.comment_id = "{comment_id}" 
+                       ''')
+        result = cursor.fetchall()[0][0]
+        
+        cursor.close()
+        
+        return username == result
+    except Exception:
+        return False
+    
+def canUserDeleteComment(username:str, comment_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT c.commenter_username, p.poster_username
+                       FROM {TABLE_COMMENT} c
+                       LEFT JOIN {TABLE_PUBLICATION} p ON c.publication_id = p.publication_id
+                       WHERE c.comment_id = "{comment_id}" 
+                       ''')
+        result = cursor.fetchall()[0]
+        
+        cursor.close()
+        
+        return username == result[0] or username == result[1]
+    except Exception:
+        return False
+
 def getCommentById(comment_id:str) -> dict or None:
     try:
         conn = MYSQL.get_db()

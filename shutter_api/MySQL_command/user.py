@@ -142,11 +142,34 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list:
             data.append(post)
         
         return data
-    except ValueError:
+    except Exception:
         return None
 
 
 def getUserByUsernname(username:str) -> dict:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''SELECT u.username, u.biography, u.name, u.created_date, u.birthdate, u.profile_picture FROM {TABLE_USER} u WHERE username = "{username}" ''')
+        result = cursor.fetchall()[0]
+        
+        cursor.close()
+        
+        data = {
+            "username": result[0],
+            "biogreaphy":result[1],
+            "name":result[2],
+            "created_date": result[3].strftime('%Y-%m-%d %H:%M:%S'),
+            "birthdate":result[4].strftime('%Y-%m-%d'),
+            "profile_picture":result[5]
+        }
+    
+        return data
+    except Exception:
+        return None
+    
+def getUserByUsernnameDetail(username:str) -> dict:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -167,7 +190,7 @@ def getUserByUsernname(username:str) -> dict:
         }
     
         return data
-    except Exception as e:
+    except Exception:
         return None
     
 def getAllUser() -> None:

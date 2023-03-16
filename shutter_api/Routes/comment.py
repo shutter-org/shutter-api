@@ -1,4 +1,5 @@
 from flask import request
+from flask_jwt_extended import jwt_required, get_current_user
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
 
@@ -6,7 +7,11 @@ from shutter_api.Responses import *
 def comment(app) -> None:
     
     @app.route("/comments/<comment_id>", methods=["GET"])
-    def get_comments_commentId(comment_id):
+    @jwt_required()
+    def get_comments_commentId(comment_id:str):
+        
+        if not doesCommentExist(comment_id):
+            return invalidParameter("comment_id")
         
         data = getCommentById(comment_id)
         
@@ -14,9 +19,30 @@ def comment(app) -> None:
             return invalidParameter("comment_id")
         else:
             return ok(data)
-    
+        
+    @app.route("/comments/<comment_id>", methods=["DELETE"])
+    @jwt_required()
+    def delete_comments_commentID(comment_id:str):
+        
+        if not doesCommentExist(comment_id):
+            return invalidParameter("comment_id")
+        
+        username = get_current_user()
+        
+        if not canUserDeleteComment(username, comment_id):
+            return noAcces()
+        
+        if deleteCommentFromDB(comment_id):
+            return deleteSucces()
+        else:
+            return deleteFail()
+        
     @app.route("/comments/<comment_id>/like", methods=["Post"])
-    def post_comments_commentId_like(comment_id):
+    @jwt_required()
+    def post_comments_commentId_like(comment_id:str):
+        
+        if not doesCommentExist(comment_id):
+            return invalidParameter("comment_id")
         
         data = request.get_json()
         try:
@@ -26,15 +52,7 @@ def comment(app) -> None:
         except KeyError:
             return missingParameterInJson("rating")
         
-        try:
-            username = data["username"]
-            if type(username) is not str:
-                return invalidParameter("username")
-            username = username.strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except KeyError:
-            return missingParameterInJson("username")
+        username = get_current_user()
 
         
         
@@ -48,13 +66,5 @@ def comment(app) -> None:
             return creationSucces()
         else:
             return creationFail()
-        
-    @app.route("/comments/<comment_id>", methods=["DELETE"])
-    def delete_comments_commentID(comment_id):
-        
-        if deleteCommentFromDB(comment_id):
-            return deleteSucces()
-        else:
-            return deleteFail()
     
         

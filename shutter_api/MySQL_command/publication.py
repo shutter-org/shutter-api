@@ -17,6 +17,23 @@ def doesPublicationExist(publication_id:str) -> bool:
         return len(result) == 1
     except Exception:
         return False
+    
+def doesPublicationBelongToUser(username:str, publication_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT p.poster_username
+                       FROM {TABLE_PUBLICATION} p
+                       WHERE p.publication_id = "{publication_id}" ''')
+        result = cursor.fetchall()[0][0]
+        
+        cursor.close()
+        
+        return username == result
+    except Exception:
+        return False
 
 def createPublication(data:dict) -> bool:
     try:
@@ -64,6 +81,23 @@ def likePublication(data:dict) -> bool:
         conn.commit()
         
         return True
+    except Exception:
+        return False
+    
+def isUsernameCreatorOfPublication(username:str, publication_id):
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT poster_username 
+                       FROM {TABLE_PUBLICATION} 
+                       WHERE publication_id = "{publication_id}" ''')
+        
+        resultat = cursor.fetchall()[0][0]
+        cursor.close()
+        
+        return resultat == username
     except Exception:
         return False
     

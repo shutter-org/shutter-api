@@ -4,24 +4,23 @@ import uuid
 from datetime import datetime
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
+from flask_jwt_extended import jwt_required, get_current_user
 
 
 def publication(app) -> None:
     
     @app.route("/publications", methods=["GET"])
+    @jwt_required()
     def get_publications():
         
+        username = get_current_user()
+        
         try:
-            tag = request.args.get('tag').strip()
+            tag = request.args.get('tag')
+            if not doesTagExist(tag):
+                return invalidParameter("tag")
         except ValueError:
-            tag = []
-            
-        try:
-            username = request.args.get('username').strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except ValueError:
-            username = None
+            tag = None
             
         try:
             page = int(request.args.get('page').strip())
@@ -32,8 +31,7 @@ def publication(app) -> None:
         except TypeError:
             return invalidParameter("page")
         
-        
-        if tag == []:
+        if tag == None:
             data = getPublications(username=username, offset=page)
         else:
             data = getPublicationsFromTag(tag=tag,username=username,offset=page)
@@ -45,9 +43,11 @@ def publication(app) -> None:
         
     
     @app.route("/publications", methods=["POST"])
+    @jwt_required()
     def post_publications():
         
         data = request.get_json()
+        username = get_current_user()
         
         try:
             description = data["description"]
@@ -58,16 +58,6 @@ def publication(app) -> None:
                 return invalidParameter("description")
         except KeyError:
             return missingParameterInJson("description")
-        
-        try:
-            username = data["username"]
-            if type(username) is not str:
-                return invalidParameter("username")
-            username = username.strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except KeyError:
-            return missingParameterInJson("username")
         
         try:
             picture = data["picture"]
@@ -108,17 +98,14 @@ def publication(app) -> None:
             return creationFail()
         
     @app.route("/publications/<publication_id>", methods=["GET"])
+    @jwt_required()
     def get_publication_publicationId(publication_id):
         
-        if not doesPublicationExist(publication_id):
-            return invalidParameter(publication_id)
+        username = get_current_user()
         
-        try:
-            username = request.args.get('username').strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except ValueError:
-            username = None
+        if not doesPublicationExist(publication_id):
+            return invalidParameter("publication_id")
+        
         
         data = getPublicationById(publication_id, username=username)
         if data is None:
@@ -127,22 +114,14 @@ def publication(app) -> None:
             return ok(data=data)
     
     @app.route("/publications/<publication_id>/comments", methods=["POST"])
+    @jwt_required()
     def post_publications_publicationId_comments(publication_id):
         
         if not doesPublicationExist(publication_id):
-            return invalidParameter(publication_id)
+            return invalidParameter("publication_id")
         
+        username = get_current_user()
         data = request.get_json()
-        
-        try:
-            username = data["username"]
-            if type(username) is not str:
-                return invalidParameter("username")
-            username = username.strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except KeyError:
-            return missingParameterInJson("username")
         
         try:
             message = data["message"]
@@ -172,22 +151,14 @@ def publication(app) -> None:
     
     
     @app.route("/publications/<publication_id>/like", methods=["POST"])
+    @jwt_required()
     def post_publication_publicationId_like(publication_id):
         
         if not doesPublicationExist(publication_id):
-            return invalidParameter(publication_id)
+            return invalidParameter("publication_id")
         
+        username = get_current_user()
         data = request.get_json()
-        
-        try:
-            username = data["username"]
-            if type(username) is not str:
-                return invalidParameter("username")
-            username = username.strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except KeyError:
-            return missingParameterInJson("username")
         
         try:
             rating = data["rating"]
@@ -209,10 +180,17 @@ def publication(app) -> None:
 
     
     @app.route("/publications/<publication_id>", methods=["DELETE"])
+    @jwt_required()
     def delete_publication_publicationId(publication_id):
         
         if not doesPublicationExist(publication_id):
-            return invalidParameter(publication_id)
+            return invalidParameter("publication_id")
+        
+        username = get_current_user()
+        print(username)
+        if not isUsernameCreatorOfPublication(username, publication_id):
+            return noAcces()
+        
         
         if deletePublicationFromDB(publication_id):
             return deleteSucces()
@@ -220,17 +198,13 @@ def publication(app) -> None:
             return deleteFail()
         
     @app.route("/publications/<publication_id>/comments", methods=["GET"])
+    @jwt_required()
     def get_publication_publicationId_comments(publication_id):
         
         if not doesPublicationExist(publication_id):
-            return invalidParameter(publication_id)
+            return invalidParameter("publication_id")
         
-        try:
-            username = request.args.get('username').strip()
-            if not doesUsernameExist(username):
-                invalidParameter("username")
-        except ValueError:
-            username = None
+        username = get_current_user()
             
         try:
             page = int(request.args.get('page'))

@@ -15,7 +15,7 @@ def signUp(app) -> None:
             if type(username) is not str:
                 return invalidParameter("username")
             username = username.strip()
-            if not doesUsernameExist(username):
+            if doesUsernameExist(username):
                 return invalidParameter("username")
         except KeyError:
             return missingParameterInJson("username")

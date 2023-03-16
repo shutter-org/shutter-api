@@ -1,6 +1,7 @@
 from flask import request
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
+from flask_jwt_extended import create_access_token
 
 
 def signIn(app) -> None:
@@ -34,6 +35,8 @@ def signIn(app) -> None:
         }
         
         if isUserPasswordValid(data):
-            return connectionSucces()
+            token = create_access_token(username)
+            
+            return connectionSucces(token)
         else:
             return connectionFail()

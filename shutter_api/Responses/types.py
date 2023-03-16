@@ -54,8 +54,8 @@ def missingParameterInJson(param:str) -> tuple:
         "Code":400
         }),400
     
-def connectionSucces() -> tuple:
-    return ok()
+def connectionSucces(token:str) -> tuple:
+    return jsonify(acces_token=token),200
 
 def connectionFail() -> tuple:
     return jsonify({"Error": "connection failure"}), 401

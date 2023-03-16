@@ -1,4 +1,5 @@
 from flask import request
+from flask_jwt_extended import jwt_required, get_current_user
 import uuid
 from datetime import datetime
 from shutter_api.MySQL_command import *
@@ -8,18 +9,11 @@ from shutter_api.Responses import *
 def gallery(app) -> None:
     
     @app.route("/gallerys", methods=["Post"])
+    @jwt_required()
     def post_gallerys():
         data = request.get_json()
         
-        try:
-            username = data["username"]
-            if type(username) is not str:
-                return invalidParameter("username")
-            username = username.strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except KeyError:
-            return missingParameterInJson("username")
+        username = get_current_user()
         
         try:
             description = data["description"]
@@ -54,6 +48,7 @@ def gallery(app) -> None:
         
     
     @app.route("/gallerys/<gallery_id>", methods=["Post"])
+    @jwt_required()
     def post_gallerys_galleryId(gallery_id):
         data = request.get_json()
         
@@ -69,7 +64,10 @@ def gallery(app) -> None:
                 return invalidParameter("publication_id")
         except KeyError:
             return missingParameterInJson("publication_id")
-       
+        
+        username = get_current_user()
+        if not doesGalleryBelongToUser(username, gallery_id) or not doesPublicationBelongToUser(username, publication_id):
+            return noAcces()
         
         data = {
             "publication_id": publication_id,
@@ -84,28 +82,24 @@ def gallery(app) -> None:
 
     
     @app.route("/gallerys/<gallery_id>/like", methods=["Post"])
+    @jwt_required()
     def post_gallerys_galleryId_like(gallery_id):
         data = request.get_json()
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
         
+        username = get_current_user()
+        
+        if not doesUserHasAccesToGallery(username,gallery_id):
+            return noAcces()
+        
         try:
             rating = data["rating"]
             if type(rating) is not bool:
-                invalidParameter("rating")
+                return invalidParameter("rating")
         except KeyError:
             return missingParameterInJson("rating")
-        
-        try:
-            username = data["username"]
-            if type(username) is not str:
-                return invalidParameter("username")
-            username = username.strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except KeyError:
-            return missingParameterInJson("username")
         
         
         data = {
@@ -120,10 +114,15 @@ def gallery(app) -> None:
             return requestFail()
         
     @app.route("/gallerys/<gallery_id>", methods=["DELETE"])
+    @jwt_required()
     def delete_gallerys_galleryId(gallery_id):
 
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
+        
+        username = get_current_user()
+        if not doesGalleryBelongToUser(username,gallery_id):
+            return noAcces()
         
         if deleteGalleryFromDB(gallery_id):
             return deleteSucces()
@@ -131,17 +130,13 @@ def gallery(app) -> None:
             return deleteFail()
         
     @app.route("/gallerys/<gallery_id>", methods=["GET"])
+    @jwt_required()
     def get_gallerys_galleryId(gallery_id):
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
         
-        try:
-            username = request.args.get('username').strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except ValueError:
-            return missingParameter("username")
+        username = get_current_user()
 
 
         data = getGalleryById(gallery_id, username)
@@ -152,14 +147,16 @@ def gallery(app) -> None:
             return ok(data=data)
         
     @app.route("/gallerys/<gallery_id>/publications", methods=["GET"])
+    @jwt_required()
     def get_gallerys_galleryId_publications(gallery_id):
         
-        try:
-            username = request.args.get('username').strip()
-            if not doesUsernameExist(username):
-                return invalidParameter("username")
-        except ValueError:
-            return missingParameter("username")
+        if not doesGalleryExist(gallery_id):
+            return invalidParameter("gallery_id")
+        
+        username = get_current_user()
+        
+        if not doesUserHasAccesToGallery(username,gallery_id):
+            return noAcces()
             
         try:
             page = int(request.args.get('page'))

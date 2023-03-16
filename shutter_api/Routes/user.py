@@ -1,11 +1,13 @@
 from shutter_api.MySQL_command import *
 from flask import request
 from shutter_api.Responses import *
+from flask_jwt_extended import jwt_required, get_current_user
 
 
 def user(app) -> None:
     
     @app.route("/users/<username>", methods=["GET"])
+    @jwt_required()
     def get_users_username(username:str):
         
         username = username.strip()
@@ -13,47 +15,86 @@ def user(app) -> None:
             return invalidParameter("username")
         
         data = getUserByUsernname(username)
-        follow = getFollowUser(username)
-        followed = getFollowedUser(username)
+        following = getFollowUser(username)
+        followers = getFollowedUser(username)
         gallerys = getUserGallery(username)
         
-        if data is None or follow is None or followed is None or gallery is None:
+        if data is None or following is None or followers is None or gallery is None:
             return requestFail()
         
-        data["following"] = follow
-        data["followers"] = followed
+        data["following"] = following
+        data["followers"] = followers
+        data["followed_by_user"] = get_current_user() in followers
         data["gallerys"] = gallerys
         return ok(data=data)
     
+    @app.route("/users/<username>/details", methods=["GET"])
+    @jwt_required()
+    def get_users_username_details(username:str):
+        
+        username = username.strip()
+        if not doesUsernameExist(username):
+            return invalidParameter("username")
+        
+        if username != get_current_user():
+            return noAcces()
+        
+        data = getUserByUsernnameDetail(username)
+        following = getFollowUser(username)
+        followers = getFollowedUser(username)
+        gallerys = getUserGallery(username)
+        
+        if data is None or following is None or followers is None or gallery is None:
+            return requestFail()
+        
+        data["following"] = following
+        data["followers"] = followers
+        data["gallerys"] = gallerys
+        return ok(data=data)
+    
+    #TODO
     @app.route("/users/<username>", methods=["PUT"])
+    @jwt_required()
     def put_users_username(username:str):
         
         username = username.strip()
         if not doesUsernameExist(username):
             return invalidParameter("username")
         
+        if username != get_current_user():
+            return noAcces()
+        
         data = request.get_json()
         
     
     
     @app.route("/users/<username>", methods=["DELETE"])
+    @jwt_required()
     def deleteUser(username:str):
         
         username = username.strip()
         if not doesUsernameExist(username):
             return invalidParameter("username")
         
+        if username != get_current_user():
+            return noAcces()
+        
         if deleteUserFromDB(username):
             return deleteSucces()
         else:
             return deleteFail()
         
+        
     @app.route("/users/<username>/follow", methods=["POST"])
+    @jwt_required()
     def post_users_username_follow(username:str):
         
         username = username.strip()
         if not doesUsernameExist(username):
             return invalidParameter("username")
+        
+        if username != get_current_user():
+            return noAcces()
         
         data = request.get_json()
         
@@ -81,10 +122,14 @@ def user(app) -> None:
             return requestFail()
     
     @app.route("/users/<username>/followed/publications", methods=["GET"])
+    @jwt_required()
     def get_usersusername_followed_publications(username:str):
         username = username.strip()
         if not doesUsernameExist(username):
             return invalidParameter("username")
+        
+        if username != get_current_user():
+            return noAcces()
         
         try:
             page = int(request.args.get('page'))

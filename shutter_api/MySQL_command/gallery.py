@@ -1,5 +1,4 @@
 from shutter_api import MYSQL
-import struct
 from .tableName import *
 from .tableTitles import *
 from .publication import getPublicationById
@@ -15,6 +14,41 @@ def doesGalleryExist(gallery_id:str) -> bool:
         cursor.close()
         
         return len(result) == 1
+    except Exception:
+        return False
+    
+def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT g.private, g.creator_username
+                       FROM {TABLE_GALLERY} g
+                       WHERE g.gallery_id = "{gallery_id}" ''')
+        result = cursor.fetchall()[0]
+        print(result)
+        cursor.close()
+        
+        return bool(result[0]) and username == result[1]
+    except Exception:
+        print("fial")
+        return False
+    
+def doesGalleryBelongToUser(username:str, gallery_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT g.creator_username
+                       FROM {TABLE_GALLERY} g
+                       WHERE g.gallery_id = "{gallery_id}" ''')
+        result = cursor.fetchall()[0][0]
+        
+        cursor.close()
+        
+        return username == result
     except Exception:
         return False
 
@@ -67,6 +101,7 @@ def likeGallery(data:dict) -> bool:
         return True
     except Exception:
         return False
+    
     
 def getGalleryPublications(gallery_Id:str, username:str=None, offset:int = 1) -> list:
     try:
