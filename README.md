@@ -11,6 +11,7 @@ poetry run serve
 | POST   | [/signin](#postsignin) |
 | GET    | [/users/«username»](#getusers«username») |
 | DELETE | [/users/«username»](#deleteusers«username») |
+| GET    | [/users/«username»/details](#getusers«username»details) |
 | POST   | [/users/«username»/follow](#postusers«username»follow) |
 | GET    | [/users/«username»/followed/publications](#getusers«username»followedpublication) |
 |||
@@ -46,18 +47,14 @@ input body
     "birthdate": String (yyyy/mm/dd)
 }
 ```
-output body
-```
-{
-    "username": String
-}
-```
 ---
 ### POST/signIn
 ---
 ### GET/users/«username»
 ---
 ### DELETE/users/«username»
+---
+### GET/users/«username»/details
 ---
 ### POST/users/«username»/follow
 ---

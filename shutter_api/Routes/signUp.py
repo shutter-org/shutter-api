@@ -78,7 +78,7 @@ def signUp(app) -> None:
         }
         
         if createNewUser(data):
-            return creationSucces(data={"username" : username})
+            return creationSucces()
         else:
             return creationFail()
         

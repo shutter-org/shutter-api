@@ -28,6 +28,39 @@ def user(app) -> None:
         data["gallerys"] = gallerys
         return ok(data=data)
     
+    
+    #TODO
+    @app.route("/users/<username>", methods=["PUT"])
+    @jwt_required()
+    def put_users_username(username:str):
+        
+        username = username.strip()
+        if not doesUsernameExist(username):
+            return invalidParameter("username")
+        
+        if username != get_current_user():
+            return noAcces()
+        
+        data = request.get_json()
+        
+    
+    @app.route("/users/<username>", methods=["DELETE"])
+    @jwt_required()
+    def deleteUser(username:str):
+        
+        username = username.strip()
+        if not doesUsernameExist(username):
+            return invalidParameter("username")
+        
+        if username != get_current_user():
+            return noAcces()
+        
+        if deleteUserFromDB(username):
+            return deleteSucces()
+        else:
+            return deleteFail()
+        
+        
     @app.route("/users/<username>/details", methods=["GET"])
     @jwt_required()
     def get_users_username_details(username:str):
@@ -52,38 +85,6 @@ def user(app) -> None:
         data["gallerys"] = gallerys
         return ok(data=data)
     
-    #TODO
-    @app.route("/users/<username>", methods=["PUT"])
-    @jwt_required()
-    def put_users_username(username:str):
-        
-        username = username.strip()
-        if not doesUsernameExist(username):
-            return invalidParameter("username")
-        
-        if username != get_current_user():
-            return noAcces()
-        
-        data = request.get_json()
-        
-    
-    
-    @app.route("/users/<username>", methods=["DELETE"])
-    @jwt_required()
-    def deleteUser(username:str):
-        
-        username = username.strip()
-        if not doesUsernameExist(username):
-            return invalidParameter("username")
-        
-        if username != get_current_user():
-            return noAcces()
-        
-        if deleteUserFromDB(username):
-            return deleteSucces()
-        else:
-            return deleteFail()
-        
         
     @app.route("/users/<username>/follow", methods=["POST"])
     @jwt_required()
