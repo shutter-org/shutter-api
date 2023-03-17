@@ -91,9 +91,11 @@ def user(app) -> None:
             profile_picture = data["profile_picture"]
             if type(profile_picture) is not str:
                 return invalidParameter("profile_picture")
-            profile_picture = profile_picture.strip()
+            if bool(re.match('^[01]*$', profile_picture)):
+                return invalidParameter("profile_picture")
             if profile_picture == "":
                 return invalidParameter("profile_picture")
+            picture = bytes.fromhex(picture)
         except KeyError:
             profile_picture = None
             
