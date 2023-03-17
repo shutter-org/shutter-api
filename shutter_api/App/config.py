@@ -5,6 +5,7 @@ import secrets
 
 
 
+
 def addConfig(app) -> None:
     """
     setup config for MySQL
@@ -24,4 +25,5 @@ def addConfig(app) -> None:
     app.config['MYSQL_DATABASE_HOST'] = 'shutter-db.cqw2hvrmj4z8.us-east-1.rds.amazonaws.com'
     app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
     MYSQL.init_app(app)
+    
     

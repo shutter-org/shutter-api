@@ -62,6 +62,7 @@ def publication(app) -> None:
         
         try:
             picture = data["picture"]
+            print(type(picture))
             if type(picture) is not str:
                 return invalidParameter("picture")
             picture = picture.strip()
@@ -87,6 +88,7 @@ def publication(app) -> None:
             "picture" : picture,
         }
         
+        return ok()
         if createPublication(data):
             for tag in tags:
                 addTagToPublication(tag, data["publication_id"])
