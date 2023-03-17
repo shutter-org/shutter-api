@@ -164,7 +164,9 @@ def getUserPublications(username:str, usernameVisiter:str, offset:int = 1) -> li
                        LEFT JOIN user u ON p.poster_username = u.username
                        WHERE p.poster_username = "{username}"
                        GROUP BY p.publication_id, p.created_date
-                       ORDER BY p.created_date DESC;
+                       ORDER BY p.created_date DESC
+                       LIMIT 10
+                        OFFSET {(offset-1) * 10};
                        ''')
         result = cursor.fetchall()
         cursor.close()
