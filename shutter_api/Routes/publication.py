@@ -16,20 +16,21 @@ def publication(app) -> None:
         username = get_current_user()
         
         try:
-            tag = request.args.get('tag')
-            if not doesTagExist(tag):
-                return invalidParameter("tag")
+            tag = request.args.get('tag',default=None,type=str)
+            if tag is not None:
+                if not doesTagExist(tag):
+                    return invalidParameter("tag")
         except ValueError:
             tag = None
             
         try:
-            page = int(request.args.get('page').strip())
+            page = request.args.get('page', default=1, type=int)
+
             if page < 1:
                 return invalidParameter("page")
         except ValueError:
-            page = 1
-        except TypeError:
             return invalidParameter("page")
+
         
         if tag == None:
             data = getPublications(username=username, offset=page)
@@ -75,12 +76,8 @@ def publication(app) -> None:
             return missingParameterInJson("tags")
 
         for tag in tags:
-            if type(tag) is not str:
+            if type(tag) is not str and tag == "":
                 return invalidParameter("tags")
-            tag = tag.strip()
-            if not doesTagExist(tag):
-                if not createTag(tag):
-                    return invalidParameter(f"tag '{tag}'")
                 
         data = {
             "poster_username" : username,
@@ -99,19 +96,111 @@ def publication(app) -> None:
         
     @app.route("/publications/<publication_id>", methods=["GET"])
     @jwt_required()
-    def get_publication_publicationId(publication_id):
-        
-        username = get_current_user()
+    def get_publication_publicationId(publication_id:str):
         
         if not doesPublicationExist(publication_id):
             return invalidParameter("publication_id")
         
+        username = get_current_user()
         
         data = getPublicationById(publication_id, username=username)
         if data is None:
             return requestFail()
         else:
             return ok(data=data)
+        
+    @app.route("/publications/<publication_id>", methods=["PUT"])
+    @jwt_required()
+    def put_publication_publicationId(publication_id:str):
+        
+        if not doesPublicationExist(publication_id):
+            return invalidParameter("publication_id")
+        
+        data = request.get_json()
+        username = get_current_user()
+        if not doesPublicationBelongToUser(username, publication_id):
+            return noAcces()
+        
+        try:
+            description = data["description"]
+            if type(description) is not str:
+                return invalidParameter("description")
+            description = description.strip()
+            if description == "":
+                return invalidParameter("description")
+        except KeyError:
+            description = None
+        
+        try:
+            tags = data["tags"]
+            if type(tags) != list:
+                return invalidParameter("tags")  
+        except KeyError:
+            tags = None
+        
+        if description is None and tags is None:
+            missingParameterInJson("tags, description")
+        
+        if tags is not None:
+            for tag in tags:
+                if type(tag) is not str:
+                    return invalidParameter("tags")
+            
+            if not removeTagsFromPublication(publication_id):
+                requestFail()
+                
+            for tag in tags:
+                if not addTagToPublication(tag, publication_id):
+                    requestFail()
+                
+        if description is not None:
+            if not updatepublication(publication_id, description):
+              return requestFail()
+          
+        return ok()
+        
+    @app.route("/publications/<publication_id>", methods=["DELETE"])
+    @jwt_required()
+    def delete_publication_publicationId(publication_id):
+        
+        if not doesPublicationExist(publication_id):
+            return invalidParameter("publication_id")
+        
+        username = get_current_user()
+
+        if not isUsernameCreatorOfPublication(username, publication_id):
+            return noAcces()
+        
+        
+        if deletePublicationFromDB(publication_id):
+            return deleteSucces()
+        else:
+            return deleteFail()
+        
+        
+    @app.route("/publications/<publication_id>/comments", methods=["GET"])
+    @jwt_required()
+    def get_publication_publicationId_comments(publication_id):
+        
+        if not doesPublicationExist(publication_id):
+            return invalidParameter("publication_id")
+        
+        username = get_current_user()
+            
+        try:
+            page = request.args.get('page', default=1, type=int)
+            if page < 1:
+                return invalidParameter("page")
+        except ValueError:
+            return invalidParameter("page")
+            
+        
+        data = getCommentsOfPublication(publication_id, username=username, offset=page)
+        if data is None:
+            return requestFail
+        else:
+            return ok(data=data)
+            
     
     @app.route("/publications/<publication_id>/comments", methods=["POST"])
     @jwt_required()
@@ -152,7 +241,7 @@ def publication(app) -> None:
     
     @app.route("/publications/<publication_id>/like", methods=["POST"])
     @jwt_required()
-    def post_publication_publicationId_like(publication_id):
+    def post_publication_publicationId_like(publication_id:str):
         
         if not doesPublicationExist(publication_id):
             return invalidParameter("publication_id")
@@ -178,48 +267,51 @@ def publication(app) -> None:
         else:
             return requestFail()
 
-    
-    @app.route("/publications/<publication_id>", methods=["DELETE"])
+    @app.route("/publications/<publication_id>/like", methods=["PUT"])
     @jwt_required()
-    def delete_publication_publicationId(publication_id):
+    def put_publication_publicationId_like(publication_id:str):
         
         if not doesPublicationExist(publication_id):
             return invalidParameter("publication_id")
         
         username = get_current_user()
-        print(username)
-        if not isUsernameCreatorOfPublication(username, publication_id):
+        
+        data = request.get_json()
+        try:
+            rating = data["rating"]
+            if type(rating) is not bool:
+                invalidParameter("rating")
+        except KeyError:
+            return missingParameterInJson("rating")
+
+        print(publication_id,username)
+        if not didUserRatePublication(publication_id,username):
             return noAcces()
+            
+        if updateLikePublication(publication_id, username, rating):
+            return ok()
+        else:
+            return requestFail()
         
+    @app.route("/publications/<publication_id>/like", methods=["DELETE"])
+    @jwt_required()
+    def delete_publication_publicationId_like(publication_id:str):
         
-        if deletePublicationFromDB(publication_id):
+        if not doesPublicationExist(publication_id):
+            return invalidParameter("publication_id")
+        
+        username = get_current_user()
+
+        if not didUserRatePublication(publication_id,username):
+            return noAcces()
+            
+        
+        if deleteLikePublication(publication_id, username):
             return deleteSucces()
         else:
             return deleteFail()
+    
         
-    @app.route("/publications/<publication_id>/comments", methods=["GET"])
-    @jwt_required()
-    def get_publication_publicationId_comments(publication_id):
-        
-        if not doesPublicationExist(publication_id):
-            return invalidParameter("publication_id")
-        
-        username = get_current_user()
-            
-        try:
-            page = int(request.args.get('page'))
-            if page < 1:
-                return invalidParameter("page")
-        except ValueError:
-            page = 1
-        except TypeError:
-            return invalidParameter("page")
-        
-        data = getCommentsOfPublication(publication_id, username=username, offset=page)
-        if data is None:
-            return requestFail
-        else:
-            return ok(data=data)
-            
+    
     
     

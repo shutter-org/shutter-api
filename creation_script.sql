@@ -4,22 +4,22 @@ USE shutter;
 
 /* entity */
 CREATE TABLE user(username VARCHAR(50) NOT NULL, password VARCHAR(50), email VARCHAR(50),
- name VARCHAR(50), biography VARCHAR(100), created_date DATETIME, birthdate DATE,
-  profile_picture VARCHAR(2000), PRIMARY KEY(username));
+ name VARCHAR(50), biography VARCHAR(100), created_date DATETIME, birthdate DATE
+  profile_picture VARCHAR(2000), rating INT, PRIMARY KEY(username));
 
 CREATE TABLE publication(publication_id VARCHAR(36) NOT NULL, poster_username VARCHAR(50) NOT NULL,
  description VARCHAR(200), picture VARCHAR(2000), created_date DATETIME,
   PRIMARY KEY (publication_id), FOREIGN KEY(poster_username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE);
 
 CREATE TABLE gallery(gallery_id VARCHAR(36) NOT NULL, creator_username VARCHAR(50) NOT NULL,
- description VARCHAR(200), created_date DATETIME, private BIT(1),
+ description VARCHAR(200), created_date DATETIME, private BIT(1), rating INT, title VARCHAR(50),
   PRIMARY KEY(gallery_id), FOREIGN KEY(creator_username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE);
 
-CREATE TABLE tag(value VARCHAR(50) NOT NULL, PRIMARY KEY(value));
+CREATE TABLE tag(value VARCHAR(50) NOT NULL, nb_publication INT DEFAULT 0, PRIMARY KEY(value));
 
 CREATE TABLE comment(comment_id VARCHAR(36) NOT NULL,
  commenter_username VARCHAR(50) NOT NULL, publication_id VARCHAR(36) NOT NULL,
-  message VARCHAR(200), created_date DATETIME,
+  message VARCHAR(200), created_date DATETIME, rating INT,
    PRIMARY KEY(comment_id), FOREIGN KEY(commenter_username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(publication_id) REFERENCES publication(publication_id) ON DELETE CASCADE ON UPDATE CASCADE);
 
@@ -112,9 +112,12 @@ BEGIN
         FROM rate_comment rc
         WHERE comment_id_var = rc.comment_id
     );
-    UPDATE comment
-    SET rating = total_rating
-    WHERE comment_id_var = comment_id;
+    IF total_rating IS NULL THEN
+        SET total_rating = 0;
+    END IF;
+    UPDATE comment c
+    SET c.rating = total_rating
+    WHERE c.comment_id = comment_id_var;
 END//
 DELIMITER ;
 
@@ -127,9 +130,12 @@ BEGIN
         FROM rate_publication rp
         WHERE publication_id_var = rp.publication_id
     );
+    IF total_rating IS NULL THEN
+        SET total_rating = 0;
+    END IF;
     UPDATE publication p
     SET p.rating = total_rating
-    WHERE publication_id_var = p.publication_id;
+    WHERE p.publication_id = publication_id_var;
 END//
 DELIMITER ;
 
@@ -142,9 +148,105 @@ BEGIN
         FROM rate_gallery rg
         WHERE gallery_id_var = rg.gallery_id
     );
+    IF total_rating IS NULL THEN
+        SET total_rating = 0;
+    END IF;
     UPDATE gallery g
     SET g.rating = total_rating
-    WHERE gallery_id_var = g.gallery_id;
+    WHERE g.gallery_id = gallery_id_var;
+END//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE count_tag (IN tag_value_var VARCHAR(50))
+BEGIN
+    DECLARE tag_count INT;
+    SELECT COUNT(*) INTO tag_count FROM identify WHERE tag_value = tag_value_var;
+    IF tag_count = 0 THEN
+        DELETE FROM tag WHERE value = tag_value_var;
+    ELSE
+        UPDATE tag SET tag.nb_publications = tag_count WHERE value = tag_value_var;
+    END IF;
+
+END //
+DELIMITER ;
+
+/* publication trigger */
+DELIMITER //
+CREATE TRIGGER delete_publication
+AFTER DELETE ON publication
+FOR EACH ROW
+BEGIN
+    DECLARE tag_value VARCHAR(50);
+    DECLARE done BOOLEAN DEFAULT FALSE;
+    DECLARE cur CURSOR FOR SELECT t.value FROM tag t;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    OPEN cur;
+    read_loop: LOOP
+        FETCH cur INTO tag_value;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        CALL count_tag(tag_value);
+
+    end loop;
+    CLOSE cur;
+END//
+DELIMITER ;
+
+/* user trigger */
+DELIMITER //
+CREATE TRIGGER delete_user
+AFTER DELETE ON user
+FOR EACH ROW
+BEGIN
+    DECLARE tag_value VARCHAR(50);
+    DECLARE done bit(1) DEFAULT FALSE;
+    DECLARE cur CURSOR FOR SELECT t.value FROM tag t;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    OPEN cur;
+    read_loop: LOOP
+        FETCH cur INTO tag_value;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        CALL count_tag(tag_value);
+
+    end loop;
+    CLOSE cur;
+END//
+DELIMITER ;
+
+
+/* identify trigger */
+DELIMITER //
+CREATE TRIGGER add_tag_value
+BEFORE INSERT ON identify
+FOR EACH ROW
+BEGIN
+    DECLARE tag_value_var VARCHAR(50);
+    SELECT t.value INTO tag_value_var FROM tag t WHERE t.value = NEW.tag_value;
+    IF tag_value_var IS NULL THEN
+        INSERT INTO tag (value, nb_publications) VALUES (NEW.tag_value, 1);
+    end if;
+END//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER add_tag_value
+AFTER INSERT ON identify
+FOR EACH ROW
+BEGIN
+    CALL count_tag(NEW.tag_value);
+END//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER update_tag_count
+AFTER DELETE ON identify
+FOR EACH ROW
+BEGIN
+    CALL count_tag(NEW.tag_value);
 END//
 DELIMITER ;
 

@@ -1,6 +1,4 @@
 from shutter_api import MYSQL
-import struct
-from datetime import datetime
 from .tableName import *
 from .tableTitles import *
 
@@ -9,7 +7,11 @@ def doesPublicationExist(publication_id:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT publication_id FROM {TABLE_PUBLICATION} WHERE publication_id = "{publication_id}" ''')
+        cursor.execute(f'''
+                       SELECT publication_id 
+                       FROM {TABLE_PUBLICATION} 
+                       WHERE publication_id = "{publication_id}"; 
+                       ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -26,12 +28,31 @@ def doesPublicationBelongToUser(username:str, publication_id:str) -> bool:
         cursor.execute(f'''
                        SELECT p.poster_username
                        FROM {TABLE_PUBLICATION} p
-                       WHERE p.publication_id = "{publication_id}" ''')
+                       WHERE p.publication_id = "{publication_id}"; 
+                       ''')
         result = cursor.fetchall()[0][0]
         
         cursor.close()
         
         return username == result
+    except Exception:
+        return False
+    
+def didUserRatePublication(publication_id:str, username:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT * 
+                       FROM {RELATION_TABLE_RATE_PUBLICATION} rp
+                       WHERE rp.publication_id = "{publication_id}" AND rp.username = "{username}";
+                       ''')
+        result = cursor.fetchall()
+        
+        cursor.close()
+        
+        return len(result) == 1
     except Exception:
         return False
 
@@ -40,7 +61,9 @@ def createPublication(data:dict) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {TABLE_PUBLICATION} (publication_id, poster_username, description, picture, created_date) VALUES (
+        cursor.execute(f'''
+                       INSERT INTO {TABLE_PUBLICATION} (publication_id, poster_username, description, picture, created_date) 
+                       VALUES (
             "{data["publication_id"]}",
             "{data["poster_username"]}",
             "{data["description"]}",
@@ -84,7 +107,25 @@ def likePublication(data:dict) -> bool:
     except Exception:
         return False
     
-def isUsernameCreatorOfPublication(username:str, publication_id):
+def updatepublication(publication_id:str, description:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       UPDATE {TABLE_PUBLICATION} p
+                       SET p.description = "{description}"
+                       WHERE publication_id = "{publication_id}" 
+                       ''')
+        
+        conn.commit()
+        cursor.close()
+        
+        return True
+    except Exception:
+        return False
+    
+def isUsernameCreatorOfPublication(username:str, publication_id:str):
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -135,9 +176,42 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
         if username is not None:
             publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
             
+        publication["tags"] = getPublicationTags(publication_id)
+            
         return publication
-    except ValueError:
+    except Exception:
         return None
+    
+def getPublicationTags(publication_id:str) -> list:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        cursor.execute(f"""
+                       SELECT i.tag_value
+                       FROM {RELATION_TABLE_IDENTIFY} i
+                       WHERE i.publication_id = "{publication_id}";
+                       """)
+        resultat = cursor.fetchall()
+        cursor.close()
+        
+        return [x[0] for x in resultat]
+    except Exception:
+        return []
+    
+def removeTagsFromPublication(publication_id:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        cursor.execute(f"""
+                        DELETE FROM {RELATION_TABLE_IDENTIFY}
+                        WHERE publication_id = "{publication_id}";
+                        """)
+        conn.commit()
+        cursor.close()
+        
+        return True
+    except ValueError:
+        return False
     
 def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
     try:
@@ -173,9 +247,11 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
                 "comments":getCommentsOfPublication(row[0],username=username),
                 "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
                 "rating": int(row[6]) if row[6] is not None else 0,
+                "tags": getPublicationTags(row[0])
             }
             if username is not None:
                 publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
+            
             
 
             
@@ -217,6 +293,7 @@ def getPublications(username:str=None, offset:int=1):
                 "comments":getCommentsOfPublication(row[0],username=username),
                 "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
                 "rating": int(row[6]) if row[6] is not None else 0,
+                "tags":getPublicationTags(row[0])
             }
             if username is not None:
                 publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
@@ -269,4 +346,37 @@ def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 
         return data
     except Exception:
         return None
+    
+def updateLikePublication(publication_id:str, username:str, rating:bool) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       UPDATE {RELATION_TABLE_RATE_PUBLICATION} rp
+                       SET rp.rating = {rating}
+                       WHERE rp.publication_id = "{publication_id}" AND rp.username = "{username}";
+                       ''')
+        conn.commit()
+        cursor.close()
+        
+        return True
+    except Exception:
+        return False
+    
+def deleteLikePublication(publication_id:str, username:str) -> bool:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       DELETE FROM {RELATION_TABLE_RATE_PUBLICATION} rp
+                       WHERE rp.publication_id = "{publication_id}" and rp.username = "{username}" 
+                       ''')
+        conn.commit()
+        
+        cursor.close()
+        return True
+    except Exception:
+        return False
 

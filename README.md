@@ -17,22 +17,32 @@ poetry run serve
 |||
 | GET    | /comments/«comment_id» |
 | DELETE | /comments/«comment_id» |
+| PUT    | /comments/«comment_id» |
 | POST   | /commments/«comment_id»/like |
+| PUT    | /commments/«comment_id»/like |
+| DELETE | /commments/«comment_id»/like |
 |||
 | POST   | /gallerys |
 | GET    | /gallerys/«gallery_id» |
-| POST   | /gallerys/«gallery_id» |
+| PUT    | /gallerys/«gallery_id» |
 | DELETE | /gallerys/«gallery_id» |
 | GET    | /gallerys/«gallery_id»/publications |
+| POST   | /gallerys/«gallery_id»/publications |
+| DELETE | /gallerys/«gallery_id»/publications |
 | POST   | /gallerys/«gallery_id»/like |
+| PUT    | /gallerys/«gallery_id»/like |
+| DELETE | /gallerys/«gallery_id»/like |
 |||
 | GET    | /publications |
 | POST   | /publications |
 | GET    | /publications/«publication_id» |
+| PUT    | /publications/«publication_id» |
 | DELETE | /publications/«publication_id» |
-| GET   | /publications/«publication_id»/comments |
-| POST  | /publications/«publication_id»/comments |
-| POST  | /publications/«publication_id»/like |
+| GET    | /publications/«publication_id»/comments |
+| POST   | /publications/«publication_id»/comments |
+| POST   | /publications/«publication_id»/like |
+| PUT    | /publications/«publication_id»/like |
+| DELETE | /publications/«publication_id»/like |
 
 ---
 
