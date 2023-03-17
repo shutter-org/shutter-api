@@ -6,12 +6,22 @@ from shutter_api.MySQL_command.Gallerys import getGalleryPublications
 
 def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None) -> bool:
     try:
-        if picture is not None:
-            upload_response =  IMAGEKIT.upload(file=picture, file_name=f"{username}")
-            picture = IMAGE_URL_ENDPOINT + upload_response.file_path
+        
             
         conn = MYSQL.get_db()
         cursor = conn.cursor()
+        
+        if picture is not None:
+            picture = addImgToKitio(picture,username)
+            
+        if newUsername is not None:
+            cursor.execute(f'''
+                            SELECT u.profile_picture
+                            FROM {TABLE_USER} u
+                            WHERE u.username = "{username}";
+                            ''')
+            url = cursor.fetchall()[0][0]
+            picture = addImgToKitio(url, newUsername)
 
         cursor.execute(f'''
                        UPDATE {TABLE_USER} u 

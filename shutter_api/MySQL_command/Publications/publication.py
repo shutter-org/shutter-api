@@ -3,8 +3,7 @@ from shutter_api.MySQL_command.Tools import *
 
 def createPublication(data:dict) -> bool:
     try:
-        upload_response =  IMAGEKIT.upload(file=data["picture"], file_name=data["publication_id"])
-        picture = IMAGE_URL_ENDPOINT + upload_response.file_path
+        picture = addImgToKitio(data["picture"], data["publication_id"])
         
         conn = MYSQL.get_db()
         cursor = conn.cursor()

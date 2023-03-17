@@ -3,7 +3,6 @@ from flask import request
 from shutter_api.Responses import *
 from flask_jwt_extended import jwt_required, get_current_user, create_access_token
 import re
-import base64
 
 
 def user(app) -> None:

@@ -2,13 +2,13 @@ from flask import jsonify
 
 def ok(data=None) -> tuple:
     if data is None:
-        return "ok",200
+        return "",200
     else:
         return jsonify(data),200
 
 def creationSucces(data=None) -> tuple:
     if data is None:
-        return "ok",201
+        return "",201
     else:
         return jsonify(data),201
 
