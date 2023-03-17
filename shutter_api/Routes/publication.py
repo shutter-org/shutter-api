@@ -63,6 +63,7 @@ def publication(app) -> None:
         try:
             picture = data["picture"]
             print(type(picture))
+            print(picture)
             if type(picture) is not str:
                 return invalidParameter("picture")
             picture = picture.strip()
