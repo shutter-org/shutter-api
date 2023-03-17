@@ -62,11 +62,10 @@ def publication(app) -> None:
         
         try:
             picture = data["picture"]
-            print(type(picture))
             print(picture)
             if type(picture) is not str:
                 return invalidParameter("picture")
-            picture = picture.strip()
+            picture = bytes.fromhex(picture)
         except KeyError:
             return missingParameterInJson("picture")
         
@@ -89,7 +88,6 @@ def publication(app) -> None:
             "picture" : picture,
         }
         
-        return ok()
         if createPublication(data):
             for tag in tags:
                 addTagToPublication(tag, data["publication_id"])
