@@ -1,11 +1,10 @@
-from shutter_api import MYSQL, IMAGEKIT
+from shutter_api import MYSQL, IMAGEKIT, IMAGE_URL_ENDPOINT
 from shutter_api.MySQL_command.Tools import *
 
 def createPublication(data:dict) -> bool:
     try:
-        upload_response =  IMAGEKIT.upload(data["picture"], file_name=data["publication_id"])
-        if upload_response is None:
-            return False
+        upload_response =  IMAGEKIT.upload(file=data["picture"], file_name=data["publication_id"])
+        picture = IMAGE_URL_ENDPOINT + upload_response.file_path
         
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -16,7 +15,7 @@ def createPublication(data:dict) -> bool:
                            "{data["publication_id"]}",
                            "{data["poster_username"]}",
                            "{data["description"]}",
-                           "{upload_response["url"]}",
+                           "{picture}",
                            "{data["created_date"]}"
                        );
                        ''')

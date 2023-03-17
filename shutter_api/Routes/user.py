@@ -94,10 +94,6 @@ def user(app) -> None:
                 return invalidParameter("profile_picture")
             if bool(re.match('^[01]*$', profile_picture)):
                 return invalidParameter("profile_picture")
-            print(profile_picture)
-            if profile_picture == "":
-                return invalidParameter("profile_picture")
-            profile_picture = base64.b64encode(bytes.fromhex(profile_picture))
         except KeyError:
             profile_picture = None
             

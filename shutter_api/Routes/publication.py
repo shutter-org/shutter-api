@@ -1,5 +1,6 @@
 from flask import request
 import uuid
+import re
 
 from datetime import datetime
 from shutter_api.MySQL_command import *
@@ -62,10 +63,10 @@ def publication(app) -> None:
         
         try:
             picture = data["picture"]
-            print(picture)
             if type(picture) is not str:
                 return invalidParameter("picture")
-            picture = bytes.fromhex(picture)
+            if bool(re.match('^[01]*$', picture)):
+                return invalidParameter("profile_picture")
         except KeyError:
             return missingParameterInJson("picture")
         
