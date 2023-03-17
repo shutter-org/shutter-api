@@ -59,11 +59,11 @@ def getUserGallery(username:str, private:bool) -> list:
         result = cursor.fetchall()
         cursor.close()
         gallerys = []
-        for x in result:
+        for row in result:
             data = {
-                "gallery_id": x[0],
-                "title":x[1],
-                "publications":getGalleryPublications(x[0], username=username)
+                "gallery_id": row[0],
+                "title":row[1],
+                "publications":getGalleryPublications(row[0], username=username)
             }
             gallerys.append(data)
         
@@ -78,20 +78,21 @@ def getUserByUsername(username:str) -> dict:
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                       SELECT u.username, u.biography, u.name, u.birthdate, u.profile_picture 
+                       SELECT u.username, u.biography, u.name, u.birthdate, u.profile_picture, u.created_date
                        FROM {TABLE_USER} u 
                        WHERE username = "{username}"; 
                        ''')
-        result = cursor.fetchall()[0]
+        row = cursor.fetchall()[0]
         
         cursor.close()
 
         data = {
-            "username": result[0],
-            "biography":result[1],
-            "name":result[2],
-            "age":getAgeFromDate(result[3]),
-            "profile_picture":result[4]
+            "username": row[0],
+            "biography":row[1],
+            "name":row[2],
+            "age":getAgeFromDate(row[3]),
+            "profile_picture":row[4],
+            "created_date":getIntervalOdTimeSinceCreation(row[5])
         }
     
         return data
@@ -137,12 +138,12 @@ def getUserByUsernameLess(username:str) -> dict:
                        FROM {TABLE_USER} u 
                        WHERE username = "{username}"; 
                        ''')
-        result = cursor.fetchall()[0]
+        row = cursor.fetchall()[0]
         
         cursor.close()
         data = {
-            "username": result[0],
-            "profile_picture":result[1]
+            "username": row[0],
+            "profile_picture":row[1]
         }
     
         return data
