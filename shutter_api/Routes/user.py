@@ -89,13 +89,14 @@ def user(app) -> None:
             
         try:
             profile_picture = data["profile_picture"]
+            print(profile_picture)
             if type(profile_picture) is not str:
                 return invalidParameter("profile_picture")
             if bool(re.match('^[01]*$', profile_picture)):
                 return invalidParameter("profile_picture")
             if profile_picture == "":
                 return invalidParameter("profile_picture")
-            picture = bytes.fromhex(picture)
+            profile_picture = bytes.fromhex(profile_picture)
         except KeyError:
             profile_picture = None
             
