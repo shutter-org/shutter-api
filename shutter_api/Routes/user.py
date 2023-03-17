@@ -115,7 +115,8 @@ def user(app) -> None:
         if updateUser(username, newUsername=newUsername, email=email, bio=bio, picture=profile_picture, name=name):
             if newUsername is not None:
                 token = create_access_token(newUsername)
-                return connectionSucces(token)
+                user = getUserByUsernameLess(newUsername)
+                return connectionSucces(token, user)
             
             return ok()
         else:

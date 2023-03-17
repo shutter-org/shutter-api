@@ -1,9 +1,15 @@
-from shutter_api import MYSQL
+from shutter_api import MYSQL, IMAGEKIT
 from shutter_api.MySQL_command.Tools import *
 from shutter_api.MySQL_command.Gallerys import getGalleryPublications
 
 def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None) -> bool:
     try:
+        if picture is not None:
+            upload_response =  IMAGEKIT.upload(picture, file_name=username)
+            if upload_response is None:
+                return False
+            picture = upload_response["url"]
+            
         conn = MYSQL.get_db()
         cursor = conn.cursor()
 
@@ -121,3 +127,24 @@ def getUserByUsernameDetail(username:str) -> dict:
     except Exception:
         return None
     
+def getUserByUsernameLess(username:str) -> dict:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT u.username, u.profile_picture 
+                       FROM {TABLE_USER} u 
+                       WHERE username = "{username}"; 
+                       ''')
+        result = cursor.fetchall()[0]
+        
+        cursor.close()
+        data = {
+            "username": result[0],
+            "profile_picture":result[1]
+        }
+    
+        return data
+    except Exception:
+        return None

@@ -30,7 +30,7 @@ def signIn(app) -> None:
         
         if isUserPasswordValid(username, password):
             token = create_access_token(username)
-            
-            return connectionSucces(token)
+            user = getUserByUsernameLess(username)
+            return connectionSucces(token, user)
         else:
             return connectionFail()
