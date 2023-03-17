@@ -3,7 +3,7 @@ from shutter_api.MySQL_command.Tools import *
 
 def createPublication(data:dict) -> bool:
     try:
-        picture = addImgToKitio(data["picture"], data["publication_id"])
+        picture = addImgToKitio(data["picture"], str(data["publication_id"]))
         
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -23,7 +23,7 @@ def createPublication(data:dict) -> bool:
         conn.commit()
         
         return True
-    except Exception:
+    except ValueError:
         return False
     
 def deletePublicationFromDB(publication_id:str) -> bool:

@@ -1,4 +1,4 @@
-from .signUp import *
+from .signUp import createNewUser
 from .signIn import *
 from .Comments import *
 from .Gallerys import *

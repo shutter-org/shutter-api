@@ -66,7 +66,7 @@ def publication(app) -> None:
             if type(picture) is not str:
                 return invalidParameter("picture")
             if bool(re.match('^[01]*$', picture)):
-                return invalidParameter("profile_picture")
+                return invalidParameter("picture")
         except KeyError:
             return missingParameterInJson("picture")
         
