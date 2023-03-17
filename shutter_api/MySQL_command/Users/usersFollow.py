@@ -96,10 +96,9 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list or None:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         cursor.execute(f'''
-                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, SUM(IF(rp.rating = 0, -1, rp.rating)) AS sum_ratings, rp.rating AS user_rating 
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, get_user_publication_rating(u.username,p.publication_id), p.rating
                         FROM {TABLE_PUBLICATION} p 
                         JOIN {RELATION_TABLE_FOLLOW} f ON p.poster_username = f.followed_username
-                        LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
                         WHERE f.follower_username = "{username}"
                         ORDER BY p.created_date DESC
@@ -120,8 +119,8 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list or None:
                 "description": row[3],
                 "picture": row[4],
                 "created_date": getIntervalOdTimeSinceCreation(row[5]),
-                "rating": row[6] if row[6] is not None else 0,
-                "user_rating": getIntFromRating(row[7]),
+                "rating": row[7] if row[7] is not None else 0,
+                "user_rating": getIntFromRating(row[6]),
                 "comments": getCommentsOfPublication(row[0],username=username)
             }
             data.append(post)

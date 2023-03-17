@@ -264,7 +264,7 @@ def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 
                         LEFT JOIN {TABLE_USER} u ON c.commenter_username = u.username
                         WHERE c.publication_id = "{publication_id}"
                         GROUP BY c.comment_id, c.created_date
-                        ORDER BY c.created_date DESC
+                        ORDER BY c.created_date ASC
                         LIMIT 10
                         OFFSET {(offset-1) * 10};
                         ''')

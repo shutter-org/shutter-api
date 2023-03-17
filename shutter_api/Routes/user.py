@@ -3,6 +3,7 @@ from flask import request
 from shutter_api.Responses import *
 from flask_jwt_extended import jwt_required, get_current_user, create_access_token
 import re
+import base64
 
 
 def user(app) -> None:
@@ -89,14 +90,13 @@ def user(app) -> None:
             
         try:
             profile_picture = data["profile_picture"]
-            print(profile_picture)
             if type(profile_picture) is not str:
                 return invalidParameter("profile_picture")
             if bool(re.match('^[01]*$', profile_picture)):
                 return invalidParameter("profile_picture")
             if profile_picture == "":
                 return invalidParameter("profile_picture")
-            profile_picture = bytes.fromhex(profile_picture)
+            profile_picture = base64.b64encode(profile_picture.encode("UTF-8"))
         except KeyError:
             profile_picture = None
             
@@ -155,10 +155,11 @@ def user(app) -> None:
             page = request.args.get('page', default=1, type=int)
             if page < 1:
                 return invalidParameter("page")
+            print(page)
         except ValueError:
             return invalidParameter("page")
         
-        data = getUserPublications(username, get_current_user, offset=page)
+        data = getUserPublications(username, offset=page)
         if data is not None:
             return ok(data=data)
         else:

@@ -1,14 +1,14 @@
-from shutter_api import MYSQL, IMAGEKIT
+from shutter_api import MYSQL, IMAGEKIT, IMAGE_URL_ENDPOINT
 from shutter_api.MySQL_command.Tools import *
 from shutter_api.MySQL_command.Gallerys import getGalleryPublications
+
+
 
 def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None) -> bool:
     try:
         if picture is not None:
-            upload_response =  IMAGEKIT.upload(picture, file_name=username)
-            if upload_response is None:
-                return False
-            picture = upload_response["url"]
+            upload_response =  IMAGEKIT.upload(file=picture, file_name=f"{username}")
+            picture = IMAGE_URL_ENDPOINT + upload_response.file_path
             
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -26,7 +26,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
         
         cursor.close()
         return True
-    except Exception:
+    except ValueError:
         return False
 
 def deleteUserFromDB(userName:str) -> bool:
