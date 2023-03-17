@@ -15,7 +15,9 @@ def user(app) -> None:
         if not doesUsernameExist(username):
             return invalidParameter("username")
         
-        if username == get_current_user():
+        currentUser = get_current_user()
+        
+        if username == currentUser:
             data = getUserByUsernameDetail(username)
             gallerys = getUserGallery(username, True)
         else:
@@ -24,15 +26,17 @@ def user(app) -> None:
             
         following = getFollowUser(username)
         followers = getFollowedUser(username)
+        publications = getUserPublications(username,currentUser)
         
         
-        if data is None or following is None or followers is None or gallery is None:
+        if data is None or following is None or followers is None or gallery is None or publications is None:
             return requestFail()
         
         data["following"] = following
         data["followers"] = followers
-        if username != get_current_user():
-            data["followed_by_user"] = get_current_user() in followers
+        data["publications"] = publications
+        if username != currentUser:
+            data["followed_by_user"] = doesUserFollowUsername(currentUser,username)
             
         data["gallerys"] = gallerys
         return ok(data=data)
@@ -120,7 +124,7 @@ def user(app) -> None:
 
     @app.route("/users/<username>", methods=["DELETE"])
     @jwt_required()
-    def deleteUser(username:str):
+    def delete_users_username(username:str):
         
         username = username.strip()
         if not doesUsernameExist(username):
@@ -131,6 +135,28 @@ def user(app) -> None:
         
         if deleteUserFromDB(username):
             return deleteSucces()
+        else:
+            return deleteFail()
+    
+    
+    @app.route("/users/<username>/publications", methods=["GET"])
+    @jwt_required()
+    def get_users_username_publications(username:str):
+        
+        username = username.strip()
+        if not doesUsernameExist(username):
+            return invalidParameter("username")
+        
+        try:
+            page = request.args.get('page', default=1, type=int)
+            if page < 1:
+                return invalidParameter("page")
+        except ValueError:
+            return invalidParameter("page")
+        
+        data = getUserPublications(username, get_current_user, offset=page)
+        if data is not None:
+            return ok(data=data)
         else:
             return deleteFail()
     

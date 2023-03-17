@@ -150,7 +150,41 @@ def updatepublication(publication_id:str, description:str) -> bool:
         return True
     except Exception:
         return False
-    
+
+
+def getUserPublications(username:str, usernameVisiter:str, offset:int = 1) -> list:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT p.publication_id, p.description, p.picture, p.created_date, p.rating,
+                       get_user_publication_rating("{usernameVisiter}",p.publication_id)
+                       FROM publication p
+                       LEFT JOIN user u ON p.poster_username = u.username
+                       WHERE p.poster_username = "{username}"
+                       GROUP BY p.publication_id, p.created_date
+                       ORDER BY p.created_date DESC;
+                       ''')
+        result = cursor.fetchall()
+        cursor.close()
+        publications = []
+        for x in result:
+            data = {
+                "publication": x[0],
+                "description":x[1],
+                "picture":x[2],
+                "created_date":getIntervalOdTimeSinceCreation(x[3]),
+                "rating":x[4],
+                "user_rating":getIntFromRating(x[5]),
+                "comments": getCommentsOfPublication(x[0],username=username)
+            }
+            publications.append(data)
+        
+        
+        return publications
+    except ValueError:
+        return None
     
 def getPublicationById(publication_id:str, username:str=None) -> dict or None:
     try:

@@ -211,7 +211,9 @@ def getFollowedUser(username:str, offset:int=1) -> list or None:
         return data
     except Exception:
         return None
-    
+
+
+
 def getuserFollowedPublication(username:str, offset:int = 1) -> list:
     try:
         conn = MYSQL.get_db()
@@ -223,7 +225,6 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list:
                         LEFT JOIN {RELATION_TABLE_RATE_PUBLICATION} rp ON p.publication_id = rp.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
                         WHERE f.follower_username = "{username}"
-                        GROUP BY p.publication_id
                         ORDER BY p.created_date DESC
                         LIMIT 10
                         OFFSET {(offset-1) * 10};
