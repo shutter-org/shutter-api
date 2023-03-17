@@ -1,5 +1,5 @@
 from shutter_api import MYSQL
-from .Tools import *
+from shutter_api.MySQL_command.Tools import *
 
 def createTag(tag:str) -> bool:
     try:
@@ -17,25 +17,6 @@ def createTag(tag:str) -> bool:
         conn.commit()
         return True
     
-    except Exception:
-        return False
-
-def doesTagExist(tag:str) -> bool:
-    try:
-        
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       SELECT value 
-                       FROM {TABLE_TAG} 
-                       WHERE value = "{tag}"; 
-                       ''')
-        result = cursor.fetchall()
-        
-        cursor.close()
-        
-        return len(result) == 1
     except Exception:
         return False
     

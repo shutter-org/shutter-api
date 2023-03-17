@@ -26,7 +26,7 @@ def user(app) -> None:
             
         following = getFollowUser(username)
         followers = getFollowedUser(username)
-        publications = getUserPublications(username,currentUser)
+        publications = getUserPublications(username)
         
         
         if data is None or following is None or followers is None or gallery is None or publications is None:

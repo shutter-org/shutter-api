@@ -1,76 +1,5 @@
 from shutter_api import MYSQL
-from .Tools import *
-
-def doesPublicationExist(publication_id:str) -> bool:
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       SELECT publication_id 
-                       FROM {TABLE_PUBLICATION} 
-                       WHERE publication_id = "{publication_id}"; 
-                       ''')
-        result = cursor.fetchall()
-        
-        cursor.close()
-        
-        return len(result) == 1
-    except Exception:
-        return False
-    
-def isUsernameCreatorOfPublication(username:str, publication_id:str):
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       SELECT poster_username 
-                       FROM {TABLE_PUBLICATION} 
-                       WHERE publication_id = "{publication_id}" ''')
-        
-        resultat = cursor.fetchall()[0][0]
-        cursor.close()
-        
-        return resultat == username
-    except Exception:
-        return False
-    
-def doesPublicationBelongToUser(username:str, publication_id:str) -> bool:
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       SELECT p.poster_username
-                       FROM {TABLE_PUBLICATION} p
-                       WHERE p.publication_id = "{publication_id}"; 
-                       ''')
-        result = cursor.fetchall()[0][0]
-        
-        cursor.close()
-        
-        return username == result
-    except Exception:
-        return False
-    
-def didUserRatePublication(publication_id:str, username:str) -> bool:
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       SELECT * 
-                       FROM {RELATION_TABLE_RATE_PUBLICATION} rp
-                       WHERE rp.publication_id = "{publication_id}" AND rp.username = "{username}";
-                       ''')
-        result = cursor.fetchall()
-        
-        cursor.close()
-        
-        return len(result) == 1
-    except Exception:
-        return False
+from shutter_api.MySQL_command.Tools import *
 
 def createPublication(data:dict) -> bool:
     try:
@@ -110,29 +39,7 @@ def deletePublicationFromDB(publication_id:str) -> bool:
         return True
     except Exception:
         return False
-    
-def likePublication(publication_id:str, username:str, rating:int) -> bool:
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       INSERT INTO {RELATION_TABLE_RATE_PUBLICATION} 
-                       (username, publication_id, rating) 
-                       VALUES (
-                           "{username}",
-                           "{publication_id}",
-                           {rating}
-                       );
-                       ''')
-        
-        cursor.close()
-        conn.commit()
-        
-        return True
-    except Exception:
-        return False
-    
+      
 def updatepublication(publication_id:str, description:str) -> bool:
     try:
         conn = MYSQL.get_db()
@@ -150,43 +57,6 @@ def updatepublication(publication_id:str, description:str) -> bool:
         return True
     except Exception:
         return False
-
-
-def getUserPublications(username:str, usernameVisiter:str, offset:int = 1) -> list:
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       SELECT p.publication_id, p.description, p.picture, p.created_date, p.rating,
-                       get_user_publication_rating("{usernameVisiter}",p.publication_id)
-                       FROM publication p
-                       LEFT JOIN user u ON p.poster_username = u.username
-                       WHERE p.poster_username = "{username}"
-                       GROUP BY p.publication_id, p.created_date
-                       ORDER BY p.created_date DESC
-                       LIMIT 10
-                        OFFSET {(offset-1) * 10};
-                       ''')
-        result = cursor.fetchall()
-        cursor.close()
-        publications = []
-        for x in result:
-            data = {
-                "publication": x[0],
-                "description":x[1],
-                "picture":x[2],
-                "created_date":getIntervalOdTimeSinceCreation(x[3]),
-                "rating":x[4],
-                "user_rating":getIntFromRating(x[5]),
-                "comments": getCommentsOfPublication(x[0],username=username)
-            }
-            publications.append(data)
-        
-        
-        return publications
-    except ValueError:
-        return None
     
 def getPublicationById(publication_id:str, username:str=None) -> dict or None:
     try:
@@ -228,6 +98,35 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
     except Exception:
         return None
     
+def getUserPublications(username:str, offset:int = 1) -> list:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT p.publication_id, p.picture, p.created_date
+                       FROM publication p
+                       WHERE p.poster_username = "{username}"
+                       ORDER BY p.created_date DESC
+                       LIMIT 10
+                       OFFSET {(offset-1) * 10};
+                       ''')
+        result = cursor.fetchall()
+        cursor.close()
+        publications = []
+        for x in result:
+            data = {
+                "publication_id": x[0],
+                "picture":x[1],
+                "created_date":getIntervalOdTimeSinceCreation(x[2])
+            }
+            publications.append(data)
+        
+        
+        return publications
+    except ValueError:
+        return None
+     
 def getPublicationTags(publication_id:str) -> list:
     try:
         conn = MYSQL.get_db()
@@ -389,37 +288,3 @@ def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 
         return data
     except Exception:
         return None
-    
-def updateLikePublication(publication_id:str, username:str, rating:bool) -> bool:
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       UPDATE {RELATION_TABLE_RATE_PUBLICATION} rp
-                       SET rp.rating = {rating}
-                       WHERE rp.publication_id = "{publication_id}" AND rp.username = "{username}";
-                       ''')
-        conn.commit()
-        cursor.close()
-        
-        return True
-    except Exception:
-        return False
-    
-def deleteLikePublication(publication_id:str, username:str) -> bool:
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       DELETE FROM {RELATION_TABLE_RATE_PUBLICATION} rp
-                       WHERE rp.publication_id = "{publication_id}" and rp.username = "{username}" 
-                       ''')
-        conn.commit()
-        
-        cursor.close()
-        return True
-    except Exception:
-        return False
-
