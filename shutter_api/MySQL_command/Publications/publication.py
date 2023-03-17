@@ -69,7 +69,7 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
         
         cursor.execute(f'''
                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                       {f""", get_user_publication_rating(u.username,p.publication_id)""" if username is not None else ""}
+                       {f""", get_user_publication_rating("{username}",p.publication_id)""" if username is not None else ""}
                        FROM publication p
                        LEFT JOIN user u ON p.poster_username = u.username
                        WHERE p.publication_id = "{publication_id}"
@@ -169,7 +169,7 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
         
         cursor.execute(f'''
                         SELECT i.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                        {f""", get_user_publication_rating(u.username,p.publication_id)""" if username is not None else ""}
+                        {f""", get_user_publication_rating("{username}",p.publication_id)""" if username is not None else ""}
                         FROM {RELATION_TABLE_IDENTIFY} i
                         LEFT JOIN {TABLE_PUBLICATION} p ON i.publication_id = p.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
@@ -259,7 +259,7 @@ def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 
         
         cursor.execute(f'''
                         SELECT c.comment_id, c.commenter_username, u.profile_picture, c.message, c.created_date, c.rating
-                        {f""", get_user_comment_rating(u.username,c.comment_id)""" if username is not None else ""}
+                        {f""", get_user_comment_rating("{username}",c.comment_id)""" if username is not None else ""}
                         FROM {TABLE_COMMENT} c 
                         LEFT JOIN {TABLE_USER} u ON c.commenter_username = u.username
                         WHERE c.publication_id = "{publication_id}"

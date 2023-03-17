@@ -94,9 +94,10 @@ def user(app) -> None:
                 return invalidParameter("profile_picture")
             if bool(re.match('^[01]*$', profile_picture)):
                 return invalidParameter("profile_picture")
+            print(profile_picture)
             if profile_picture == "":
                 return invalidParameter("profile_picture")
-            profile_picture = base64.b64encode(profile_picture.encode("UTF-8"))
+            profile_picture = base64.b64encode(bytes.fromhex(profile_picture))
         except KeyError:
             profile_picture = None
             
@@ -155,10 +156,8 @@ def user(app) -> None:
             page = request.args.get('page', default=1, type=int)
             if page < 1:
                 return invalidParameter("page")
-            print(page)
         except ValueError:
             return invalidParameter("page")
-        
         data = getUserPublications(username, offset=page)
         if data is not None:
             return ok(data=data)

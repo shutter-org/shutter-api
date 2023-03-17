@@ -96,7 +96,7 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list or None:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         cursor.execute(f'''
-                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, get_user_publication_rating(u.username,p.publication_id), p.rating
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, get_user_publication_rating("{username}",p.publication_id), p.rating
                         FROM {TABLE_PUBLICATION} p 
                         JOIN {RELATION_TABLE_FOLLOW} f ON p.poster_username = f.followed_username
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
