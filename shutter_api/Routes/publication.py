@@ -255,14 +255,8 @@ def publication(app) -> None:
                 return invalidParameter("rating")
         except KeyError:
             return missingParameterInJson("rating")
-
-        data = {
-            "rating": str(int(rating)),
-            "publication_id": publication_id,
-            "username": username
-        }
         
-        if likePublication(data):
+        if likePublication(publication_id,username, int(rating)):
             return ok()
         else:
             return requestFail()

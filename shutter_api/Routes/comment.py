@@ -81,16 +81,8 @@ def comment(app) -> None:
             return missingParameterInJson("rating")
         
         username = get_current_user()
-
         
-        
-        data = {
-            "rating": int(rating),
-            "comment_id": comment_id,
-            "username":username
-        }
-        
-        if likeComment(data):
+        if likeComment(comment_id, username, int(rating)):
             return creationSucces()
         else:
             return creationFail()

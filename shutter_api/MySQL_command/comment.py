@@ -1,7 +1,6 @@
 from shutter_api import MYSQL
-from .tableName import *
-from .tableTitles import *
-from datetime import datetime
+from .Tools import *
+
 
 def doesCommentExist(comment_id:str) -> bool:
     try:
@@ -11,7 +10,8 @@ def doesCommentExist(comment_id:str) -> bool:
         cursor.execute(f'''
                        SELECT c.comment_id 
                        FROM {TABLE_COMMENT} c
-                       WHERE c.comment_id = "{comment_id}" ''')
+                       WHERE c.comment_id = "{comment_id}";
+                       ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -28,7 +28,8 @@ def doesCommentBelongToUser(username:str, comment_id:str) -> bool:
         cursor.execute(f'''
                        SELECT c.commenter_username
                        FROM {TABLE_COMMENT} c
-                       WHERE c.comment_id = "{comment_id}" ''')
+                       WHERE c.comment_id = "{comment_id}";
+                       ''')
         result = cursor.fetchall()[0][0]
         
         cursor.close()
@@ -45,7 +46,8 @@ def didUserRateComment(comment_id:str, username:str) -> bool:
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_COMMENT} rc
-                       WHERE rc.comment_id = "{comment_id}" AND rc.username = "{username}"
+                       WHERE rc.comment_id = "{comment_id}" 
+                       AND rc.username = "{username}";
                        ''')
         result = cursor.fetchall()
         
@@ -64,7 +66,7 @@ def isUserPublicationOwnerFromCommentId(username:str, comment_id:str) -> bool:
                        SELECT p.poster_username
                        FROM {TABLE_COMMENT} c
                        LEFT JOIN {TABLE_PUBLICATION} p ON c.publication_id = p.publication_id
-                       WHERE c.comment_id = "{comment_id}" 
+                       WHERE c.comment_id = "{comment_id}";
                        ''')
         result = cursor.fetchall()[0][0]
         
@@ -85,11 +87,11 @@ def canUserDeleteComment(username:str, comment_id:str) -> bool:
                        LEFT JOIN {TABLE_PUBLICATION} p ON c.publication_id = p.publication_id
                        WHERE c.comment_id = "{comment_id}" 
                        ''')
-        result = cursor.fetchall()[0]
+        row = cursor.fetchall()[0]
         
         cursor.close()
         
-        return username == result[0] or username == result[1]
+        return username == row[0] or username == row[1]
     except Exception:
         return False
 
@@ -98,18 +100,22 @@ def getCommentById(comment_id:str) -> dict or None:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT * FROM {TABLE_COMMENT} WHERE comment_id = "{comment_id}" ''')
-        result = cursor.fetchall()[0]
+        cursor.execute(f'''
+                       SELECT * 
+                       FROM {TABLE_COMMENT} 
+                       WHERE comment_id = "{comment_id}";
+                       ''')
+        row = cursor.fetchall()[0]
         
         cursor.close()
         
         data = {
-            "comment_id": result[0],
-            "commenter_username": result[1],
-            "publication_id": result[2],
-            "message": result[3],
-            "created_date": result[4].strftime('%Y-%m-%d %H:%M:%S'),
-            "rating":result[5]
+            "comment_id": row[0],
+            "commenter_username": row[1],
+            "publication_id": row[2],
+            "message": row[3],
+            "created_date": getIntervalOdTimeSinceCreation(row[4]),
+            "rating":row[5]
         }
 
         return data
@@ -142,7 +148,8 @@ def deleteCommentFromDB(comment_id:str) -> bool:
         
         cursor.execute(f'''
                        DELETE FROM {TABLE_COMMENT} 
-                       WHERE comment_id = "{comment_id}" ''')
+                       WHERE comment_id = "{comment_id}";
+                       ''')
         conn.commit()
         
         cursor.close()
@@ -158,7 +165,7 @@ def updateComment(comment_id:str, message:str) -> bool:
         cursor.execute(f'''
                        UPDATE {TABLE_COMMENT} c
                        SET c.message = "{message}"
-                       WHERE c.comment_id = "{comment_id}" 
+                       WHERE c.comment_id = "{comment_id}";
                        ''')
         conn.commit()
         
@@ -167,21 +174,25 @@ def updateComment(comment_id:str, message:str) -> bool:
     except Exception:
         return False
     
-def likeComment(data:dict) -> bool:
+def likeComment(comment_id:set, username:str, rating:int) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {RELATION_TABLE_RATE_COMMENT} (username, comment_id, rating) VALUES (
-            "{data["username"]}",
-            "{data["comment_id"]}",
-            {data["rating"]})''')
+        cursor.execute(f'''INSERT INTO {RELATION_TABLE_RATE_COMMENT}
+                       (username, comment_id, rating) 
+                       VALUES (
+                           "{username}",
+                           "{comment_id}",
+                           {rating}
+                       );
+                       ''')
         
         cursor.close()
         conn.commit()
         
         return True
-    except ValueError:
+    except Exception:
         return False
     
 def updateLikeComment(comment_id:str, username:str, rating:bool) -> bool:
@@ -192,7 +203,8 @@ def updateLikeComment(comment_id:str, username:str, rating:bool) -> bool:
         cursor.execute(f'''
                        UPDATE {RELATION_TABLE_RATE_COMMENT} rc
                        SET rc.rating = {rating}
-                       WHERE rc.comment_id = "{comment_id}" AND rc.username = "{username}";
+                       WHERE rc.comment_id = "{comment_id}" 
+                       AND rc.username = "{username}";
                        ''')
         conn.commit()
         cursor.close()
@@ -208,7 +220,8 @@ def deleteLikeComment(comment_id:str, username:str) -> bool:
         
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_COMMENT} rc
-                       WHERE rc.comment_id = "{comment_id}" and rc.username = "{username}" 
+                       WHERE rc.comment_id = "{comment_id}" 
+                       AND rc.username = "{username}";
                        ''')
         conn.commit()
         

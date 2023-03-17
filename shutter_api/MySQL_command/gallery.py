@@ -1,6 +1,5 @@
 from shutter_api import MYSQL
-from .tableName import *
-from .tableTitles import *
+from .Tools import *
 from .publication import getPublicationById
 
 def doesGalleryExist(gallery_id:str) -> bool:
@@ -8,7 +7,11 @@ def doesGalleryExist(gallery_id:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT gallery_id FROM {TABLE_GALLERY} WHERE gallery_id = "{gallery_id}" ''')
+        cursor.execute(f'''
+                       SELECT gallery_id 
+                       FROM {TABLE_GALLERY} 
+                       WHERE gallery_id = "{gallery_id}"; 
+                       ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -25,7 +28,8 @@ def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
         cursor.execute(f'''
                        SELECT g.private, g.creator_username
                        FROM {TABLE_GALLERY} g
-                       WHERE g.gallery_id = "{gallery_id}" ''')
+                       WHERE g.gallery_id = "{gallery_id}"; 
+                       ''')
         result = cursor.fetchall()[0]
         cursor.close()
         
@@ -41,7 +45,8 @@ def doesGalleryBelongToUser(username:str, gallery_id:str) -> bool:
         cursor.execute(f'''
                        SELECT g.creator_username
                        FROM {TABLE_GALLERY} g
-                       WHERE g.gallery_id = "{gallery_id}" ''')
+                       WHERE g.gallery_id = "{gallery_id}"; 
+                       ''')
         result = cursor.fetchall()[0][0]
         
         cursor.close()
@@ -58,7 +63,8 @@ def didUserRateGallery(gallery_id:str, username:str) -> bool:
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_GALLERY} rg
-                       WHERE rg.gallery_id = "{gallery_id}" AND rg.username = "{username}"
+                       WHERE rg.gallery_id = "{gallery_id}" 
+                       AND rg.username = "{username}";
                        ''')
         result = cursor.fetchall()
         
@@ -74,13 +80,17 @@ def createGallery(data:dict) -> bool:
         cursor = conn.cursor()
         
         
-        cursor.execute(f'''INSERT INTO {TABLE_GALLERY} (gallery_id, creator_username, description, created_date, private, title) VALUES (
-            "{data["gallery_id"]}",
-            "{data["creator_username"]}",
-            "{data["description"]}",
-            "{data["created_date"]}",
-            {data["private"]},
-            "{data["title"]}")''')
+        cursor.execute(f'''INSERT INTO {TABLE_GALLERY} 
+                       (gallery_id, creator_username, description, created_date, private, title) 
+                       VALUES (
+                           "{data["gallery_id"]}",
+                           "{data["creator_username"]}",
+                           "{data["description"]}",
+                           "{data["created_date"]}",
+                           {data["private"]},
+                           "{data["title"]}"
+                       );
+                       ''')
         
         cursor.close()
         conn.commit()
@@ -94,7 +104,10 @@ def deleteGalleryFromDB(gallery_id:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''DELETE FROM {TABLE_GALLERY} WHERE gallery_id = "{gallery_id}" ''')
+        cursor.execute(f'''
+                       DELETE FROM {TABLE_GALLERY} 
+                       WHERE gallery_id = "{gallery_id}"; 
+                       ''')
         conn.commit()
         
         cursor.close()
@@ -126,14 +139,19 @@ def updateGallery(gallery_id:str, description:str = None, title:str = None, priv
         return False
     
     
-def likeGallery(data:dict) -> bool:
+def likeGallery(gallery_id, username, rating) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                       INSERT INTO {RELATION_TABLE_RATE_GALLERY} (username, gallery_id, rating) 
-                       VALUES ("{data["username"]}","{data["gallery_id"]}",{data["rating"]})
+                       INSERT INTO {RELATION_TABLE_RATE_GALLERY} 
+                       (username, gallery_id, rating) 
+                       VALUES (
+                           "{username}",
+                           "{gallery_id}",
+                           {rating}
+                       );
                        ''')
         
         cursor.close()
@@ -181,22 +199,22 @@ def getGalleryById(gallery_Id:str, username:str) -> dict or None:
                        AND (g.private = 0 OR (g.private = 1 AND g.creator_username = "{username}")) 
                        ORDER BY g.created_date DESC;
                        ''')
-        resultGallery = cursor.fetchall()[0]
+        row = cursor.fetchall()[0]
 
         cursor.close()
         
         data = {
-            "gallery_id": resultGallery[0],
+            "gallery_id": row[0],
             "creator_user":{
-                "username":resultGallery[1],
-                "profile_picture":resultGallery[2]
+                "username":row[1],
+                "profile_picture":row[2]
             },
-            "description": resultGallery[3],
-            "created_date": resultGallery[4].strftime('%Y-%m-%d %H:%M:%S'),
-            "rating": int(resultGallery[5]),
+            "description": row[3],
+            "created_date": getIntervalOdTimeSinceCreation(row[4]),
+            "rating": int(row[5]),
             "publications":getGalleryPublications(gallery_Id,username=username),
-            "username_rating": 0 if resultGallery[6] is None else (1 if resultGallery[6] == b'\x01' else -1),
-            "title": resultGallery[7]
+            "username_rating": getIntFromRating(row[6]),
+            "title": row[7]
         }
 
         return data
@@ -210,8 +228,12 @@ def addPublicationToGallery(gallery_id:str, publication_id:str) -> bool:
         cursor = conn.cursor()
 
         cursor.execute(f'''
-                       INSERT INTO {RELATION_TABLE_SAVE} (gallery_id, publication_id) 
-                       VALUES ("{gallery_id}","{publication_id}" )
+                       INSERT INTO {RELATION_TABLE_SAVE} 
+                       (gallery_id, publication_id) 
+                       VALUES (
+                           "{gallery_id}",
+                           "{publication_id}"
+                       );
                        ''')
 
         cursor.close()
@@ -228,7 +250,8 @@ def removePublicationFromGallery(gallery_id:str, publication_id:str) -> bool:
 
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_SAVE} s
-                       WHERE s.gallery_id = "{gallery_id}" and s.publication_id = "{publication_id}" 
+                       WHERE s.gallery_id = "{gallery_id}" 
+                       AND s.publication_id = "{publication_id}";
                        ''')
         cursor.close()
         conn.commit()
@@ -245,7 +268,8 @@ def updateLikeGallery(gallery_id:str, username:str, rating:bool) -> bool:
         cursor.execute(f'''
                        UPDATE {RELATION_TABLE_RATE_GALLERY} rg
                        SET rg.rating = {rating}
-                       WHERE rg.gallery_id = "{gallery_id}" AND rg.username = "{username}";
+                       WHERE rg.gallery_id = "{gallery_id}" 
+                       AND rg.username = "{username}";
                        ''')
         conn.commit()
         cursor.close()
@@ -261,7 +285,8 @@ def deleteLikeGallery(gallery_id:str, username:str) -> bool:
         
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_GALLERY} rg
-                       WHERE rg.gallery_id = "{gallery_id}" and rg.username = "{username}" 
+                       WHERE rg.gallery_id = "{gallery_id}" 
+                       AND rg.username = "{username}";
                        ''')
         conn.commit()
         

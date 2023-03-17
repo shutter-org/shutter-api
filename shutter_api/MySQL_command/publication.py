@@ -1,6 +1,5 @@
 from shutter_api import MYSQL
-from .tableName import *
-from .tableTitles import *
+from .Tools import *
 
 def doesPublicationExist(publication_id:str) -> bool:
     try:
@@ -17,6 +16,23 @@ def doesPublicationExist(publication_id:str) -> bool:
         cursor.close()
         
         return len(result) == 1
+    except Exception:
+        return False
+    
+def isUsernameCreatorOfPublication(username:str, publication_id:str):
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT poster_username 
+                       FROM {TABLE_PUBLICATION} 
+                       WHERE publication_id = "{publication_id}" ''')
+        
+        resultat = cursor.fetchall()[0][0]
+        cursor.close()
+        
+        return resultat == username
     except Exception:
         return False
     
@@ -64,11 +80,13 @@ def createPublication(data:dict) -> bool:
         cursor.execute(f'''
                        INSERT INTO {TABLE_PUBLICATION} (publication_id, poster_username, description, picture, created_date) 
                        VALUES (
-            "{data["publication_id"]}",
-            "{data["poster_username"]}",
-            "{data["description"]}",
-            "{data["picture"]}",
-            "{data["created_date"]}")''')
+                           "{data["publication_id"]}",
+                           "{data["poster_username"]}",
+                           "{data["description"]}",
+                           "{data["picture"]}",
+                           "{data["created_date"]}"
+                       );
+                       ''')
         
         cursor.close()
         conn.commit()
@@ -82,7 +100,10 @@ def deletePublicationFromDB(publication_id:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''DELETE FROM {TABLE_PUBLICATION} WHERE publication_id = "{publication_id}" ''')
+        cursor.execute(f'''
+                       DELETE FROM {TABLE_PUBLICATION}
+                       WHERE publication_id = "{publication_id}"; 
+                       ''')
         conn.commit()
         
         cursor.close()
@@ -90,15 +111,20 @@ def deletePublicationFromDB(publication_id:str) -> bool:
     except Exception:
         return False
     
-def likePublication(data:dict) -> bool:
+def likePublication(publication_id:str, username:str, rating:int) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {RELATION_TABLE_RATE_PUBLICATION} (username, publication_id, rating) VALUES (
-            "{data["username"]}",
-            "{data["publication_id"]}",
-            {data["rating"]})''')
+        cursor.execute(f'''
+                       INSERT INTO {RELATION_TABLE_RATE_PUBLICATION} 
+                       (username, publication_id, rating) 
+                       VALUES (
+                           "{username}",
+                           "{publication_id}",
+                           {rating}
+                       );
+                       ''')
         
         cursor.close()
         conn.commit()
@@ -125,22 +151,6 @@ def updatepublication(publication_id:str, description:str) -> bool:
     except Exception:
         return False
     
-def isUsernameCreatorOfPublication(username:str, publication_id:str):
-    try:
-        conn = MYSQL.get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute(f'''
-                       SELECT poster_username 
-                       FROM {TABLE_PUBLICATION} 
-                       WHERE publication_id = "{publication_id}" ''')
-        
-        resultat = cursor.fetchall()[0][0]
-        cursor.close()
-        
-        return resultat == username
-    except Exception:
-        return False
     
 def getPublicationById(publication_id:str, username:str=None) -> dict or None:
     try:
@@ -170,11 +180,11 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
             "description": row[3],
             "picture":row[4],
             "comments":getCommentsOfPublication(row[0],username=username),
-            "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
+            "created_date": getIntervalOdTimeSinceCreation(row[5]),
             "rating": int(row[6]) if row[6] is not None else 0,
         }
         if username is not None:
-            publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
+            publication["user_rating"] = getIntFromRating(row[7])
             
         publication["tags"] = getPublicationTags(publication_id)
             
@@ -210,7 +220,7 @@ def removeTagsFromPublication(publication_id:str) -> bool:
         cursor.close()
         
         return True
-    except ValueError:
+    except Exception:
         return False
     
 def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
@@ -245,20 +255,17 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
                 "description": row[3],
                 "picture":row[4],
                 "comments":getCommentsOfPublication(row[0],username=username),
-                "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
+                "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": int(row[6]) if row[6] is not None else 0,
                 "tags": getPublicationTags(row[0])
             }
             if username is not None:
-                publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
-            
-            
-
+                publication["user_rating"] = getIntFromRating(row[7])
             
             data.append(publication)
         
         return data
-    except ValueError:
+    except Exception:
         return None
 
 def getPublications(username:str=None, offset:int=1):
@@ -291,19 +298,19 @@ def getPublications(username:str=None, offset:int=1):
                 "description": row[3],
                 "picture":row[4],
                 "comments":getCommentsOfPublication(row[0],username=username),
-                "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
+                "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": int(row[6]) if row[6] is not None else 0,
                 "tags":getPublicationTags(row[0])
             }
             if username is not None:
-                publication["user_rating"] = 0 if row[7] is None else (1 if row[7] == b'\x01' else -1)
+                publication["user_rating"] = getIntFromRating(row[7])
             
 
             
             data.append(publication)
         
         return data
-    except ValueError:
+    except Exception:
         return None
     
 def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 1):
@@ -336,11 +343,11 @@ def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 
                     "profile_picture":row[2]
                 },
                 "message": row[3],
-                "created_date": row[4].strftime('%Y-%m-%d %H:%M:%S'),
+                "created_date": getIntervalOdTimeSinceCreation(row[4]),
                 "rating": int(row[5]) if row[5] is not None else 0,
             }
             if username is not None:
-                comment["user_rating"] = 0 if row[6] is None else (1 if row[6] == b'\x01' else -1)
+                comment["user_rating"] = getIntFromRating(row[6])
             data.append(comment)
         
         return data

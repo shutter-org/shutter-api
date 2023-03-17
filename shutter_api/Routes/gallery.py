@@ -247,13 +247,7 @@ def gallery(app) -> None:
             return missingParameterInJson("rating")
         
         
-        data = {
-            "rating": int(rating),
-            "gallery_id": gallery_id,
-            "username": username
-        }
-        
-        if likeGallery(data):
+        if likeGallery(gallery_id,username,int(rating)):
             return ok()
         else:
             return requestFail()

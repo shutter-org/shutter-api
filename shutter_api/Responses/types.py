@@ -15,8 +15,8 @@ def creationSucces(data=None) -> tuple:
 def creationFail() -> tuple:
     return jsonify({
         "Error": "Creation failure",
-        "Code":422
-        }),422
+        "Code":500
+        }),500
 
 def deleteSucces() -> tuple:
     return "ok",200
@@ -24,8 +24,8 @@ def deleteSucces() -> tuple:
 def deleteFail() -> tuple:
     return jsonify({
         "Error": "delete failure",
-        "Code":422
-        }),422
+        "Code": 500
+        }),500
     
 def noAcces() -> tuple:
     return "No acces",403
@@ -33,8 +33,8 @@ def noAcces() -> tuple:
 def requestFail() -> tuple:
      return jsonify({
         "Error": "request failure",
-        "Code":422
-        }),422
+        "Code":500
+        }),500
 
 def invalidParameter(param:str) -> tuple:
     return jsonify({

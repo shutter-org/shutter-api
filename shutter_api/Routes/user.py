@@ -1,7 +1,7 @@
 from shutter_api.MySQL_command import *
 from flask import request
 from shutter_api.Responses import *
-from flask_jwt_extended import jwt_required, get_current_user
+from flask_jwt_extended import jwt_required, get_current_user, create_access_token
 import re
 
 
@@ -92,12 +92,27 @@ def user(app) -> None:
                 return invalidParameter("profile_picture")
         except KeyError:
             profile_picture = None
+            
+        try:
+            name = data["name"]
+            if type(name) is not str:
+                return invalidParameter("name")
+            name = name.strip()
+            if name == "":
+                return invalidParameter("name")
+        except KeyError:
+            name = None
         
         if (profile_picture is None and bio is None and
-            email is None and newUsername is None):
+            email is None and newUsername is None and
+            name is None):
             return missingParameterInJson("No param")
         
-        if updateUser(username, newUsername=newUsername, email=email, bio=bio, picture=profile_picture):
+        if updateUser(username, newUsername=newUsername, email=email, bio=bio, picture=profile_picture, name=name):
+            if newUsername is not None:
+                token = create_access_token(newUsername)
+                return connectionSucces(token)
+            
             return ok()
         else:
             return requestFail()

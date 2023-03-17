@@ -1,16 +1,18 @@
 from shutter_api import MYSQL
 from .publication import getCommentsOfPublication
 from .gallery import getGalleryPublications
-from datetime import datetime, date
-from .tableName import *
-from .tableTitles import *
+from .Tools import *
 
 def doesUsernameExist(userName:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT username FROM {TABLE_USER} WHERE username = "{userName}"; ''')
+        cursor.execute(f'''
+                       SELECT username 
+                       FROM {TABLE_USER} 
+                       WHERE username = "{userName}"; 
+                       ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -25,7 +27,11 @@ def isEmailValid(email:str) -> bool:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT email FROM {TABLE_USER} WHERE email = "{email}"; ''')
+        cursor.execute(f'''
+                       SELECT email 
+                       FROM {TABLE_USER} 
+                       WHERE email = "{email}"; 
+                       ''')
         result = cursor.fetchall()
         
         cursor.close()
@@ -53,7 +59,7 @@ def doesUserFollowUsername(follower:str, followed) -> bool:
     except Exception:
         return False
 
-def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None) -> bool:
+def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -65,12 +71,13 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                        {f"""{"," if newUsername is not None else ""}u.email = "{email}" """ if email is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None else ""}u.biography = "{bio}" """ if bio is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None or bio is not None else ""}u.profile_picture = "{picture}" """ if picture is not None else ""}
+                       {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None else ""}u.name = "{name}" """ if name is not None else ""}
                        WHERE u.username = "{username}"; ''')
         conn.commit()
         
         cursor.close()
         return True
-    except ValueError:
+    except Exception:
         return False
 
 def deleteUserFromDB(userName:str) -> bool:
@@ -86,7 +93,7 @@ def deleteUserFromDB(userName:str) -> bool:
         
         cursor.close()
         return True
-    except ValueError:
+    except Exception:
         return False
     
 def usernameFollowUser(follower:str, followed:str) -> bool:
@@ -234,9 +241,9 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list:
                 },
                 "description": row[3],
                 "picture": row[4],
-                "created_date": row[5].strftime('%Y-%m-%d %H:%M:%S'),
+                "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": row[6] if row[6] is not None else 0,
-                "user_rating":0 if row[7] is None else (1 if row[7] == b'\x01' else -1),
+                "user_rating": getIntFromRating(row[7]),
                 "comments": getCommentsOfPublication(row[0],username=username)
             }
             data.append(post)
@@ -251,22 +258,25 @@ def getUserByUsername(username:str) -> dict:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT u.username, u.biography, u.name, u.birthdate, u.profile_picture FROM {TABLE_USER} u WHERE username = "{username}" ''')
+        cursor.execute(f'''
+                       SELECT u.username, u.biography, u.name, u.birthdate, u.profile_picture 
+                       FROM {TABLE_USER} u 
+                       WHERE username = "{username}"; 
+                       ''')
         result = cursor.fetchall()[0]
         
         cursor.close()
-        today = date.today()
-        age = today.year - result[3].year - ((today.month, today.day) < (result[3].month, result[3].day))
+
         data = {
             "username": result[0],
             "biography":result[1],
             "name":result[2],
-            "age":age,
+            "age":getAgeFromDate(result[3]),
             "profile_picture":result[4]
         }
     
         return data
-    except ValueError:
+    except Exception:
         return None
     
 def getUserByUsernameDetail(username:str) -> dict:
@@ -274,21 +284,24 @@ def getUserByUsernameDetail(username:str) -> dict:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT u.username, u.email, u.biography, u.name, u.created_date, u.birthdate, u.profile_picture FROM {TABLE_USER} u WHERE username = "{username}" ''')
-        result = cursor.fetchall()[0]
+        cursor.execute(f'''
+                       SELECT u.username, u.email, u.biography, u.name, u.created_date, u.birthdate, u.profile_picture
+                       FROM {TABLE_USER} u 
+                       WHERE username = "{username}"; 
+                       ''')
+        row = cursor.fetchall()[0]
         
         cursor.close()
-        today = date.today()
-        age = today.year - result[5].year - ((today.month, today.day) < (result[5].month, result[5].day))
+
         data = {
-            "username": result[0],
-            "email":result[1],
-            "biography":result[2],
-            "name":result[3],
-            "created_date": result[4].strftime('%Y-%m-%d'),
-            "birthdate":result[5].strftime('%Y-%m-%d'),
-            "age":age,
-            "profile_picture":result[6]
+            "username": row[0],
+            "email":row[1],
+            "biography":row[2],
+            "name":row[3],
+            "created_date": getIntervalOdTimeSinceCreation(row[4]),
+            "birthdate":row[5].strftime('%Y-%m-%d'),
+            "age":getAgeFromDate(row[5]),
+            "profile_picture":row[6]
         }
     
         return data

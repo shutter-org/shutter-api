@@ -1,6 +1,5 @@
 from shutter_api import MYSQL
-from .tableTitles import *
-from .tableName import *
+from .Tools import *
 
 def createNewUser(data:dict) -> bool:
     

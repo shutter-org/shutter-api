@@ -28,13 +28,7 @@ def signIn(app) -> None:
             return missingParameterInJson("password")
         
         
-
-        data = {
-            "username": username,
-            "password": password
-        }
-        
-        if isUserPasswordValid(data):
+        if isUserPasswordValid(username, password):
             token = create_access_token(username)
             
             return connectionSucces(token)

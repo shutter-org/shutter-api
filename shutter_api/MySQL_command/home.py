@@ -1,5 +1,5 @@
 from shutter_api import MYSQL
-from .tableName import *
+from .Tools import *
 
 
 def command() -> None:

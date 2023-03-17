@@ -1,17 +1,20 @@
 from shutter_api import MYSQL
-from .tableName import *
-from .tableTitles import *
+from .Tools import *
 
-def isUserPasswordValid(data:dict) -> bool:
+def isUserPasswordValid(username:str, password:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''SELECT password FROM {TABLE_USER} WHERE username = "{data["username"]}" ''')
+        cursor.execute(f'''
+                       SELECT u.password 
+                       FROM {TABLE_USER} u 
+                       WHERE u.username = "{username}"; 
+                       ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
         
-        return result == data["password"]
+        return result == password
     except Exception:
         return False
         
