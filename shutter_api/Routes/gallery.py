@@ -189,7 +189,7 @@ def gallery(app) -> None:
             return missingParameterInJson("publication_id")
         
         username = get_current_user()
-        if not doesGalleryBelongToUser(username, gallery_id) or not doesPublicationBelongToUser(username, publication_id):
+        if not doesGalleryBelongToUser(username, gallery_id):
             return noAcces()
         
         if addPublicationToGallery(gallery_id, publication_id):
