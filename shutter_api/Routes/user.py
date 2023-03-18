@@ -27,21 +27,30 @@ def user(app) -> None:
         following = getFollowUser(username)
         followers = getFollowedUser(username)
         publications = getUserPublications(username)
+        nb_following = getFollowUserNumber(username)
+        nb_followers = getFollowedUserNumber(username)
+        nb_publications = getNumberOfPublicationFromUser(username)
         
         
-        if data is None or following is None or followers is None or gallery is None or publications is None:
+        if (data is None or following is None or
+            followers is None or gallery is None or 
+            publications is None or nb_followers is None or
+            nb_following is None or nb_publications is None):
             return requestFail()
         
         data["following"] = following
+        data["nb_following"] = nb_following
+        data["nb_followers"] = nb_followers
+        data["nb_publications"] = nb_publications
         data["followers"] = followers
         data["publications"] = publications
+        
         if username != currentUser:
             data["followed_by_user"] = doesUserFollowUsername(currentUser,username)
             
         data["gallerys"] = gallerys
         return ok(data=data)
-    
-    
+      
     @app.route("/users/<username>", methods=["PUT"])
     @jwt_required()
     def put_users_username(username:str):
@@ -121,7 +130,6 @@ def user(app) -> None:
         else:
             return requestFail()
         
-
     @app.route("/users/<username>", methods=["DELETE"])
     @jwt_required()
     def delete_users_username(username:str):
@@ -137,8 +145,7 @@ def user(app) -> None:
             return deleteSucces()
         else:
             return deleteFail()
-    
-    
+      
     @app.route("/users/<username>/publications", methods=["GET"])
     @jwt_required()
     def get_users_username_publications(username:str):
@@ -158,8 +165,7 @@ def user(app) -> None:
             return ok(data=data)
         else:
             return deleteFail()
-    
-        
+           
     @app.route("/users/<username>/follow", methods=["POST"])
     @jwt_required()
     def post_users_username_follow(username:str):
@@ -196,8 +202,7 @@ def user(app) -> None:
            return ok() 
         else:
             return requestFail()
-
-        
+       
     @app.route("/users/<username>/following", methods=["GET"])
     @jwt_required()
     def get_usersusername_following(username:str):

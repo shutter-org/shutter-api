@@ -36,6 +36,25 @@ def usernameUnfollowUser(follower:str, followed:str) -> bool:
     except Exception:
         return False
     
+def getFollowUserNumber(username:str) -> int or None:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT COUNT(*)
+                       FROM {RELATION_TABLE_FOLLOW} f
+                       LEFT JOIN {TABLE_USER} u ON u.username = f.followed_username
+                       WHERE f.follower_username = "{username}"
+                       ''')
+        
+        result = cursor.fetchall()[0][0]
+        cursor.close()
+        
+        return result
+    except Exception:
+        return None
+
 def getFollowUser(username:str, offset:int=1) -> list or None:
     try:
         conn = MYSQL.get_db()
@@ -61,6 +80,25 @@ def getFollowUser(username:str, offset:int=1) -> list or None:
             }
             data.append(user)
         return data
+    except Exception:
+        return None
+
+def getFollowedUserNumber(username:str) -> int or None:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT COUNT(*)
+                       FROM {RELATION_TABLE_FOLLOW} f
+                       LEFT JOIN {TABLE_USER} u ON u.username = f.follower_username
+                       WHERE f.followed_username = "{username}";
+                       ''')
+        result = cursor.fetchall()[0][0]
+        
+        cursor.close()
+        
+        return result
     except Exception:
         return None
 

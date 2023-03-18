@@ -20,7 +20,8 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                             FROM {TABLE_USER} u
                             WHERE u.username = "{username}";
                             ''')
-            url = cursor.fetchall()[0][0]
+            url = str(cursor.fetchall()[0][0])
+            url = url.rsplit("?",1)
             picture = addImgToKitio(url, newUsername)
 
         cursor.execute(f'''

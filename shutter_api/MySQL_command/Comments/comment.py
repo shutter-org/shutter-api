@@ -81,5 +81,20 @@ def updateComment(comment_id:str, message:str) -> bool:
     except Exception:
         return False
     
-
-    
+def getNumberOfCommentsFromPublication(publication_id:str) -> int or None:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT COUNT(*) 
+                       FROM {TABLE_COMMENT} c
+                       WHERE c.publication_id = "{publication_id}";
+                       ''')
+        result = cursor.fetchall()[0][0]
+        
+        cursor.close()
+        
+        return result
+    except Exception:
+        return None

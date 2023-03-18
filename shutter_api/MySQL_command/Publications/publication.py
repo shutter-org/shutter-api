@@ -1,5 +1,6 @@
 from shutter_api import MYSQL, IMAGEKIT, IMAGE_URL_ENDPOINT
 from shutter_api.MySQL_command.Tools import *
+from shutter_api.MySQL_command.Comments import *
 
 def createPublication(data:dict) -> bool:
     try:
@@ -78,7 +79,6 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
         row = cursor.fetchall()[0]
         cursor.close()
         
-        
         publication = {
             "publication_id": row[0],
             "poster_user":{
@@ -88,13 +88,14 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
             "description": row[3],
             "picture":row[4],
             "comments":getCommentsOfPublication(row[0],username=username),
+            "nb_comments": getNumberOfCommentsFromPublication(row[0]),
             "created_date": getIntervalOdTimeSinceCreation(row[5]),
             "rating": int(row[6]) if row[6] is not None else 0,
+            "tags":getPublicationTags(publication_id)
         }
         if username is not None:
             publication["user_rating"] = getIntFromRating(row[7])
-            
-        publication["tags"] = getPublicationTags(publication_id)
+
             
         return publication
     except Exception:
@@ -126,7 +127,24 @@ def getUserPublications(username:str, offset:int = 1) -> list:
         
         
         return publications
-    except ValueError:
+    except Exception:
+        return None
+    
+def getNumberOfPublicationFromUser(username:str) -> int or None:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT COUNT(*)
+                       FROM publication p
+                       WHERE p.poster_username = "{username}"
+                       ''')
+        result = cursor.fetchall()[0][0]
+        cursor.close()
+       
+        return result
+    except Exception:
         return None
      
 def getPublicationTags(publication_id:str) -> list:
@@ -192,6 +210,7 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
                 "description": row[3],
                 "picture":row[4],
                 "comments":getCommentsOfPublication(row[0],username=username),
+                "nb_comments":getNumberOfCommentsFromPublication(row[0]),
                 "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": int(row[6]) if row[6] is not None else 0,
                 "tags": getPublicationTags(row[0])
@@ -235,6 +254,7 @@ def getPublications(username:str=None, offset:int=1):
                 "description": row[3],
                 "picture":row[4],
                 "comments":getCommentsOfPublication(row[0],username=username),
+                "nb_comments":getNumberOfCommentsFromPublication(row[0]),
                 "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": int(row[6]) if row[6] is not None else 0,
                 "tags":getPublicationTags(row[0])

@@ -66,8 +66,26 @@ def updateGallery(gallery_id:str, description:str = None, title:str = None, priv
         return True
     except Exception:
         return False
-     
-def getGalleryById(gallery_Id:str, username:str) -> dict or None:
+
+def getNumberPublicationsFromGallery(gallery_id:str) -> int or None:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute(f'''
+                       SELECT COUNT(*)
+                       FROM {RELATION_TABLE_SAVE} s
+                       WHERE s.gallery_id = "{gallery_id}";
+                       ''')
+        result = cursor.fetchall()[0][0]
+
+        cursor.close()
+       
+        return result
+    except Exception:
+        return None
+
+def getGalleryById(gallery_id:str, username:str) -> dict or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -77,7 +95,7 @@ def getGalleryById(gallery_Id:str, username:str) -> dict or None:
                        get_user_gallery_rating("{username}",g.gallery_id), g.title
                        FROM {TABLE_GALLERY} g
                        LEFT JOIN {TABLE_USER} u ON g.creator_username = u.username
-                       WHERE g.gallery_id = "{gallery_Id}"
+                       WHERE g.gallery_id = "{gallery_id}"
                        AND (g.private = 0 OR (g.private = 1 AND g.creator_username = "{username}")) 
                        ORDER BY g.created_date DESC;
                        ''')
@@ -94,7 +112,8 @@ def getGalleryById(gallery_Id:str, username:str) -> dict or None:
             "description": row[3],
             "created_date": getIntervalOdTimeSinceCreation(row[4]),
             "rating": int(row[5]),
-            "publications":getGalleryPublications(gallery_Id,username=username),
+            "publications":getGalleryPublications(gallery_id,username=username),
+            "nb_publication":getNumberPublicationsFromGallery(gallery_id),
             "username_rating": getIntFromRating(row[6]),
             "title": row[7]
         }
