@@ -22,7 +22,9 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                             ''')
             url = str(cursor.fetchall()[0][0])
             url = url.rsplit("?",1)[0]
+            print(url)
             picture = addImgToKitio(url, newUsername)
+            print(picture)
 
         cursor.execute(f'''
                        UPDATE {TABLE_USER} u 

@@ -121,7 +121,7 @@ def user(app) -> None:
             return missingParameterInJson("No param")
         
         if updateUser(username, newUsername=newUsername, email=email, bio=bio, picture=profile_picture, name=name):
-            if newUsername is not None:
+            if newUsername is not None or profile_picture is not None:
                 token = create_access_token(newUsername)
                 user = getUserByUsernameLess(newUsername)
                 return connectionSucces(token, user)
