@@ -2,6 +2,7 @@ from shutter_api import MYSQL
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 import secrets
+from datetime import timedelta
 
 
 
@@ -24,6 +25,7 @@ def addConfig(app) -> None:
     app.config['MYSQL_DATABASE_DB'] = 'shutter'
     app.config['MYSQL_DATABASE_HOST'] = 'shutter-db.cqw2hvrmj4z8.us-east-1.rds.amazonaws.com'
     app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     MYSQL.init_app(app)
     
     
