@@ -21,7 +21,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                             WHERE u.username = "{username}";
                             ''')
             url = str(cursor.fetchall()[0][0])
-            url = url.rsplit("?",1)
+            url = url.rsplit("?",1)[0]
             picture = addImgToKitio(url, newUsername)
 
         cursor.execute(f'''
