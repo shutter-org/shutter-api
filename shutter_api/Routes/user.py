@@ -126,6 +126,7 @@ def user(app) -> None:
                 user = getUserByUsernameLess(newUsername)
                 return connectionSucces(token, user)
             if profile_picture is not None:
+                user = getUserByUsernameLess(newUsername)
                 return ok(data=user)
             
             return ok()
