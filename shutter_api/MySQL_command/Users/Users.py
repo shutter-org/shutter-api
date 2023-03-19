@@ -1,10 +1,18 @@
-from shutter_api import MYSQL, IMAGEKIT, IMAGE_URL_ENDPOINT
+from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 from shutter_api.MySQL_command.Gallerys import getGalleryPublications
 
 
-
 def getUsers(search:str) -> list or None:
+    """
+    get Users base on kyword
+
+    Args:
+        search (str): search keyword
+
+    Returns:
+        list or None: list of username, None if request fail
+    """
     try:  
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -30,11 +38,25 @@ def getUsers(search:str) -> list or None:
             })
         
         return data
-    except ValueError:
+    except Exception:
         return None
         
 
 def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None) -> bool:
+    """
+    update the username base on the param
+    
+    Args:
+        username (str): current username
+        newUsername (str, optional) : new username, default None.
+        email (str, optional) : new email, default None.
+        bio (str, optional) : new bio, default None.
+        picture (base64, optional) : new picture in format of base64 or img link, default None.
+        name (str, optional) : new name, default None.
+
+    Returns:
+        bool: if request succes
+    """
     try:
         
             
@@ -73,7 +95,16 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
     except ValueError:
         return False
 
-def deleteUserFromDB(userName:str) -> bool:
+def deleteUserFromDB(username:str) -> bool:
+    """
+    Delete user from the data base
+
+    Args:
+        username (str): username
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -81,20 +112,20 @@ def deleteUserFromDB(userName:str) -> bool:
         cursor.execute(f'''
                        SELECT p.file_id
                        FROM {TABLE_PUBLICATION} p
-                       WHERE p.poster_username = "{userName}"
+                       WHERE p.poster_username = "{username}"
                        ''')
         files = [x[0] for x in cursor.fetchall()]
         cursor.execute(f'''
                        SELECT u.file_id
                        FROM {TABLE_USER} u
-                       WHERE u.username = "{userName}"
+                       WHERE u.username = "{username}"
                        ''')
         files.append(cursor.fetchall()[0][0])
         
         
         cursor.execute(f'''
                        DELETE FROM {TABLE_USER} 
-                       WHERE username = "{userName}";
+                       WHERE username = "{username}";
                        ''')
         
         deleteImageBulkFromImagekitio(files)
@@ -105,7 +136,17 @@ def deleteUserFromDB(userName:str) -> bool:
     except ValueError:
         return False
         
-def getUserGallery(username:str, private:bool) -> list:
+def getUserGallery(username:str, private:bool) -> list or None:
+    """
+    get the gallerys of a user
+
+    Args:
+        username (str): username
+        private (bool): get the private gallerys
+
+    Returns:
+        list or None: list of gallery, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -132,7 +173,23 @@ def getUserGallery(username:str, private:bool) -> list:
     except Exception:
         return None
     
-def getUserByUsername(username:str) -> dict:
+def getUserByUsername(username:str) -> dict or None:
+    """
+    get a user data 
+
+    Args:
+        username (str): user username
+
+    Returns:
+        dict or None: None if request fail
+            "username": str,
+            "biography":str,
+            "name":str,
+            "age": int,
+            "profile_picture": str,
+            "created_date": str
+            
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -160,6 +217,23 @@ def getUserByUsername(username:str) -> dict:
         return None
     
 def getUserByUsernameDetail(username:str) -> dict:
+    """
+    get a user data with more data
+
+    Args:
+        username (str): user username
+
+    Returns:
+        dict or None: None if request fail
+            "username": str,
+            "biography":str,
+            "name":str,
+            "age": int,
+            "profile_picture": str,
+            "created_date": str,
+            "birthdate": str,
+            "email": str
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -189,6 +263,18 @@ def getUserByUsernameDetail(username:str) -> dict:
         return None
     
 def getUserByUsernameLess(username:str) -> dict:
+    """
+    get user with minimum data
+
+    Args:
+        username (str): user username
+
+    Returns:
+        dict or None: None if request fail
+            "username": str,
+            "profile_picture": str
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

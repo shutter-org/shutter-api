@@ -349,14 +349,14 @@ def getPublications(username:str=None, offset:int=1):
     except Exception:
         return None
     
-def getCommentsOfPublication(publication_id:str, username:str=None,offset:int = 1):
+def getCommentsOfPublication(publication_id:str, username:str,offset:int = 1):
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
         cursor.execute(f'''
                         SELECT c.comment_id, c.commenter_username, u.profile_picture, c.message, c.created_date, c.rating
-                        {f""", get_user_comment_rating("{username}",c.comment_id)""" if username is not None else ""}
+                        , get_user_comment_rating("{username}",c.comment_id)
                         FROM {TABLE_COMMENT} c 
                         LEFT JOIN {TABLE_USER} u ON c.commenter_username = u.username
                         WHERE c.publication_id = "{publication_id}"

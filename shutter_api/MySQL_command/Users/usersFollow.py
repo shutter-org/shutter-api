@@ -1,8 +1,19 @@
 from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 from shutter_api.MySQL_command.Publications import getCommentsOfPublication
+from shutter_api.MySQL_command.Comments import getNumberOfCommentsFromPublication
 
 def usernameFollowUser(follower:str, followed:str) -> bool:
+    """
+    add to db follower follow followed
+
+    Args:
+        follower (str): username of the follower
+        followed (str): username of the folloed
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -20,6 +31,16 @@ def usernameFollowUser(follower:str, followed:str) -> bool:
         return False
     
 def usernameUnfollowUser(follower:str, followed:str) -> bool:
+    """
+    remove from db follower follow followed
+
+    Args:
+        follower (str): username of the follower
+        followed (str): username of the folloed
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -37,6 +58,15 @@ def usernameUnfollowUser(follower:str, followed:str) -> bool:
         return False
     
 def getFollowUserNumber(username:str) -> int or None:
+    """
+    get the number of user that follow the user
+
+    Args:
+        username (str): user username
+
+    Returns:
+        int or None: nb of follower, None if request Fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -56,6 +86,16 @@ def getFollowUserNumber(username:str) -> int or None:
         return None
 
 def getFollowUser(username:str, offset:int=1) -> list or None:
+    """
+    get the user that are being follow by username
+
+    Args:
+        username (str): user username
+        offset (int, optional): foreach offset get the next 10 users. Defaults to 1.
+
+    Returns:
+        list or None: list of user, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -84,6 +124,15 @@ def getFollowUser(username:str, offset:int=1) -> list or None:
         return None
 
 def getFollowedUserNumber(username:str) -> int or None:
+    """
+    get the number of user that are being follow by the user
+
+    Args:
+        username (str): user username
+
+    Returns:
+        int or None: nb of followed, None if request Fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -103,6 +152,16 @@ def getFollowedUserNumber(username:str) -> int or None:
         return None
 
 def getFollowedUser(username:str, offset:int=1) -> list or None:
+    """
+    get the user that are being follow by username
+
+    Args:
+        username (str): user username
+        offset (int, optional): foreach offset get the next 10 users. Defaults to 1.
+
+    Returns:
+        list or None: list of user, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -130,6 +189,16 @@ def getFollowedUser(username:str, offset:int=1) -> list or None:
         return None
 
 def getuserFollowedPublication(username:str, offset:int = 1) -> list or None:
+    """
+    get the most recent publications of the user being follow
+
+    Args:
+        username (str): _description_
+        offset (int, optional): _description_. Defaults to 1.
+
+    Returns:
+        list or None: _description_
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -159,7 +228,8 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list or None:
                 "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": row[7] if row[7] is not None else 0,
                 "user_rating": getIntFromRating(row[6]),
-                "comments": getCommentsOfPublication(row[0],username=username)
+                "comments": getCommentsOfPublication(row[0],username=username),
+                "nb_comments": getNumberOfCommentsFromPublication(row[0])
             }
             data.append(post)
         
