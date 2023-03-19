@@ -1,8 +1,21 @@
-from shutter_api import MYSQL, IMAGEKIT, IMAGE_URL_ENDPOINT
+from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 from shutter_api.MySQL_command.Comments import *
 
 def createPublication(data:dict) -> bool:
+    """
+    requete MySQL to create new publication
+
+    Args:
+        data (dict):
+            "publication_id":str
+            "poster_username:str
+            "description:str
+            "created_date:str
+
+    Returns:
+        bool: if request succes
+    """
     try:
         picture, file_id = addImgToKitioToPublications(data["picture"], str(data["publication_id"]))
         
@@ -25,10 +38,19 @@ def createPublication(data:dict) -> bool:
         conn.commit()
         
         return True
-    except ValueError:
+    except Exception:
         return False
     
 def deletePublicationFromDB(publication_id:str) -> bool:
+    """
+    Delete the publication from the data_base
+
+    Args:
+        publication_id (str): id of the publication
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -53,6 +75,16 @@ def deletePublicationFromDB(publication_id:str) -> bool:
         return False
       
 def updatepublication(publication_id:str, description:str) -> bool:
+    """
+    Update the publication description
+
+    Args:
+        publication_id (str): id of the publication
+        description (str): new description
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -70,14 +102,25 @@ def updatepublication(publication_id:str, description:str) -> bool:
     except Exception:
         return False
     
-def getPublicationById(publication_id:str, username:str=None) -> dict or None:
+def getPublicationById(publication_id:str, username:str) -> dict or None:
+    """
+    get the publication with the id
+
+    Args:
+        publication_id (str): id of the publication
+        username (str): username of the request
+
+    Returns:
+        dict or None : publication data, None if request fail.
+    """
+    
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
         cursor.execute(f'''
                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                       {f""", get_user_publication_rating("{username}",p.publication_id)""" if username is not None else ""}
+                       , get_user_publication_rating("{username}",p.publication_id)
                        FROM publication p
                        LEFT JOIN user u ON p.poster_username = u.username
                        WHERE p.publication_id = "{publication_id}"
@@ -100,17 +143,25 @@ def getPublicationById(publication_id:str, username:str=None) -> dict or None:
             "nb_comments": getNumberOfCommentsFromPublication(row[0]),
             "created_date": getIntervalOdTimeSinceCreation(row[5]),
             "rating": int(row[6]) if row[6] is not None else 0,
-            "tags":getPublicationTags(publication_id)
+            "tags":getPublicationTags(publication_id),
+            "user_rating":getIntFromRating(row[7])
         }
-        if username is not None:
-            publication["user_rating"] = getIntFromRating(row[7])
-
             
         return publication
     except Exception:
         return None
     
 def getUserPublications(username:str, offset:int = 1) -> list:
+    """
+    get The publications of a certain user
+
+    Args:
+        username (str): username
+        offset (int, optional): foreach offset get the next 10 publications. Defaults to 1.
+
+    Returns:
+        list: list of publication of the user
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -140,6 +191,15 @@ def getUserPublications(username:str, offset:int = 1) -> list:
         return None
     
 def getNumberOfPublicationFromUser(username:str) -> int or None:
+    """
+    Get the total number of publication of the user
+
+    Args:
+        username (str): username
+
+    Returns:
+        int or None: number of publication, None if request fail.
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -157,6 +217,16 @@ def getNumberOfPublicationFromUser(username:str) -> int or None:
         return None
      
 def getPublicationTags(publication_id:str) -> list:
+    """
+    Get the tags of a publication
+
+    Args:
+        publication_id (str): id of the publication
+
+    Returns:
+        list : list of tag link to publication.
+    """
+
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -170,7 +240,7 @@ def getPublicationTags(publication_id:str) -> list:
         
         return [x[0] for x in resultat]
     except Exception:
-        return []
+        return None
     
 def removeTagsFromPublication(publication_id:str) -> bool:
     try:

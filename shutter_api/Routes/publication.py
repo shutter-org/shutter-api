@@ -18,7 +18,9 @@ def publication(app) -> None:
         
         try:
             tag = request.args.get('tag',default=None,type=str)
-            if tag is not None:
+            if tag == "":
+                pass
+            elif tag is not None:
                 if not doesTagExist(tag):
                     return invalidParameter("tag")
         except ValueError:
@@ -34,9 +36,14 @@ def publication(app) -> None:
 
         
         if tag == None:
-            data = getPublications(username=username, offset=page)
+            data = getPublications(username=username, offset=page)     
         else:
-            data = getPublicationsFromTag(tag=tag,username=username,offset=page)
+            if tag == "":
+                data = getPublications(username=username, offset=page)
+            else:
+                data = getPublicationsFromTag(tag=tag,username=username,offset=page)
+
+                
             
         if data is None:
             return requestFail()
