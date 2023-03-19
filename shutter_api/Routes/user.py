@@ -7,6 +7,21 @@ import re
 
 def user(app) -> None:
     
+    @app.route("/users", methods=["GET"])
+    @jwt_required()
+    def get_users():
+        try:
+            search = request.args.get('search', default="", type=str)
+        except ValueError:
+            search = ""
+        
+        data = getUsers(search)
+        if data is None:
+            return requestFail()
+        else:
+            return ok(data=data)
+        
+    
     @app.route("/users/<username>", methods=["GET"])
     @jwt_required()
     def get_users_username(username:str):

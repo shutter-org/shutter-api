@@ -4,6 +4,30 @@ from shutter_api.MySQL_command.Gallerys import getGalleryPublications
 
 
 
+def getUsers(search:str) -> list or None:
+    try:  
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        
+        #TODO
+        #ajout order by nb_follower
+        ###################
+        
+        cursor.execute(f'''
+                       SELECT u.username
+                       FROM {TABLE_USER} u
+                       WHERE u.username LIKE '{search}%'
+                       LIMIT 10;
+                       ''')
+        result = cursor.fetchall()
+        
+        
+        cursor.close()
+        return [x[0] for x in result]
+    except ValueError:
+        return None
+        
+
 def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None) -> bool:
     try:
         
@@ -39,7 +63,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
         
         cursor.close()
         return True
-    except ValueError:
+    except Exception:
         return False
 
 def deleteUserFromDB(userName:str) -> bool:
