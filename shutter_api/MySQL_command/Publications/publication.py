@@ -4,19 +4,20 @@ from shutter_api.MySQL_command.Comments import *
 
 def createPublication(data:dict) -> bool:
     try:
-        picture = addImgToKitio(data["picture"], str(data["publication_id"]))
+        picture, file_id = addImgToKitioToPublications(data["picture"], str(data["publication_id"]))
         
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                       INSERT INTO {TABLE_PUBLICATION} (publication_id, poster_username, description, picture, created_date) 
+                       INSERT INTO {TABLE_PUBLICATION} (publication_id, poster_username, description, picture, created_date, file_id) 
                        VALUES (
                            "{data["publication_id"]}",
                            "{data["poster_username"]}",
                            "{data["description"]}",
                            "{picture}",
-                           "{data["created_date"]}"
+                           "{data["created_date"]}",
+                           "{file_id}"
                        );
                        ''')
         
@@ -31,12 +32,20 @@ def deletePublicationFromDB(publication_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
+        cursor.execute(f'''
+                       SELECT file_id
+                       FROM {TABLE_PUBLICATION}
+                       WHERE publication_id = "{publication_id}"; 
+                       ''')
+        file_id = cursor.fetchall()[0][0]
         
         cursor.execute(f'''
                        DELETE FROM {TABLE_PUBLICATION}
                        WHERE publication_id = "{publication_id}"; 
                        ''')
         conn.commit()
+        
+        deleteImageFromImagekiTio(file_id)
         
         cursor.close()
         return True

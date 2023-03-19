@@ -4,19 +4,21 @@ URL = "https://imgs.search.brave.com/ZGS8dDvM1Atr05xVh0iH_Lk8XULxvAZ2vP5CV1u-u8s
 def createNewUser(data:dict) -> bool:
     
     try:
-        picture = addImgToKitio(URL, data["username"])
+        pictureURL, file_id = addImgToKitioToUsers(URL, data["username"])
         
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        cursor.execute(f'''INSERT INTO {TABLE_USER} (username, password, email, name, created_date, birthdate, profile_picture) VALUES (
+        cursor.execute(f'''INSERT INTO {TABLE_USER} (username, password, email, name, created_date, birthdate, profile_picture, file_id) VALUES (
             "{data["username"]}",
             "{data["password"]}",
             "{data["email"]}",
             "{data["name"]}",
             "{data["created_date"]}",
             "{data["birthdate"]}",
-            "{picture}")''')
+            "{pictureURL}",
+            "{file_id}")
+            ''')
         cursor.close()
         conn.commit()
         

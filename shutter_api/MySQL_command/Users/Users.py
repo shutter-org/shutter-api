@@ -42,7 +42,9 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
         cursor = conn.cursor()
         
         if picture is not None:
-            picture = addImgToKitio(picture,username)
+            picture, file_id = addImgToKitioToUsers(picture,username)
+        else:
+            file_id = None
             
         if newUsername is not None:
             cursor.execute(f'''
@@ -52,9 +54,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                             ''')
             url = str(cursor.fetchall()[0][0])
             url = url.rsplit("?",1)[0]
-            print(url)
-            picture = addImgToKitio(url, newUsername)
-            print(picture)
+            picture = updateUserImgToKitio(username, newUsername)
 
         cursor.execute(f'''
                        UPDATE {TABLE_USER} u 
@@ -64,12 +64,13 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                        {f"""{"," if newUsername is not None or email is not None else ""}u.biography = "{bio}" """ if bio is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None or bio is not None else ""}u.profile_picture = "{picture}" """ if picture is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None else ""}u.name = "{name}" """ if name is not None else ""}
+                       {f""",u.file_id = "{file_id}" """ if file_id is not None else ""}
                        WHERE u.username = "{username}"; ''')
         conn.commit()
         
         cursor.close()
         return True
-    except Exception:
+    except ValueError:
         return False
 
 def deleteUserFromDB(userName:str) -> bool:
@@ -78,9 +79,20 @@ def deleteUserFromDB(userName:str) -> bool:
         cursor = conn.cursor()
         
         cursor.execute(f'''
+                       SELECT u.file_id
+                       FROM {TABLE_USER} u
+                       WHERE u.username = "{userName}"
+                       ''')
+        file_id = cursor.fetchall[0][0]
+        
+        
+        
+        cursor.execute(f'''
                        DELETE FROM {TABLE_USER} 
                        WHERE username = "{userName}";
                        ''')
+        
+        deleteImageFromImagekiTio(file_id=file_id)
         conn.commit()
         
         cursor.close()
