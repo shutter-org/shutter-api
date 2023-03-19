@@ -14,16 +14,22 @@ def getUsers(search:str) -> list or None:
         ###################
         
         cursor.execute(f'''
-                       SELECT u.username
+                       SELECT u.username, u.profile_picture, u.name
                        FROM {TABLE_USER} u
                        WHERE u.username LIKE '{search}%'
                        LIMIT 10;
                        ''')
         result = cursor.fetchall()
-        
-        
         cursor.close()
-        return [x[0] for x in result]
+        data = []
+        for row in result:
+            data.append({
+                "username": row[0],
+                "profile_picture" : row[1],
+                "name":row[2]
+            })
+        
+        return data
     except ValueError:
         return None
         
