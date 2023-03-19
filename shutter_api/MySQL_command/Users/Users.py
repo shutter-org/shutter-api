@@ -77,14 +77,19 @@ def deleteUserFromDB(userName:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+          
+        cursor.execute(f'''
+                       SELECT p.file_id
+                       FROM {TABLE_PUBLICATION} p
+                       WHERE p.poster_username = "{userName}"
+                       ''')
+        files = [x[0] for x in cursor.fetchall()]
         cursor.execute(f'''
                        SELECT u.file_id
                        FROM {TABLE_USER} u
                        WHERE u.username = "{userName}"
                        ''')
-        file_id = cursor.fetchall[0][0]
-        
+        files.append(cursor.fetchall()[0][0])
         
         
         cursor.execute(f'''
@@ -92,12 +97,12 @@ def deleteUserFromDB(userName:str) -> bool:
                        WHERE username = "{userName}";
                        ''')
         
-        deleteImageFromImagekiTio(file_id=file_id)
+        deleteImageBulkFromImagekitio(files)
         conn.commit()
         
         cursor.close()
         return True
-    except Exception:
+    except ValueError:
         return False
         
 def getUserGallery(username:str, private:bool) -> list:

@@ -41,6 +41,9 @@ def deleteImageFromImagekiTio(file_id:str) -> None:
     IMAGEKIT.delete_file(file_id=file_id)
 
 
+def deleteImageBulkFromImagekitio(files:list) -> None:
+    IMAGEKIT.bulk_file_delete(files)
+
 def updateUserImgToKitio(oldName:str, newName:str) -> str:
     """
     This function update the name of the old Username in imagekit.io for the new one
