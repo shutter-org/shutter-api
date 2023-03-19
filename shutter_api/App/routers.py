@@ -10,3 +10,4 @@ def addRouters(app):
     publication(app)
     comment(app)
     gallery(app)
+    tag(app)

@@ -39,3 +39,28 @@ def addTagToPublication(tag:str, publication_id:str) -> bool:
     except Exception:
         return False
     
+def getTags(search:str) -> list or None:
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+
+        cursor.execute(f'''
+                       SELECT t.value, t.nb_publications
+                       FROM {TABLE_TAG} t
+                       WHERE t.value LIKE '{search}%'
+                       ORDER BY t.nb_publications DESC
+                       LIMIT 10;
+                       ''')
+        result = cursor.fetchall()
+        cursor.close()
+        data = []
+        for row in result:
+            data.append({
+                "tag":row[0],
+                "nb_publication":row[1]
+            })
+        
+        
+        return data
+    except ValueError:
+        return None

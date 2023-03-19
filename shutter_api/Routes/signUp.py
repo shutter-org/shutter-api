@@ -15,6 +15,8 @@ def signUp(app) -> None:
             if type(username) is not str:
                 return invalidParameter("username")
             username = username.strip()
+            if username.find("/") == -1:
+                return invalidParameter("username contain '/'")
             if doesUsernameExist(username):
                 return invalidParameter("username")
         except KeyError:

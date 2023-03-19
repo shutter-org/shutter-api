@@ -83,6 +83,8 @@ def user(app) -> None:
             if type(newUsername) is not str:
                 return invalidParameter("newUsername")
             newUsername = newUsername.strip()
+            if newUsername.find("/") == -1:
+                return invalidParameter("newUsername contain '/'")
             if doesUsernameExist(newUsername):
                 return invalidParameter("newUsername already taken")
         except KeyError:
