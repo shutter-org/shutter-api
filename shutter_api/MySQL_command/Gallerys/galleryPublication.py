@@ -2,6 +2,16 @@ from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 
 def addPublicationToGallery(gallery_id:str, publication_id:str) -> bool:
+    """
+    Add a publication to a gallery
+
+    Args:
+        gallery_id (str): gallery id
+        publication_id (str): publication id
+
+    Returns:
+        bool: if request succes
+    """    
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -23,6 +33,16 @@ def addPublicationToGallery(gallery_id:str, publication_id:str) -> bool:
         return False
     
 def removePublicationFromGallery(gallery_id:str, publication_id:str) -> bool:
+    """
+    Remove a publication from a gallery
+
+    Args:
+        gallery_id (str): gallery id
+        publication_id (str): publication id
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -39,7 +59,18 @@ def removePublicationFromGallery(gallery_id:str, publication_id:str) -> bool:
     except Exception:
         return False
     
-def getGalleryPublications(gallery_Id:str, username:str=None, offset:int = 1) -> list:
+def getGalleryPublications(gallery_Id:str, username:str, offset:int = 1) -> list or None:
+    """
+    Get the publications of a gallery by batch of 10
+
+    Args:
+        gallery_Id (str): gallery if
+        username (str): user username. Defaults to None.
+        offset (int, optional): foreach offset give the 10 new publications. Defaults to 1.
+
+    Returns:
+        list or None: list if publications, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -60,5 +91,5 @@ def getGalleryPublications(gallery_Id:str, username:str=None, offset:int = 1) ->
         
         return [{"publication_id": x[0], "picture":x[1]}for x in result]
     except Exception:
-        return []
+        return None
     

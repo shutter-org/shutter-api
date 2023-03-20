@@ -1,6 +1,6 @@
 from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
-from shutter_api.MySQL_command.Publications import getCommentsOfPublication
+from shutter_api.MySQL_command.Publications import getCommentsOfPublication, getPublicationTags
 from shutter_api.MySQL_command.Comments import getNumberOfCommentsFromPublication
 
 def usernameFollowUser(follower:str, followed:str) -> bool:
@@ -187,17 +187,44 @@ def getFollowedUser(username:str, offset:int=1) -> list or None:
         return data
     except Exception:
         return None
+    
+def getNbUserFollowedPublications(username:str) -> int or None:
+    """
+    Get the total nb of publication of the user that are being followed by username
 
-def getuserFollowedPublication(username:str, offset:int = 1) -> list or None:
+    Args:
+        username (str): user username
+
+    Returns:
+        int or None: nb of publicatons, None if request fail
+    """
+    
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        cursor.execute(f'''
+                        SELECT COUNT(*)
+                        FROM {TABLE_PUBLICATION} p 
+                        JOIN {RELATION_TABLE_FOLLOW} f ON p.poster_username = f.followed_username
+                        WHERE f.follower_username = "{username}";
+                        ''')
+        result = cursor.fetchall()[0][0]
+        cursor.close()
+        
+        return result
+    except Exception:
+        return None
+
+def getUserFollowedPublication(username:str, offset:int = 1) -> list or None:
     """
     get the most recent publications of the user being follow
 
     Args:
-        username (str): _description_
-        offset (int, optional): _description_. Defaults to 1.
+        username (str): user username
+        offset (int, optional): foreach offset get the next 10 publications. Defaults to 1.
 
     Returns:
-        list or None: _description_
+        list or None: list of publication, None if request fail
     """
     try:
         conn = MYSQL.get_db()
@@ -229,7 +256,8 @@ def getuserFollowedPublication(username:str, offset:int = 1) -> list or None:
                 "rating": row[7] if row[7] is not None else 0,
                 "user_rating": getIntFromRating(row[6]),
                 "comments": getCommentsOfPublication(row[0],username=username),
-                "nb_comments": getNumberOfCommentsFromPublication(row[0])
+                "nb_comments": getNumberOfCommentsFromPublication(row[0]),
+                "tags": getPublicationTags(row[0])
             }
             data.append(post)
         

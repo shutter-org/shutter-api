@@ -21,7 +21,6 @@ def user(app) -> None:
         else:
             return ok(data=data)
         
-    
     @app.route("/users/<username>", methods=["GET"])
     @jwt_required()
     def get_users_username(username:str):
@@ -282,9 +281,12 @@ def user(app) -> None:
         except ValueError:
             return invalidParameter("page")
 
-
-        data = getuserFollowedPublication(username, offset=page)
-        if data is None:
+        data = {
+            "publications" : getUserFollowedPublication(username, offset=page),
+            "nb_publications" : getNbUserFollowedPublications(username)
+        }
+        
+        if data["publications"] is None or data["nb_publications"] is None:
             return requestFail()
         else:
             return ok(data=data)

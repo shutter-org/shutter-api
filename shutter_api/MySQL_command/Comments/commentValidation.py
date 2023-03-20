@@ -2,6 +2,15 @@ from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 
 def doesCommentExist(comment_id:str) -> bool:
+    """
+    Check if the comment exist in the DB
+
+    Args:
+        comment_id (str): _description_
+
+    Returns:
+        bool: _description_
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -20,6 +29,14 @@ def doesCommentExist(comment_id:str) -> bool:
         return False
     
 def doesCommentBelongToUser(username:str, comment_id:str) -> bool:
+    """
+    Check if the comment belong to the user
+
+    Args:
+        username (str): user username
+        comment_id (str): comment id
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -38,6 +55,13 @@ def doesCommentBelongToUser(username:str, comment_id:str) -> bool:
         return False
     
 def didUserRateComment(comment_id:str, username:str) -> bool:
+    """
+    Check if the user already rated the comment
+
+    Args:
+        comment_id (str): comment id
+        username (str): user username
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -57,6 +81,14 @@ def didUserRateComment(comment_id:str, username:str) -> bool:
         return False
     
 def isUserPublicationOwnerFromCommentId(username:str, comment_id:str) -> bool:
+    """
+    Check if the user is the creator of the publication in witch the comment belong
+
+    Args:
+        username (str): user username
+        comment_id (str): comment id
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -76,6 +108,14 @@ def isUserPublicationOwnerFromCommentId(username:str, comment_id:str) -> bool:
         return False
     
 def canUserDeleteComment(username:str, comment_id:str) -> bool:
+    """
+    Check if the user has privilege to delete a comment
+
+    Args:
+        username (str): user username
+        comment_id (str): comment id
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

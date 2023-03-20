@@ -2,6 +2,14 @@ from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 
 def createTag(tag:str) -> bool:
+    """
+    Create a new tafg
+    Args:
+        tag (str): new tag
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -21,6 +29,16 @@ def createTag(tag:str) -> bool:
         return False
     
 def addTagToPublication(tag:str, publication_id:str) -> bool:
+    """
+    link a tag to a publication
+
+    Args:
+        tag (str): new tag
+        publication_id (str): publication_id
+
+    Returns:
+        bool: if request succes
+    """
     try:
         
         conn = MYSQL.get_db()
@@ -39,7 +57,42 @@ def addTagToPublication(tag:str, publication_id:str) -> bool:
     except Exception:
         return False
     
+def getNbpublicationFromTag(tag:str) -> int or None:
+    """
+    get the number of publicaiton related to this tag
+
+    Args:
+        tag (str): tag
+
+    Returns:
+        int or None: number of publications, if None request fail
+    """
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+
+        cursor.execute(f'''
+                       SELECT t.nb_publications
+                       FROM {TABLE_TAG} t
+                       WHERE t.value = "{tag}"
+                       ''')
+        result = cursor.fetchall()[0][0]
+        cursor.close()
+       
+        return result
+    except Exception:
+        return None
+    
 def getTags(search:str) -> list or None:
+    """
+    get tags base on the search param
+
+    Args:
+        search (str): search keyword
+
+    Returns:
+        list or None: list of tag, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -57,10 +110,10 @@ def getTags(search:str) -> list or None:
         for row in result:
             data.append({
                 "tag":row[0],
-                "nb_publication":row[1]
+                "nb_publications":row[1]
             })
         
         
         return data
-    except ValueError:
+    except Exception:
         return None

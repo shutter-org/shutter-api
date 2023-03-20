@@ -34,18 +34,18 @@ def publication(app) -> None:
         except ValueError:
             return invalidParameter("page")
 
+        data = {}
         
-        if tag == None:
-            data = getPublications(username=username, offset=page)     
-        else:
-            if tag == "":
-                data = getPublications(username=username, offset=page)
-            else:
-                data = getPublicationsFromTag(tag=tag,username=username,offset=page)
 
+        if tag is None or tag == "":
+            data["publications"] = getPublications(username=username, offset=page)
+            data["nb_publication"] = getNbPublications()
+        else:
+            data["publications"] = getPublicationsFromTag(tag=tag,username=username,offset=page)
+            data["nb_publication"] = getNbpublicationFromTag(tag)
                 
             
-        if data is None:
+        if data["publications"] is None or data["nb_publication"] is None:
             return requestFail()
         else:
             return ok(data=data)

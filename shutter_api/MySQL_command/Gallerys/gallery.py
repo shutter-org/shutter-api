@@ -4,6 +4,21 @@ from .galleryPublication import getGalleryPublications
 
 
 def createGallery(data:dict) -> bool:
+    """
+    Create a new gallery
+
+    Args:
+        data (dict): 
+            gallery_id: str
+            creator_name: str
+            description: str
+            created_date: str
+            private: bool
+            title: str
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -29,6 +44,14 @@ def createGallery(data:dict) -> bool:
         return False
     
 def deleteGalleryFromDB(gallery_id:str) -> bool:
+    """
+    Delete a galley from the data base
+
+    Args:
+        gallery_id (str): gallery id
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -45,6 +68,18 @@ def deleteGalleryFromDB(gallery_id:str) -> bool:
         return False
     
 def updateGallery(gallery_id:str, description:str = None, title:str = None, private:bool = None) -> bool:
+    """
+    Update one or more data of a gallery
+    
+    Args:
+        gallery_id (str): gallery id
+        description (str, optionnal): new description
+        title (str, optionnal): new title
+        private (bool, optionnal): the new private status of the gallery
+        
+    Returns:
+        bool: if request succes
+    """
     if description is None and title is None and private is None:
         return False
     
@@ -68,6 +103,15 @@ def updateGallery(gallery_id:str, description:str = None, title:str = None, priv
         return False
 
 def getNumberPublicationsFromGallery(gallery_id:str) -> int or None:
+    """
+    Get the total number of publication of a gallery
+
+    Args:
+        gallery_id (str): gallery id
+
+    Returns:
+        int or None: the number of publication: None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -86,6 +130,16 @@ def getNumberPublicationsFromGallery(gallery_id:str) -> int or None:
         return None
 
 def getGalleryById(gallery_id:str, username:str) -> dict or None:
+    """
+    get gallery data 
+
+    Args:
+        gallery_id (str): gallery id
+        username (str): user username
+
+    Returns:
+        dict or None: gallery data, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

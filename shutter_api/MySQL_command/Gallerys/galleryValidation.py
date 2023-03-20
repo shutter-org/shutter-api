@@ -3,6 +3,13 @@ from shutter_api.MySQL_command.Tools import *
 
 
 def doesGalleryExist(gallery_id:str) -> bool:
+    """
+    Check if the gallery exist
+
+    Args:
+        gallery_id (str): gallery id
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -21,6 +28,14 @@ def doesGalleryExist(gallery_id:str) -> bool:
         return False
     
 def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
+    """
+    Check if the users has accest to the private gallerys
+
+    Args:
+        username (str): user username
+        gallery_id (str): gallery id
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -38,6 +53,14 @@ def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
         return False
     
 def doesGalleryBelongToUser(username:str, gallery_id:str) -> bool:
+    """
+    Check if the username is the creator of the gallery
+
+    Args:
+        username (str): user username
+        gallery_id (str): gallery id
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -56,6 +79,13 @@ def doesGalleryBelongToUser(username:str, gallery_id:str) -> bool:
         return False
     
 def didUserRateGallery(gallery_id:str, username:str) -> bool:
+    """
+    Check if the user already rated the gallery
+
+    Args:
+        gallery_id (str): gallery id
+        username (str): user username
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

@@ -11,3 +11,4 @@ def addRouters(app):
     comment(app)
     gallery(app)
     tag(app)
+    ping(app)

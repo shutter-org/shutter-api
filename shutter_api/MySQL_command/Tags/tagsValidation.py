@@ -2,6 +2,13 @@ from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 
 def doesTagExist(tag:str) -> bool:
+    """
+    check if tag exist in database
+
+    Args:
+        tag (str): tag
+
+    """
     try:
         
         conn = MYSQL.get_db()

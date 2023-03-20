@@ -2,6 +2,13 @@ from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 
 def doesPublicationExist(publication_id:str) -> bool:
+    """
+    check if publication exist
+
+    Args:
+        publication_id (str): publication_id
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -19,7 +26,14 @@ def doesPublicationExist(publication_id:str) -> bool:
     except Exception:
         return False
     
-def isUsernameCreatorOfPublication(username:str, publication_id:str):
+def isUsernameCreatorOfPublication(username:str, publication_id:str) -> bool:
+    """
+    Check if the username is the creator of the publication
+
+    Args:
+        username (str): user username
+        publication_id (str): publication publication_id
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -37,6 +51,16 @@ def isUsernameCreatorOfPublication(username:str, publication_id:str):
         return False
     
 def doesPublicationBelongToUser(username:str, publication_id:str) -> bool:
+    """
+    check if publicaiton belong to the user
+
+    Args:
+        username (str): user username
+        publication_id (str): _description_
+
+    Returns:
+        bool: _description_
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -55,6 +79,14 @@ def doesPublicationBelongToUser(username:str, publication_id:str) -> bool:
         return False
     
 def didUserRatePublication(publication_id:str, username:str) -> bool:
+    """
+    Check if username already rated a publication
+
+    Args:
+        publication_id (str): publication publication_id
+        username (str): user username
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

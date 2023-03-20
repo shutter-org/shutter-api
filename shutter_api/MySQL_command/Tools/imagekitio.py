@@ -38,10 +38,22 @@ def addImgToKitioToPublications(img, publication_id:str) -> tuple:
     return url , upload_response.file_id
 
 def deleteImageFromImagekiTio(file_id:str) -> None:
+    """
+    delete Image From imageKit.io database
+
+    Args:
+        file_id (str): the picture file_id
+    """
     IMAGEKIT.delete_file(file_id=file_id)
 
 
 def deleteImageBulkFromImagekitio(files:list) -> None:
+    """
+    delete images from imagekit.io database
+
+    Args:
+        files (list): list of picture file_id
+    """
     IMAGEKIT.bulk_file_delete(files)
 
 def updateUserImgToKitio(oldName:str, newName:str) -> str:

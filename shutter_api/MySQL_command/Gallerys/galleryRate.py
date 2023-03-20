@@ -1,7 +1,18 @@
 from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 
-def likeGallery(gallery_id, username, rating) -> bool:
+def likeGallery(gallery_id:str, username:str, rating:bool) -> bool:
+    """
+    Add a user rating to a gallery
+
+    Args:
+        gallery_id (str): gallery id
+        username (str): _user username
+        rating (bool): user rating
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -24,6 +35,17 @@ def likeGallery(gallery_id, username, rating) -> bool:
         return False
     
 def updateLikeGallery(gallery_id:str, username:str, rating:bool) -> bool:
+    """
+    Update the rating of a user on a gallery
+
+    Args:
+        gallery_id (str): gallery id
+        username (str): user username
+        rating (bool): user new rating
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -42,6 +64,16 @@ def updateLikeGallery(gallery_id:str, username:str, rating:bool) -> bool:
         return False
     
 def deleteLikeGallery(gallery_id:str, username:str) -> bool:
+    """
+    Remove the rating of a user
+
+    Args:
+        gallery_id (str): gallery id
+        username (str): user username
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

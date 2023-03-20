@@ -2,7 +2,14 @@ from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 
 
-def doesUsernameExist(userName:str) -> bool:
+def doesUsernameExist(username:str) -> bool:
+    """
+    Check if username existe
+
+    Args:
+        username (str): user username
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -10,7 +17,7 @@ def doesUsernameExist(userName:str) -> bool:
         cursor.execute(f'''
                        SELECT username 
                        FROM {TABLE_USER} 
-                       WHERE username = "{userName}"; 
+                       WHERE username = "{username}"; 
                        ''')
         result = cursor.fetchall()
         
@@ -22,6 +29,13 @@ def doesUsernameExist(userName:str) -> bool:
     
 
 def isEmailValid(email:str) -> bool:
+    """
+    if email is available
+
+    Args:
+        email (str): user email
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -39,7 +53,15 @@ def isEmailValid(email:str) -> bool:
     except Exception:
         return False
     
-def doesUserFollowUsername(follower:str, followed) -> bool:
+def doesUserFollowUsername(follower:str, followed:str) -> bool:
+    """
+    check if user follow another user
+
+    Args:
+        follower (str): user username
+        followed (str): username of the other username
+
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

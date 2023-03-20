@@ -3,6 +3,15 @@ from shutter_api.MySQL_command.Tools import *
 
 
 def getCommentById(comment_id:str) -> dict or None:
+    """
+    Get a specific comment data
+
+    Args:
+        comment_id (str): comment id
+
+    Returns:
+        dict or None: comment data, None id request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -30,6 +39,20 @@ def getCommentById(comment_id:str) -> dict or None:
         return None
 
 def createComment(data:dict) -> bool:
+    """
+    Create a new comment
+
+    Args:
+        data (dict): 
+            comment_id: str
+            commenter_username: str
+            publication_id: str
+            message: str
+            created_date: str
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -49,6 +72,15 @@ def createComment(data:dict) -> bool:
         return False
     
 def deleteCommentFromDB(comment_id:str) -> bool:
+    """
+    Remove a comment form the DB
+
+    Args:
+        comment_id (str): comment id
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -65,6 +97,16 @@ def deleteCommentFromDB(comment_id:str) -> bool:
         return False
     
 def updateComment(comment_id:str, message:str) -> bool:
+    """
+    Update a comment message
+
+    Args:
+        comment_id (str): comment id
+        message (str): new message
+
+    Returns:
+        bool: if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -82,6 +124,15 @@ def updateComment(comment_id:str, message:str) -> bool:
         return False
     
 def getNumberOfCommentsFromPublication(publication_id:str) -> int or None:
+    """
+    Get the total number of comment of a publication
+
+    Args:
+        publication_id (str): publication id
+
+    Returns:
+        int or None: number of comments, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()

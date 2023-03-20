@@ -243,6 +243,15 @@ def getPublicationTags(publication_id:str) -> list:
         return None
     
 def removeTagsFromPublication(publication_id:str) -> bool:
+    """
+    removed tags of a publication
+
+    Args:
+        publication_id (str): id of the publication
+
+    Returns:
+        bool : if request succes
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -257,14 +266,46 @@ def removeTagsFromPublication(publication_id:str) -> bool:
     except Exception:
         return False
     
-def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
+def getNbPublications() -> int or None:
+    """
+    Get the total number of publicaiton
+
+    Returns:
+        int or None: nb of publications, None of request fail
+    """
+    try:
+        conn = MYSQL.get_db()
+        cursor = conn.cursor()
+        cursor.execute(f"""
+                       SELECT COUNT(*)
+                       FROM {TABLE_PUBLICATION};
+                       """)
+        result = cursor.fetchall()[0][0]
+        cursor.close()
+        
+        return result
+    except Exception:
+        return None
+    
+def getPublicationsFromTag(tag:str,username:str, offset:int= 1) -> list or None:
+    """
+    get The publications from a certain tag
+
+    Args:
+        tag (str): tag of the search
+        username (str): username
+        offset (int, optional): foreach offset get the next 10 publications. Defaults to 1.
+
+    Returns:
+        list or None: list of publication of the user, None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
         cursor.execute(f'''
                         SELECT i.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                        {f""", get_user_publication_rating("{username}",p.publication_id)""" if username is not None else ""}
+                        , get_user_publication_rating("{username}",p.publication_id)
                         FROM {RELATION_TABLE_IDENTIFY} i
                         LEFT JOIN {TABLE_PUBLICATION} p ON i.publication_id = p.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
@@ -292,10 +333,11 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
                 "nb_comments":getNumberOfCommentsFromPublication(row[0]),
                 "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": int(row[6]) if row[6] is not None else 0,
+                "user_rating": getIntFromRating(row[7]),
                 "tags": getPublicationTags(row[0])
+                
             }
-            if username is not None:
-                publication["user_rating"] = getIntFromRating(row[7])
+
             
             data.append(publication)
         
@@ -303,14 +345,26 @@ def getPublicationsFromTag(tag:str,username:str = None, offset:int= 1) -> bool:
     except Exception:
         return None
 
-def getPublications(username:str=None, offset:int=1):
+def getPublications(username:str, offset:int=1) -> list or None:
+    """
+    
+    get The publications from all publication
+
+    Args:
+        username (str): username
+        offset (int, optional): foreach offset get the next 10 publications. Defaults to 1.
+
+    Returns:
+        list or None: list of publication of the user, None if request fail
+    
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
         cursor.execute(f'''
                         SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                        {f""", get_user_publication_rating(u.username,p.publication_id)""" if username is not None else ""}
+                        , get_user_publication_rating("{username}",p.publication_id)
                         FROM {TABLE_PUBLICATION} p
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
                         GROUP BY p.publication_id, p.created_date
@@ -349,7 +403,18 @@ def getPublications(username:str=None, offset:int=1):
     except Exception:
         return None
     
-def getCommentsOfPublication(publication_id:str, username:str,offset:int = 1):
+def getCommentsOfPublication(publication_id:str, username:str,offset:int = 1) -> list or None:
+    """
+    get comments from a publication
+
+    Args:
+        publication_id (str): publication id
+        username (str): user username
+        offset (int, optional):foreach offset get the next 10 comments. Defaults to 1.
+
+    Returns:
+        list or None: list of comment. None if request fail
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
