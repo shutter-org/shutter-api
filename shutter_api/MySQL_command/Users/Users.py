@@ -42,7 +42,7 @@ def getUsers(search:str) -> list or None:
         return None
         
 
-def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None) -> bool:
+def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None, password:str = None) -> bool:
     """
     update the username base on the param
     
@@ -53,6 +53,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
         bio (str, optional) : new bio, default None.
         picture (base64, optional) : new picture in format of base64 or img link, default None.
         name (str, optional) : new name, default None.
+        password (str, optional) : new password, default None.
 
     Returns:
         bool: if request succes
@@ -87,6 +88,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                        {f"""{"," if newUsername is not None or email is not None or bio is not None else ""}u.profile_picture = "{picture}" """ if picture is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None else ""}u.name = "{name}" """ if name is not None else ""}
                        {f""",u.file_id = "{file_id}" """ if file_id is not None else ""}
+                       {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None or name is not None else "" }u.password = "{password}" """ if password is not None else ""}
                        WHERE u.username = "{username}"; ''')
         conn.commit()
         

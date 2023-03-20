@@ -130,10 +130,20 @@ def user(app) -> None:
                 return invalidParameter("name")
         except KeyError:
             name = None
+            
+        try:
+            password = data["password"]
+            if type(password) is not str:
+                return invalidParameter("password")
+            password = password.strip()
+            if password == "":
+                return invalidParameter("password")
+        except KeyError:
+            password = None
         
         if (profile_picture is None and bio is None and
             email is None and newUsername is None and
-            name is None):
+            name is None and password is None):
             return missingParameterInJson("No param")
         
         if updateUser(username, newUsername=newUsername, email=email, bio=bio, picture=profile_picture, name=name):
