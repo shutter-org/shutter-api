@@ -19,23 +19,6 @@ def comment(app) -> None:
         else:
             return ok(data)
         
-    @app.route("/comments/<comment_id>", methods=["DELETE"])
-    @jwt_required()
-    def delete_comments_commentID(comment_id:str):
-        
-        if not doesCommentExist(comment_id):
-            return invalidParameter("comment_id")
-        
-        username = get_current_user()
-        
-        if not canUserDeleteComment(username, comment_id):
-            return noAcces()
-        
-        if deleteCommentFromDB(comment_id):
-            return deleteSucces()
-        else:
-            return deleteFail()
-        
     @app.route("/comments/<comment_id>", methods=["PUT"])
     @jwt_required()
     def put_comments_commentID(comment_id:str):
@@ -64,6 +47,23 @@ def comment(app) -> None:
         else:
             return requestFail()
         
+    @app.route("/comments/<comment_id>", methods=["DELETE"])
+    @jwt_required()
+    def delete_comments_commentID(comment_id:str):
+        
+        if not doesCommentExist(comment_id):
+            return invalidParameter("comment_id")
+        
+        username = get_current_user()
+        
+        if not canUserDeleteComment(username, comment_id):
+            return noAcces()
+        
+        if deleteCommentFromDB(comment_id):
+            return deleteSucces()
+        else:
+            return deleteFail()
+              
     @app.route("/comments/<comment_id>/like", methods=["Post"])
     @jwt_required()
     def post_comments_commentId_like(comment_id:str):

@@ -49,8 +49,7 @@ def publication(app) -> None:
             return requestFail()
         else:
             return ok(data=data)
-        
-    
+          
     @app.route("/publications", methods=["POST"])
     @jwt_required()
     def post_publications():
@@ -185,8 +184,7 @@ def publication(app) -> None:
             return deleteSucces()
         else:
             return deleteFail()
-        
-        
+             
     @app.route("/publications/<publication_id>/comments", methods=["GET"])
     @jwt_required()
     def get_publication_publicationId_comments(publication_id):
@@ -210,7 +208,6 @@ def publication(app) -> None:
         else:
             return ok(data=data)
             
-    
     @app.route("/publications/<publication_id>/comments", methods=["POST"])
     @jwt_required()
     def post_publications_publicationId_comments(publication_id):
@@ -245,9 +242,7 @@ def publication(app) -> None:
             return creationSucces(data={"comment_id": data["comment_id"]})
         else:
             return creationFail()
-    
-    
-    
+     
     @app.route("/publications/<publication_id>/like", methods=["POST"])
     @jwt_required()
     def post_publication_publicationId_like(publication_id:str):

@@ -59,8 +59,6 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
         bool: if request succes
     """
     try:
-        
-            
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         

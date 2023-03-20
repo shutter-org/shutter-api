@@ -168,7 +168,7 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
             "rating": int(row[5]),
             "publications":getGalleryPublications(gallery_id,username=username),
             "nb_publication":getNumberPublicationsFromGallery(gallery_id),
-            "username_rating": getIntFromRating(row[6]),
+            "user_rating": getIntFromRating(row[6]),
             "title": row[7]
         }
 

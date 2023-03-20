@@ -224,8 +224,7 @@ def gallery(app) -> None:
             return ok()
         else:
             return requestFail()
-        
-        
+           
     @app.route("/gallerys/<gallery_id>/like", methods=["Post"])
     @jwt_required()
     def post_gallerys_galleryId_like(gallery_id:str):

@@ -138,7 +138,7 @@ def connectionSucces(token:str, user:dict) -> tuple:
         tuple: response, 200
     """
     data = {
-        "acces_token": token,
+        "access_token": token,
         "user": user
     }
     return jsonify(data),200
