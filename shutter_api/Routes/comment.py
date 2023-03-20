@@ -9,7 +9,6 @@ def comment(app) -> None:
     @app.route("/comments/<comment_id>", methods=["GET"])
     @jwt_required()
     def get_comments_commentId(comment_id:str):
-        
         if not doesCommentExist(comment_id):
             return invalidParameter("comment_id")
         

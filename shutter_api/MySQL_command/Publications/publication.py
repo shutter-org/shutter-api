@@ -172,7 +172,7 @@ def getUserPublications(username:str, offset:int = 1) -> list:
                        WHERE p.poster_username = "{username}"
                        ORDER BY p.created_date DESC
                        LIMIT 10
-                       OFFSET {(offset-1) * 10};
+                       OFFSET {(offset-1) * 12};
                        ''')
         result = cursor.fetchall()
         cursor.close()
@@ -313,7 +313,7 @@ def getPublicationsFromTag(tag:str,username:str, offset:int= 1) -> list or None:
                         GROUP BY i.publication_id, p.created_date
                         ORDER BY p.created_date DESC
                         LIMIT 10
-                        OFFSET {(offset-1) * 10};
+                        OFFSET {(offset-1) * 12};
                         ''')
         
         result = cursor.fetchall()
@@ -370,7 +370,7 @@ def getPublications(username:str, offset:int=1) -> list or None:
                         GROUP BY p.publication_id, p.created_date
                         ORDER BY p.created_date DESC
                         LIMIT 10
-                        OFFSET {(offset-1) * 10};
+                        OFFSET {(offset-1) * 12};
                         ''')
         
         result = cursor.fetchall()
@@ -428,7 +428,7 @@ def getCommentsOfPublication(publication_id:str, username:str,offset:int = 1) ->
                         GROUP BY c.comment_id, c.created_date
                         ORDER BY c.created_date ASC
                         LIMIT 10
-                        OFFSET {(offset-1) * 10};
+                        OFFSET {(offset-1) * 12};
                         ''')
         
         result = cursor.fetchall()

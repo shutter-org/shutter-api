@@ -237,7 +237,7 @@ def getUserFollowedPublication(username:str, offset:int = 1) -> list or None:
                         WHERE f.follower_username = "{username}"
                         ORDER BY p.created_date DESC
                         LIMIT 10
-                        OFFSET {(offset-1) * 10};
+                        OFFSET {(offset-1) * 12};
                         ''')
         result = cursor.fetchall()
         cursor.close()
