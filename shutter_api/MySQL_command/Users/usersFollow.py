@@ -236,7 +236,7 @@ def getUserFollowedPublication(username:str, offset:int = 1) -> list or None:
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
                         WHERE f.follower_username = "{username}"
                         ORDER BY p.created_date DESC
-                        LIMIT 10
+                        LIMIT 12
                         OFFSET {(offset-1) * 12};
                         ''')
         result = cursor.fetchall()

@@ -83,7 +83,7 @@ def getGalleryPublications(gallery_Id:str, username:str, offset:int = 1) -> list
                        WHERE s.gallery_id = "{gallery_Id}"
                        AND (g.private = 0 OR (g.private = 1 AND g.creator_username = "{username}")) 
                        ORDER BY p.created_date DESC
-                       LIMIT 10
+                       LIMIT 12
                        OFFSET {(offset-1) * 12};
                        ''')
         result = cursor.fetchall()

@@ -102,7 +102,7 @@ def getTags(search:str) -> list or None:
                        FROM {TABLE_TAG} t
                        WHERE t.value LIKE '{search}%'
                        ORDER BY t.nb_publications DESC
-                       LIMIT 10;
+                       LIMIT 12;
                        ''')
         result = cursor.fetchall()
         cursor.close()

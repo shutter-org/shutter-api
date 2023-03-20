@@ -25,7 +25,7 @@ def getUsers(search:str) -> list or None:
                        SELECT u.username, u.profile_picture, u.name
                        FROM {TABLE_USER} u
                        WHERE u.username LIKE '{search}%'
-                       LIMIT 10;
+                       LIMIT 12;
                        ''')
         result = cursor.fetchall()
         cursor.close()

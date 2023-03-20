@@ -171,7 +171,7 @@ def getUserPublications(username:str, offset:int = 1) -> list:
                        FROM publication p
                        WHERE p.poster_username = "{username}"
                        ORDER BY p.created_date DESC
-                       LIMIT 10
+                       LIMIT 12
                        OFFSET {(offset-1) * 12};
                        ''')
         result = cursor.fetchall()
@@ -312,7 +312,7 @@ def getPublicationsFromTag(tag:str,username:str, offset:int= 1) -> list or None:
                         WHERE i.tag_value = "{tag}"
                         GROUP BY i.publication_id, p.created_date
                         ORDER BY p.created_date DESC
-                        LIMIT 10
+                        LIMIT 12
                         OFFSET {(offset-1) * 12};
                         ''')
         
@@ -369,7 +369,7 @@ def getPublications(username:str, offset:int=1) -> list or None:
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
                         GROUP BY p.publication_id, p.created_date
                         ORDER BY p.created_date DESC
-                        LIMIT 10
+                        LIMIT 12
                         OFFSET {(offset-1) * 12};
                         ''')
         
@@ -427,7 +427,7 @@ def getCommentsOfPublication(publication_id:str, username:str,offset:int = 1) ->
                         WHERE c.publication_id = "{publication_id}"
                         GROUP BY c.comment_id, c.created_date
                         ORDER BY c.created_date ASC
-                        LIMIT 10
+                        LIMIT 12
                         OFFSET {(offset-1) * 12};
                         ''')
         
