@@ -150,7 +150,6 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
                        FROM {TABLE_GALLERY} g
                        LEFT JOIN {TABLE_USER} u ON g.creator_username = u.username
                        WHERE g.gallery_id = "{gallery_id}"
-                       AND (g.private = 0 OR (g.private = 1 AND g.creator_username = "{username}")) 
                        ORDER BY g.created_date DESC;
                        ''')
         row = cursor.fetchall()[0]
@@ -173,5 +172,5 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
         }
 
         return data
-    except Exception:
+    except ValueError:
         return None

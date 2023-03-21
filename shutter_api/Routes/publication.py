@@ -9,7 +9,6 @@ from flask_jwt_extended import jwt_required, get_current_user
 
 
 def publication(app) -> None:
-    
     @app.route("/publications", methods=["GET"])
     @jwt_required()
     def get_publications():
