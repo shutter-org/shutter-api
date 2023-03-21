@@ -1,5 +1,6 @@
 from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
+import struct
 
 
 def doesGalleryExist(gallery_id:str) -> bool:
@@ -47,7 +48,7 @@ def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
                        ''')
         result = cursor.fetchall()[0]
         cursor.close()
-        return not bool(result[0]) or username == result[1]
+        return not struct.unpack('?',result[0])[0] or username == result[1]
     except Exception:
         return False
     
