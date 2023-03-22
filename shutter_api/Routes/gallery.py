@@ -8,9 +8,9 @@ from shutter_api.Responses import *
 
 def gallery(app) -> None:
     
-    @app.route("/gallerys", methods=["Post"])
+    @app.route("/galleries", methods=["Post"])
     @jwt_required()
-    def post_gallerys():
+    def post_galleries():
         data = request.get_json()
         
         username = get_current_user()
@@ -57,9 +57,9 @@ def gallery(app) -> None:
         else:
             return creationFail()
         
-    @app.route("/gallerys/<gallery_id>", methods=["GET"])
+    @app.route("/galleries/<gallery_id>", methods=["GET"])
     @jwt_required()
-    def get_gallerys_galleryId(gallery_id):
+    def get_galleries_galleryId(gallery_id):
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
@@ -77,9 +77,9 @@ def gallery(app) -> None:
         else:
             return ok(data=data)
         
-    @app.route("/gallerys/<gallery_id>", methods=["PUT"])
+    @app.route("/galleries/<gallery_id>", methods=["PUT"])
     @jwt_required()
-    def put_gallerys_galleryId(gallery_id):
+    def put_galleries_galleryId(gallery_id):
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
@@ -127,9 +127,9 @@ def gallery(app) -> None:
         else:
             return requestFail()
         
-    @app.route("/gallerys/<gallery_id>", methods=["DELETE"])
+    @app.route("/galleries/<gallery_id>", methods=["DELETE"])
     @jwt_required()
-    def delete_gallerys_galleryId(gallery_id):
+    def delete_galleries_galleryId(gallery_id):
 
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
@@ -143,9 +143,9 @@ def gallery(app) -> None:
         else:
             return deleteFail()
         
-    @app.route("/gallerys/<gallery_id>/publications", methods=["GET"])
+    @app.route("/galleries/<gallery_id>/publications", methods=["GET"])
     @jwt_required()
-    def get_gallerys_galleryId_publications(gallery_id):
+    def get_galleries_galleryId_publications(gallery_id):
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
         
@@ -170,9 +170,9 @@ def gallery(app) -> None:
         else:
             return ok(data=data)
         
-    @app.route("/gallerys/<gallery_id>/publications", methods=["Post"])
+    @app.route("/galleries/<gallery_id>/publications", methods=["Post"])
     @jwt_required()
-    def post_gallerys_galleryId_publication(gallery_id):
+    def post_galleries_galleryId_publication(gallery_id):
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
@@ -197,9 +197,9 @@ def gallery(app) -> None:
         else:
             return requestFail()
         
-    @app.route("/gallerys/<gallery_id>/publications", methods=["DELETE"])
+    @app.route("/galleries/<gallery_id>/publications", methods=["DELETE"])
     @jwt_required()
-    def delete_gallerys_galleryId_publication(gallery_id):
+    def delete_galleries_galleryId_publication(gallery_id):
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
@@ -225,9 +225,9 @@ def gallery(app) -> None:
         else:
             return requestFail()
            
-    @app.route("/gallerys/<gallery_id>/like", methods=["Post"])
+    @app.route("/galleries/<gallery_id>/like", methods=["Post"])
     @jwt_required()
-    def post_gallerys_galleryId_like(gallery_id:str):
+    def post_galleries_galleryId_like(gallery_id:str):
         data = request.get_json()
         
         if not doesGalleryExist(gallery_id):
@@ -251,9 +251,9 @@ def gallery(app) -> None:
         else:
             return requestFail()
         
-    @app.route("/gallerys/<gallery_id>/like", methods=["PUT"])
+    @app.route("/galleries/<gallery_id>/like", methods=["PUT"])
     @jwt_required()
-    def put_gallerys_galleryId_like(gallery_id:str):
+    def put_galleries_galleryId_like(gallery_id:str):
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")
@@ -276,9 +276,9 @@ def gallery(app) -> None:
         else:
             return requestFail()
         
-    @app.route("/gallerys/<gallery_id>/like", methods=["DELETE"])
+    @app.route("/galleries/<gallery_id>/like", methods=["DELETE"])
     @jwt_required()
-    def delete_gallerys_galleryId_like(gallery_id:str):
+    def delete_galleries_galleryId_like(gallery_id:str):
         
         if not doesGalleryExist(gallery_id):
             return invalidParameter("gallery_id")

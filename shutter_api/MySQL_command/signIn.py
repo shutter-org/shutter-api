@@ -23,7 +23,7 @@ def isUserPasswordValid(username:str, password:str) -> bool:
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
-        
+
         return result == password
     except Exception:
         return False

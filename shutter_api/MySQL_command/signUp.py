@@ -38,6 +38,6 @@ def createNewUser(data:dict) -> bool:
         conn.commit()
         
         return True
-    except Exception:
+    except ValueError:
         return False
     

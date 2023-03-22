@@ -30,7 +30,7 @@ def doesGalleryExist(gallery_id:str) -> bool:
     
 def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
     """
-    Check if the users has accest to the private gallerys
+    Check if the users has accest to the private galleries
 
     Args:
         username (str): user username

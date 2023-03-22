@@ -1,6 +1,6 @@
 from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
-from shutter_api.MySQL_command.Gallerys import getGalleryPublications
+from shutter_api.MySQL_command.Galleries import getGalleryPublications
 
 
 def getUsers(search:str) -> list or None:
@@ -17,14 +17,11 @@ def getUsers(search:str) -> list or None:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         
-        #TODO
-        #ajout order by nb_follower
-        ###################
-        
         cursor.execute(f'''
                        SELECT u.username, u.profile_picture, u.name
                        FROM {TABLE_USER} u
-                       WHERE u.username LIKE '{search}%'
+                       WHERE u.username LIKE "{search}%"
+                       OR u.name LIKE "{search}%"
                        LIMIT 12;
                        ''')
         result = cursor.fetchall()
@@ -138,11 +135,11 @@ def deleteUserFromDB(username:str) -> bool:
         
 def getUserGallery(username:str, private:bool) -> list or None:
     """
-    get the gallerys of a user
+    get the galleries of a user
 
     Args:
         username (str): username
-        private (bool): get the private gallerys
+        private (bool): get the private galleries
 
     Returns:
         list or None: list of gallery, None if request fail
@@ -159,17 +156,17 @@ def getUserGallery(username:str, private:bool) -> list or None:
                        ''')
         result = cursor.fetchall()
         cursor.close()
-        gallerys = []
+        galleries = []
         for row in result:
             data = {
                 "gallery_id": row[0],
                 "title":row[1],
                 "publications":getGalleryPublications(row[0], username=username)
             }
-            gallerys.append(data)
+            galleries.append(data)
         
         
-        return gallerys
+        return galleries
     except Exception:
         return None
     

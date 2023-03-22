@@ -33,10 +33,10 @@ def user(app) -> None:
         
         if username == currentUser:
             data = getUserByUsernameDetail(username)
-            gallerys = getUserGallery(username, True)
+            galleries = getUserGallery(username, True)
         else:
             data = getUserByUsername(username)
-            gallerys = getUserGallery(username, False)
+            galleries = getUserGallery(username, False)
             
         following = getFollowUser(username)
         followers = getFollowedUser(username)
@@ -62,7 +62,7 @@ def user(app) -> None:
         if username != currentUser:
             data["followed_by_user"] = doesUserFollowUsername(currentUser,username)
             
-        data["gallerys"] = gallerys
+        data["galleries"] = galleries
         return ok(data=data)
       
     @app.route("/users/<username>", methods=["PUT"])
