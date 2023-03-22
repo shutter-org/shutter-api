@@ -86,7 +86,7 @@ def gallery(app) -> None:
         
         username = get_current_user()
         
-        if not doesGalleryBelongToUser(username):
+        if not doesGalleryBelongToUser(username, gallery_id):
             return noAcces()
         
         data = request.get_json()
