@@ -24,7 +24,6 @@ def isUserPasswordValid(username:str, password:str) -> bool:
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
-        
         return decrypt(result,SQL_ENCRYPTION_KEY) == decrypt(password, ENCRYPTION_KEY)
     except Exception:
         return False

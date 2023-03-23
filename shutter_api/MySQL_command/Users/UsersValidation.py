@@ -10,10 +10,8 @@ def doesUsernameExist(username:str) -> bool:
         username (str): user username
 
     """
-    print("ok1")
     try:
         conn = MYSQL.get_db()
-        print("ok2")
         cursor = conn.cursor()
         
         cursor.execute(f'''
