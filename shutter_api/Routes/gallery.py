@@ -21,7 +21,7 @@ def gallery(app) -> None:
                 return invalidParameter("description")
             description = description.strip()
             if description == "":
-                return invalidParameter("description")
+                return invalidParameter("description is empty")
         except KeyError:
             return missingParameterInJson("description")
         
@@ -31,7 +31,7 @@ def gallery(app) -> None:
                 return invalidParameter("title")
             title = title.strip()
             if title == "":
-                return invalidParameter("title")
+                return invalidParameter("title is empty")
         except KeyError:
             return missingParameterInJson("title")
         
@@ -82,7 +82,7 @@ def gallery(app) -> None:
     def put_galleries_galleryId(gallery_id):
         
         if not doesGalleryExist(gallery_id):
-            return invalidParameter("gallery_id")
+            return invalidParameter("gallery_id doesn't exist")
         
         username = get_current_user()
         
@@ -97,7 +97,7 @@ def gallery(app) -> None:
                 return invalidParameter("description")
             description = description.strip()
             if description == "":
-                return invalidParameter("description")
+                return invalidParameter("description is empty")
         except KeyError:
             description = None
             
@@ -107,7 +107,7 @@ def gallery(app) -> None:
                 return invalidParameter("title")
             title = title.strip()
             if title == "":
-                return invalidParameter("title")
+                return invalidParameter("title is empty")
         except KeyError:
             title = None
             
