@@ -29,16 +29,16 @@ poetry run serve
 | PUT    | [/commments/«comment_id»/like](#put-comments«comment_id»like) |
 | DELETE | [/commments/«comment_id»/like](#delete-comments«comment_id»like) |
 |||
-| POST   | [/gallerys](#post-gallerys) |
-| GET    | [/gallerys/«gallery_id»](#get-gallerys«gallery_id») |
-| PUT    | [/gallerys/«gallery_id»](#put-gallerys«gallery_id») |
-| DELETE | [/gallerys/«gallery_id»](#delete-gallerys«gallery_id») |
-| GET    | [/gallerys/«gallery_id»/publications](#get-gallerys«gallery_id»publications) |
-| POST   | [/gallerys/«gallery_id»/publications](#post-gallerys«gallery_id»publications) |
-| DELETE | [/gallerys/«gallery_id»/publications](#delete-gallerys«gallery_id»publications) |
-| POST   | [/gallerys/«gallery_id»/like](#post-gallerys«gallery_id»like) |
-| PUT    | [/gallerys/«gallery_id»/like](#put-gallerys«gallery_id»like) |
-| DELETE | [/gallerys/«gallery_id»/like](#delete-gallerys«gallery_id»like) |
+| POST   | [/galleries](#post-galleries) |
+| GET    | [/galleries/«gallery_id»](#get-galleries«gallery_id») |
+| PUT    | [/galleries/«gallery_id»](#put-galleries«gallery_id») |
+| DELETE | [/galleries/«gallery_id»](#delete-galleries«gallery_id») |
+| GET    | [/galleries/«gallery_id»/publications](#get-galleries«gallery_id»publications) |
+| POST   | [/galleries/«gallery_id»/publications](#post-galleries«gallery_id»publications) |
+| DELETE | [/galleries/«gallery_id»/publications](#delete-galleries«gallery_id»publications) |
+| POST   | [/galleries/«gallery_id»/like](#post-galleries«gallery_id»like) |
+| PUT    | [/galleries/«gallery_id»/like](#put-galleries«gallery_id»like) |
+| DELETE | [/galleries/«gallery_id»/like](#delete-galleries«gallery_id»like) |
 |||
 | GET    | [/publications](#get-publications) |
 | POST   | [/publications](#post-publications) |
@@ -147,7 +147,7 @@ output body, code 200:
 
 This route provides all information about a user. If a user is viewing their own page, more information will be included in the output. The lists of followers and following are limited to 50 users each. If you require more, you can make additional requests using the following routes: [GET /users/«username»/followers](#get-users«username»followers) or [GET /users/«username»/following](#get-users«username»following).
 
-The number of publications shown is limited to 12. If you require more, you can make additional requests using [GET /users/«username»/publications]((#get-users«username»publications)).Similarly, the number of publications in a gallery is also limited to 12. If you require more, you can make additional requests using [GET /gallerys/«gallery_id»/publications](#get-gallerys«gallery_id»publications).
+The number of publications shown is limited to 12. If you require more, you can make additional requests using [GET /users/«username»/publications]((#get-users«username»publications)).Similarly, the number of publications in a gallery is also limited to 12. If you require more, you can make additional requests using [GET /galleries/«gallery_id»/publications](#get-galleries«gallery_id»publications).
 
 Note that if the username does not match the access token, private galleries will not be shown.
 
@@ -172,7 +172,7 @@ output body if username doesn't match access_token, 200:
         },
         ...
     ],
-    "gallerys":[
+    "galleries":[
         {
             "gallery_id": String
             "publications": [
@@ -182,6 +182,7 @@ output body if username doesn't match access_token, 200:
                 },
                 ...
             ],
+            "pivate": Boolean,
             "title": String
         },
         ...
@@ -225,7 +226,7 @@ output body if username belong to access_token, code 200:
         },
         ...
     ],
-    "gallerys":[
+    "galleries":[
         {
             "gallery_id": String
             "publications": [
@@ -235,6 +236,7 @@ output body if username belong to access_token, code 200:
                 },
                 ...
             ],
+            "private": Boolean,
             "title": String
         },
         ...
@@ -529,7 +531,7 @@ Output body, code 200:
 }
 ```
 ---
-### POST /gallerys
+### POST /galleries
 **Access_token needed**.
 
 The purpose of this route is to allow users to create a new gallery, which they can use to store and organize their images or other multimedia content.
@@ -550,10 +552,10 @@ Output body, code 200:
 }
 ```
 ---
-### GET /gallerys/«gallery_id»
+### GET /galleries/«gallery_id»
 **Access_token needed**.
 
-"The purpose of this route is to retrieve the data of a gallery. When retrieving the list of publications associated with the gallery, only the first 12 publications are included. To retrieve additional publications, the user must make a subsequent request using the [GET /gallerys/«gallery_id»/publications](#get-gallerys«gallery_id»publications)
+"The purpose of this route is to retrieve the data of a gallery. When retrieving the list of publications associated with the gallery, only the first 12 publications are included. To retrieve additional publications, the user must make a subsequent request using the [GET /galleries/«gallery_id»/publications](#get-galleries«gallery_id»publications)
 
 
 
@@ -575,13 +577,14 @@ Output body, code 200:
         },
         ...
     ],
+    "private": Boolean,
     "rating": int,
     "tile": String,
     "user_rating" : int
 }
 ```
 ---
-### PUT /gallerys/«gallery_id»
+### PUT /galleries/«gallery_id»
 **Access_token needed**.
 
 The purpose of this route is to allow the creator of a gallery to modify it. Only the creator of the gallery has access to this route. The user can include one or more fields in the request body to specify the changes they want to make.
@@ -602,7 +605,7 @@ Output body, code 200:
 }
 ```
 ---
-### DELETE /gallerys/«gallery_id»
+### DELETE /galleries/«gallery_id»
 **Access_token needed**.
 
 The purpose of this route is to enable the creator of a gallery to delete it. Only the user who created the gallery has access to this route, and once the gallery is deleted, it cannot be restored.
@@ -614,14 +617,14 @@ Output body, code 200:
 }
 ```
 ---
-### GET /gallerys/«gallery_id»/publications
+### GET /galleries/«gallery_id»/publications
 **Access_token needed**.
 
 The purpose of this route is to retrieve a list of publications associated with a gallery. The list is limited to 12 publications per page. To retrieve the next batch of publications, the user can change the page parameter accordingly. If the page parameter is not present, the endpoint returns the first page by default.
 
 exemple:
 ```
-GET /gallerys/«gallery_id»/publications?page=int>0
+GET /galleries/«gallery_id»/publications?page=int>0
 ```
 
 Output body, code 200:
@@ -635,7 +638,7 @@ Output body, code 200:
 ],
 ```
 ---
-### POST /gallerys/«gallery_id»/publications
+### POST /galleries/«gallery_id»/publications
 **Access_token needed**.
 
 The purpose of this route is to allow the creator of a gallery to add a publication to it. Only the user who created the gallery has access to this route, and the added publication will be associated with the gallery.
@@ -654,7 +657,7 @@ Output body, code 200:
 }
 ```
 ---
-### DELETE /gallerys/«gallery_id»/publications
+### DELETE /galleries/«gallery_id»/publications
 **Access_token needed**.
 
 The purpose of this route is to enable the creator of a gallery to remove a publication from it. Only the user who created the gallery has access to this route, and the publication will be disassociated from the gallery.
@@ -673,7 +676,7 @@ Output body, code 200:
 }
 ```
 ---
-### POST /gallerys/«gallery_id»/like
+### POST /galleries/«gallery_id»/like
 **Access_token needed**.
 
 The purpose of this route is to allow users to rate a gallery. Each user can only rate a gallery once.
@@ -693,7 +696,7 @@ Output body, code 200:
 ```
 
 ---
-### PUT /gallerys/«gallery_id»/like
+### PUT /galleries/«gallery_id»/like
 **Access_token needed**.
 
 The purpose of this route is to enable users to update their rating of a gallery that they have previously rated.
@@ -712,7 +715,7 @@ Output body, code 200:
 }
 ```
 ---
-### DELETE /gallerys/«gallery_id»/like
+### DELETE /galleries/«gallery_id»/like
 **Access_token needed**.
 
 The purpose of this route is to allow users to remove their rating of a gallery.

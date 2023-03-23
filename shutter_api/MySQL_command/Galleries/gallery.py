@@ -1,6 +1,7 @@
 from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 from .galleryPublication import getGalleryPublications
+import struct
 
 
 def createGallery(data:dict) -> bool:
@@ -146,7 +147,7 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
         
         cursor.execute(f'''
                        SELECT g.gallery_id, g.creator_username, u.profile_picture, g.description, g.created_date, g.rating , 
-                       get_user_gallery_rating("{username}",g.gallery_id), g.title
+                       get_user_gallery_rating("{username}",g.gallery_id), g.title, g.private
                        FROM {TABLE_GALLERY} g
                        LEFT JOIN {TABLE_USER} u ON g.creator_username = u.username
                        WHERE g.gallery_id = "{gallery_id}"
@@ -168,7 +169,8 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
             "publications":getGalleryPublications(gallery_id,username=username),
             "nb_publication":getNumberPublicationsFromGallery(gallery_id),
             "user_rating": getIntFromRating(row[6]),
-            "title": row[7]
+            "title": row[7],
+            "private": struct.unpack('?',row[8])[0]
         }
 
         return data

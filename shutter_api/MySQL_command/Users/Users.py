@@ -1,6 +1,7 @@
 from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 from shutter_api.MySQL_command.Galleries import getGalleryPublications
+import struct
 
 
 def getUsers(search:str) -> list or None:
@@ -149,7 +150,7 @@ def getUserGallery(username:str, private:bool) -> list or None:
         cursor = conn.cursor()
         
         cursor.execute(f'''
-                       SELECT g.gallery_id, g.title
+                       SELECT g.gallery_id, g.title, g.private
                        FROM {TABLE_GALLERY} g
                        WHERE g.creator_username = "{username}" {f""" AND g.private = false""" if not private else ""}
                        ORDER BY g.created_date DESC
@@ -161,7 +162,8 @@ def getUserGallery(username:str, private:bool) -> list or None:
             data = {
                 "gallery_id": row[0],
                 "title":row[1],
-                "publications":getGalleryPublications(row[0], username=username)
+                "publications":getGalleryPublications(row[0], username=username),
+                "private": struct.unpack('?',row[2])[0]
             }
             galleries.append(data)
         
