@@ -2,6 +2,7 @@ from shutter_api import MYSQL
 from shutter_api.MySQL_command.Tools import *
 from shutter_api.MySQL_command.Galleries import getGalleryPublications
 import struct
+from shutter_api.Keys import ENCRYPTION_KEY, SQL_ENCRYPTION_KEY
 
 
 def getUsers(search:str) -> list or None:
@@ -74,6 +75,9 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
             url = str(cursor.fetchall()[0][0])
             url = url.rsplit("?",1)[0]
             picture = updateUserImgToKitio(username, newUsername)
+            
+        if password:
+            password = encrypt(decrypt(password,ENCRYPTION_KEY),SQL_ENCRYPTION_KEY)
 
         cursor.execute(f'''
                        UPDATE {TABLE_USER} u 

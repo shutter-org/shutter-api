@@ -14,7 +14,9 @@ def signIn(app) -> None:
             if type(username) is not str:
                 return connectionFail()
             username = username.strip()
+            print(username)
             if not doesUsernameExist(username):
+                print("ok")
                 return connectionFail()
         except:
             return missingParameterInJson("username")
@@ -27,10 +29,11 @@ def signIn(app) -> None:
         except:
             return missingParameterInJson("password")
         
-        
+        print("ok")
         if isUserPasswordValid(username, password):
             token = create_access_token(username)
             user = getUserByUsernameLess(username)
             return connectionSucces(token, user)
         else:
+            print("faill")
             return connectionFail()

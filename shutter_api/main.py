@@ -1,7 +1,6 @@
 from .App import *
 from flask import Flask
 
-
 def start() -> None:
     """
     start Server
