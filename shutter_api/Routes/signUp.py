@@ -2,6 +2,8 @@ from flask import request
 from datetime import datetime
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
+from shutter_api.Tools import decrypt
+from shutter_api.Keys import ENCRYPTION_KEY
 import re
 
 def signUp(app) -> None:
@@ -26,7 +28,7 @@ def signUp(app) -> None:
             password = data["password"]
             if type(password) is not str:
                 return invalidParameter("password")
-            password = password.strip()
+            password = decrypt(password,ENCRYPTION_KEY)
             if len(password) <= 5:
                 return invalidParameter("password too short")
         except KeyError:

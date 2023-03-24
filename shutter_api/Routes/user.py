@@ -1,6 +1,8 @@
 from shutter_api.MySQL_command import *
 from flask import request
 from shutter_api.Responses import *
+from shutter_api.Keys import ENCRYPTION_KEY
+from shutter_api.Tools import decrypt
 from flask_jwt_extended import jwt_required, get_current_user, create_access_token
 import re
 
@@ -96,7 +98,7 @@ def user(app) -> None:
             email = email.strip()
             pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
             if not re.match(pattern, email):
-                return invalidParameter("email")
+                return invalidParameter("email format not valid")
             if not isEmailValid(email):
                 return invalidParameter("email already taken") 
         except KeyError:
@@ -108,7 +110,7 @@ def user(app) -> None:
                 return invalidParameter("biography")
             bio = bio.strip()
             if bio == "":
-                return invalidParameter("biography")
+                return invalidParameter("biography empty")
         except KeyError:
             bio = None
             
@@ -127,7 +129,7 @@ def user(app) -> None:
                 return invalidParameter("name")
             name = name.strip()
             if name == "":
-                return invalidParameter("name")
+                return invalidParameter("name empty")
         except KeyError:
             name = None
             
@@ -135,9 +137,9 @@ def user(app) -> None:
             password = data["password"]
             if type(password) is not str:
                 return invalidParameter("password")
-            password = password.strip()
-            if password == "":
-                return invalidParameter("password")
+            password = decrypt(password,ENCRYPTION_KEY)
+            if len(password) < 5:
+                return invalidParameter("password too short")
         except KeyError:
             password = None
         

@@ -1,5 +1,5 @@
 from shutter_api import MYSQL
-from shutter_api.MySQL_command.Tools import *
+from shutter_api.Tools import *
 
 def doesPublicationExist(publication_id:str) -> bool:
     """

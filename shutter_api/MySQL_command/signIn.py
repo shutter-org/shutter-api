@@ -1,6 +1,6 @@
 from shutter_api import MYSQL
-from .Tools import *
-from shutter_api.Keys import SQL_ENCRYPTION_KEY, ENCRYPTION_KEY
+from shutter_api.Tools import TABLE_USER, decrypt
+from shutter_api.Keys import SQL_ENCRYPTION_KEY
 
 def isUserPasswordValid(username:str, password:str) -> bool:
     """
@@ -24,7 +24,7 @@ def isUserPasswordValid(username:str, password:str) -> bool:
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
-        return decrypt(result,SQL_ENCRYPTION_KEY) == decrypt(password, ENCRYPTION_KEY)
+        return decrypt(result,SQL_ENCRYPTION_KEY) == password
     except Exception:
         return False
         
