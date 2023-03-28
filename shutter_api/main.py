@@ -10,7 +10,7 @@ def start() -> None:
     addConfig(app)
     addRouters(app)
     
-    app.run(port=8080)
+    #app.run(port=8080)
     
 
 
