@@ -31,9 +31,9 @@ def user(app) -> None:
         if not doesUsernameExist(username):
             return invalidParameter("username")
         
-        currentUser = get_current_user()
+        currentUser = get_current_user().lower()
         
-        if username == currentUser:
+        if username.lower() == currentUser:
             data = getUserByUsernameDetail(username)
             galleries = getUserGallery(username, True)
         else:
@@ -170,7 +170,7 @@ def user(app) -> None:
         if not doesUsernameExist(username):
             return invalidParameter("username")
         
-        if username != get_current_user():
+        if username.lower() != get_current_user():
             return noAcces()
         
         if deleteUserFromDB(username):
