@@ -1,1 +1,1 @@
-from shutter_api.Responses.types import *
+from .types import *

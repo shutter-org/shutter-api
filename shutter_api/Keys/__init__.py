@@ -1,1 +1,1 @@
-from shutter_api.Keys.keys import SQL_KEY, JWT_KEY, ENCRYPTION_KEY, SQL_ENCRYPTION_KEY
+from .keys import SQL_KEY, JWT_KEY, ENCRYPTION_KEY, SQL_ENCRYPTION_KEY

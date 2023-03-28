@@ -1,4 +1,4 @@
-from shutter_api.App import *
+from .App import *
 from flask import Flask
 
 def start() -> None:
