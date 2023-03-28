@@ -2,7 +2,7 @@ from shutter_api import MYSQL
 from shutter_api.Tools import *
 from shutter_api.MySQL_command.Galleries import getGalleryPublications
 import struct
-from shutter_api.Keys import ENCRYPTION_KEY, SQL_ENCRYPTION_KEY
+from shutter_api.Keys import SQL_ENCRYPTION_KEY
 
 
 def getUsers(search:str) -> list or None:
@@ -94,7 +94,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
         
         cursor.close()
         return True
-    except ValueError:
+    except Exception:
         return False
 
 def deleteUserFromDB(username:str) -> bool:

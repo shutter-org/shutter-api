@@ -28,4 +28,3 @@ def isUserPasswordValid(username:str, password:str) -> bool:
     except Exception:
         return False
         
-        

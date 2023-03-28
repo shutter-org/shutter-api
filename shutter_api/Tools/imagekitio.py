@@ -71,5 +71,6 @@ def updateUserImgToKitio(oldName:str, newName:str) -> str:
     newUrl = f"{newName}"
     options = RenameFileRequestOptions(file_path=oldUrl, new_file_name=newUrl)
     IMAGEKIT.rename_file(options=options)
-    return f"{IMAGE_URL_ENDPOINT}{newUrl}?{int(random.random()*100000000000)}"
+    endpoint = "https://ik.imagekit.io/shutterAppULaval/users/"
+    return f"{endpoint}{newUrl}?{int(random.random()*100000000000)}"
     

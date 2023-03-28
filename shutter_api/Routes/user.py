@@ -72,10 +72,11 @@ def user(app) -> None:
     def put_users_username(username:str):
         
         username = username.strip()
+
         if not doesUsernameExist(username):
             return invalidParameter("username")
-        
-        if username != get_current_user():
+
+        if username.lower() != get_current_user().lower():
             return noAcces()
         
         data = request.get_json()
