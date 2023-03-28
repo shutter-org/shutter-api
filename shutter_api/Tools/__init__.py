@@ -1,4 +1,4 @@
-from .tableName import *
-from .tools import getAgeFromDate,getIntervalOdTimeSinceCreation,getIntFromRating
-from .imagekitio import addImgToKitioToPublications,addImgToKitioToUsers,deleteImageBulkFromImagekitio,deleteImageFromImagekiTio,updateUserImgToKitio
-from .crypto import encrypt, decrypt
+from shutter_api.Tools.tableName import *
+from shutter_api.Tools.tools import getAgeFromDate,getIntervalOdTimeSinceCreation,getIntFromRating
+from shutter_api.Tools.imagekitio import addImgToKitioToPublications,addImgToKitioToUsers,deleteImageBulkFromImagekitio,deleteImageFromImagekiTio,updateUserImgToKitio
+from shutter_api.Tools.crypto import encrypt, decrypt

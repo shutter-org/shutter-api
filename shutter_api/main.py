@@ -1,4 +1,4 @@
-from .App import *
+from shutter_api.App import *
 from flask import Flask
 
 def start() -> None:
@@ -10,7 +10,7 @@ def start() -> None:
     addConfig(app)
     addRouters(app)
     
-    #app.run(port=8080)
+    app.run()
     
 
 

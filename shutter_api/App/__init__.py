@@ -1,5 +1,3 @@
-from .config import addConfig
-from .routers import addRouters
-__all__ = [
-    "addConfig",
-    "addRouters"]
+from shutter_api.App.config import addConfig
+from shutter_api.App.routers import addRouters
+

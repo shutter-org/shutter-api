@@ -1,3 +1,3 @@
-from .usersFollow import *
-from .Users import *
-from .UsersValidation import *
+from shutter_api.MySQL_command.Users.usersFollow import *
+from shutter_api.MySQL_command.Users.Users import *
+from shutter_api.MySQL_command.Users.UsersValidation import *
