@@ -19,8 +19,6 @@ def addConfig(app) -> None:
         user_id = jwt_data["sub"]
         return user_id
 
-    print(SQL_KEY)
-    print(JWT_KEY)
     app.config['MYSQL_DATABASE_USER'] = 'admin'
     app.config['MYSQL_DATABASE_PASSWORD'] = SQL_KEY
     app.config['MYSQL_DATABASE_DB'] = 'shutter'
