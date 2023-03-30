@@ -4,11 +4,11 @@ USE shutter;
 
 /* entity */
 CREATE TABLE user(username VARCHAR(50) NOT NULL, password VARCHAR(50), email VARCHAR(50),
- name VARCHAR(50), biography VARCHAR(100), created_date DATETIME, birthdate DATE
+ name VARCHAR(50), biography VARCHAR(100), created_date DATETIME, birthdate DATE,
   profile_picture VARCHAR(2000), rating INT, file_id VARCHAR(36), PRIMARY KEY(username));
 
 CREATE TABLE publication(publication_id VARCHAR(36) NOT NULL, poster_username VARCHAR(50) NOT NULL,
- description VARCHAR(200), picture VARCHAR(2000), created_date DATETIME, file_id VARCHAR(36)
+ description VARCHAR(200), picture VARCHAR(2000), created_date DATETIME, file_id VARCHAR(36),
   PRIMARY KEY (publication_id), FOREIGN KEY(poster_username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE);
 
 CREATE TABLE gallery(gallery_id VARCHAR(36) NOT NULL, creator_username VARCHAR(50) NOT NULL,
