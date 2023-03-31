@@ -67,7 +67,7 @@ BEGIN
     DECLARE v_rating INT;
     SELECT rating INTO v_rating
     FROM rate_comment
-    WHERE username = p_username AND comment_id = p_comment_id;
+    WHERE BINARY username = p_username AND comment_id = p_comment_id;
     RETURN v_rating;
 END//
 DELIMITER ;
@@ -82,7 +82,7 @@ BEGIN
     DECLARE v_rating INT;
     SELECT rating INTO v_rating
     FROM rate_publication
-    WHERE username = p_username AND publication_id = p_publication_id;
+    WHERE BINARY username = p_username AND publication_id = p_publication_id;
     RETURN v_rating;
 END//
 DELIMITER ;
@@ -97,7 +97,7 @@ BEGIN
     DECLARE v_rating INT;
     SELECT rating INTO v_rating
     FROM rate_gallery
-    WHERE username = p_username AND gallery_id = p_gallery_id;
+    WHERE BINARY username = p_username AND gallery_id = p_gallery_id;
     RETURN v_rating;
 END//
 DELIMITER ;
