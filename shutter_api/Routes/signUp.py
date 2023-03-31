@@ -19,6 +19,8 @@ def signUp(app) -> None:
             username = username.strip()
             if username.find("/") != -1:
                 return invalidParameter("username contain '/'")
+            elif username.find(" ") != -1:
+                return invalidParameter("username contain spacebar")
             if doesUsernameExist(username):
                 return invalidParameter("username already taken")
         except KeyError:

@@ -87,6 +87,8 @@ def user(app) -> None:
             newUsername = newUsername.strip()
             if newUsername.find("/") != -1:
                 return invalidParameter("newUsername contain '/'")
+            elif newUsername.find(" ") != -1:
+                return invalidParameter("username contain spacebar")
             if doesUsernameExist(newUsername):
                 return invalidParameter("newUsername already taken")
         except KeyError:
