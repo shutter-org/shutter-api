@@ -58,6 +58,7 @@ CREATE TABLE rate_comment(username VARCHAR(50) NOT NULL, comment_id VARCHAR(36) 
 /* Function */
 
 DELIMITER //
+/* Function to get the rating of a user on a comment*/
 CREATE FUNCTION get_user_comment_rating(
     p_username VARCHAR(50),
     p_comment_id VARCHAR(36)
@@ -73,6 +74,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Function to get the rating of a user on a publication*/
 CREATE FUNCTION get_user_publication_rating(
     p_username VARCHAR(50),
     p_publication_id VARCHAR(36)
@@ -88,6 +90,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Function to get the rating of a user on a gallery*/
 CREATE FUNCTION get_user_gallery_rating(
     p_username VARCHAR(50),
     p_gallery_id VARCHAR(36)
@@ -104,6 +107,7 @@ DELIMITER ;
 
 /* Procedure */
 DELIMITER //
+/* Procedure to update the rating of a comment*/
 CREATE PROCEDURE update_comment_rating_procedure(IN comment_id_var VARCHAR(36))
 BEGIN
     DECLARE total_rating INT;
@@ -122,6 +126,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Procedure to update the rating of a publication*/
 CREATE PROCEDURE update_publication_rating_procedure(IN publication_id_var VARCHAR(36))
 BEGIN
     DECLARE total_rating INT;
@@ -140,6 +145,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Procedure to update the rating of a gallery*/
 CREATE PROCEDURE update_gallery_rating_procedure(IN gallery_id_var VARCHAR(36))
 BEGIN
     DECLARE total_rating INT;
@@ -158,6 +164,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Procedure to update the count of a tag. if count = 0 delete tag*/
 CREATE PROCEDURE count_tag (IN tag_value_var VARCHAR(50))
 BEGIN
     DECLARE tag_count INT;
@@ -173,6 +180,7 @@ DELIMITER ;
 
 /* publication trigger */
 DELIMITER //
+/* Trigger after delete because trigger don't work on cascade to update tag count*/
 CREATE TRIGGER delete_publication
 AFTER DELETE ON publication
 FOR EACH ROW
@@ -196,6 +204,7 @@ DELIMITER ;
 
 /* user trigger */
 DELIMITER //
+/* Trigger after delete because trigger don't work on cascade to update tag count*/
 CREATE TRIGGER delete_user
 AFTER DELETE ON user
 FOR EACH ROW
@@ -220,6 +229,7 @@ DELIMITER ;
 
 /* identify trigger */
 DELIMITER //
+/* Trigger Before insert to add new tag if its doesn't exist*/
 CREATE TRIGGER add_tag_value
 BEFORE INSERT ON identify
 FOR EACH ROW
@@ -233,6 +243,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After insert to update tag count*/
 CREATE TRIGGER add_tag_value
 AFTER INSERT ON identify
 FOR EACH ROW
@@ -242,6 +253,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After Delete to update tag count*/
 CREATE TRIGGER update_tag_count
 AFTER DELETE ON identify
 FOR EACH ROW
@@ -252,6 +264,7 @@ DELIMITER ;
 
 /* rate_comment Trigger */
 DELIMITER //
+/* Trigger After insert to update comment rating*/
 CREATE TRIGGER update_comment_rating_insert
 AFTER INSERT ON rate_comment
 FOR EACH ROW
@@ -261,6 +274,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After update to update comment rating*/
 CREATE TRIGGER update_comment_rating_update
 AFTER UPDATE ON rate_comment
 FOR EACH ROW
@@ -270,6 +284,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After delete to update comment rating*/
 CREATE TRIGGER update_comment_rating_delete
 AFTER DELETE ON rate_comment
 FOR EACH ROW
@@ -280,6 +295,7 @@ DELIMITER ;
 
 /* rate_publication trigger*/
 DELIMITER //
+/* Trigger After insert to update publication rating*/
 CREATE TRIGGER update_publication_rating_insert
 AFTER INSERT ON rate_publication
 FOR EACH ROW
@@ -289,6 +305,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After update to update publication rating*/
 CREATE TRIGGER update_publication_rating_update
 AFTER UPDATE ON rate_publication
 FOR EACH ROW
@@ -298,6 +315,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After delete to update publication rating*/
 CREATE TRIGGER update_publication_rating_delete
 AFTER DELETE ON rate_publication
 FOR EACH ROW
@@ -308,6 +326,7 @@ DELIMITER ;
 
 /* rate_galery trigger*/
 DELIMITER //
+/* Trigger After insert to update gallery rating*/
 CREATE TRIGGER update_gallery_rating_insert
 AFTER INSERT ON rate_gallery
 FOR EACH ROW
@@ -317,6 +336,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After update to update gallery rating*/
 CREATE TRIGGER update_gallery_rating_update
 AFTER UPDATE ON rate_gallery
 FOR EACH ROW
@@ -326,6 +346,7 @@ END//
 DELIMITER ;
 
 DELIMITER //
+/* Trigger After delete to update gallery rating*/
 CREATE TRIGGER update_gallery_rating_delete
 AFTER DELETE ON rate_gallery
 FOR EACH ROW
