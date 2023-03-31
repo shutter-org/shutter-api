@@ -81,7 +81,7 @@ def getGalleryPublications(gallery_Id:str, username:str, offset:int = 1) -> list
                        LEFT JOIN {TABLE_PUBLICATION} p ON s.publication_id = p.publication_id
                        LEFT JOIN {TABLE_GALLERY} g On s.gallery_id = g.gallery_id
                        WHERE s.gallery_id = "{gallery_Id}"
-                       AND (g.private = 0 OR (g.private = 1 AND g.creator_username = "{username}")) 
+                       AND (g.private = 0 OR (g.private = 1 AND BINARY g.creator_username = "{username}")) 
                        ORDER BY p.created_date DESC
                        LIMIT 12
                        OFFSET {(offset-1) * 12};

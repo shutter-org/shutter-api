@@ -74,8 +74,8 @@ def getFollowUserNumber(username:str) -> int or None:
         cursor.execute(f'''
                        SELECT COUNT(*)
                        FROM {RELATION_TABLE_FOLLOW} f
-                       LEFT JOIN {TABLE_USER} u ON u.username = f.followed_username
-                       WHERE f.follower_username = "{username}"
+                       LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.followed_username
+                       WHERE BINARY f.follower_username = "{username}"
                        ''')
         
         result = cursor.fetchall()[0][0]
@@ -103,8 +103,8 @@ def getFollowUser(username:str, offset:int=1) -> list or None:
         cursor.execute(f'''
                        SELECT f.followed_username, u.profile_picture
                        FROM {RELATION_TABLE_FOLLOW} f
-                       LEFT JOIN {TABLE_USER} u ON u.username = f.followed_username
-                       WHERE f.follower_username = "{username}"
+                       LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.followed_username
+                       WHERE BINARY f.follower_username = "{username}"
                        LIMIT 50
                        OFFSET {(offset-1) * 50};
                        ''')
@@ -140,8 +140,8 @@ def getFollowedUserNumber(username:str) -> int or None:
         cursor.execute(f'''
                        SELECT COUNT(*)
                        FROM {RELATION_TABLE_FOLLOW} f
-                       LEFT JOIN {TABLE_USER} u ON u.username = f.follower_username
-                       WHERE f.followed_username = "{username}";
+                       LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.follower_username
+                       WHERE BINARY f.followed_username = "{username}";
                        ''')
         result = cursor.fetchall()[0][0]
         
@@ -169,8 +169,8 @@ def getFollowedUser(username:str, offset:int=1) -> list or None:
         cursor.execute(f'''
                        SELECT f.follower_username, u.profile_picture
                        FROM {RELATION_TABLE_FOLLOW} f
-                       LEFT JOIN {TABLE_USER} u ON u.username = f.follower_username
-                       WHERE f.followed_username = "{username}"
+                       LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.follower_username
+                       WHERE BINARY f.followed_username = "{username}"
                        LIMIT 50
                        OFFSET {(offset-1) * 50};
                        ''')
@@ -205,8 +205,8 @@ def getNbUserFollowedPublications(username:str) -> int or None:
         cursor.execute(f'''
                         SELECT COUNT(*)
                         FROM {TABLE_PUBLICATION} p 
-                        JOIN {RELATION_TABLE_FOLLOW} f ON p.poster_username = f.followed_username
-                        WHERE f.follower_username = "{username}";
+                        JOIN {RELATION_TABLE_FOLLOW} f ON BINARY p.poster_username = f.followed_username
+                        WHERE BINARY f.follower_username = "{username}";
                         ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
@@ -232,9 +232,9 @@ def getUserFollowedPublication(username:str, offset:int = 1) -> list or None:
         cursor.execute(f'''
                         SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, get_user_publication_rating("{username}",p.publication_id), p.rating
                         FROM {TABLE_PUBLICATION} p 
-                        JOIN {RELATION_TABLE_FOLLOW} f ON p.poster_username = f.followed_username
-                        LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
-                        WHERE f.follower_username = "{username}"
+                        JOIN {RELATION_TABLE_FOLLOW} f ON BINARY p.poster_username = f.followed_username
+                        LEFT JOIN {TABLE_USER} u ON BINARY p.poster_username = u.username
+                        WHERE BINARY f.follower_username = "{username}"
                         ORDER BY p.created_date DESC
                         LIMIT 12
                         OFFSET {(offset-1) * 12};

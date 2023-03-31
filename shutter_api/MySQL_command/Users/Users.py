@@ -70,7 +70,7 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
             cursor.execute(f'''
                             SELECT u.profile_picture
                             FROM {TABLE_USER} u
-                            WHERE u.username = "{username}";
+                            WHERE BINARY u.username = "{username}";
                             ''')
             url = str(cursor.fetchall()[0][0])
             url = url.rsplit("?",1)[0]
@@ -89,12 +89,13 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                        {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None else ""}u.name = "{name}" """ if name is not None else ""}
                        {f""",u.file_id = "{file_id}" """ if file_id is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None or name is not None else "" }u.password = "{password}" """ if password is not None else ""}
-                       WHERE u.username = "{username}"; ''')
+                       WHERE BINARY u.username = "{username}"; 
+                       ''')
         conn.commit()
         
         cursor.close()
         return True
-    except Exception:
+    except ValueError:
         return False
 
 def deleteUserFromDB(username:str) -> bool:
@@ -114,20 +115,20 @@ def deleteUserFromDB(username:str) -> bool:
         cursor.execute(f'''
                        SELECT p.file_id
                        FROM {TABLE_PUBLICATION} p
-                       WHERE p.poster_username = "{username}"
+                       WHERE BINARY p.poster_username = "{username}"
                        ''')
         files = [x[0] for x in cursor.fetchall()]
         cursor.execute(f'''
                        SELECT u.file_id
                        FROM {TABLE_USER} u
-                       WHERE u.username = "{username}"
+                       WHERE BINARY u.username = "{username}"
                        ''')
         files.append(cursor.fetchall()[0][0])
         
         
         cursor.execute(f'''
                        DELETE FROM {TABLE_USER} 
-                       WHERE username = "{username}";
+                       WHERE BINARY username = "{username}";
                        ''')
         
         deleteImageBulkFromImagekitio(files)
@@ -156,7 +157,7 @@ def getUserGallery(username:str, private:bool) -> list or None:
         cursor.execute(f'''
                        SELECT g.gallery_id, g.title, g.private
                        FROM {TABLE_GALLERY} g
-                       WHERE g.creator_username = "{username}" {f""" AND g.private = false""" if not private else ""}
+                       WHERE BINARY g.creator_username = "{username}" {f""" AND g.private = false""" if not private else ""}
                        ORDER BY g.created_date DESC
                        ''')
         result = cursor.fetchall()
@@ -200,7 +201,7 @@ def getUserByUsername(username:str) -> dict or None:
         cursor.execute(f'''
                        SELECT u.username, u.biography, u.name, u.birthdate, u.profile_picture, u.created_date
                        FROM {TABLE_USER} u 
-                       WHERE username = "{username}"; 
+                       WHERE BINARY username = "{username}"; 
                        ''')
         row = cursor.fetchall()[0]
         
@@ -244,7 +245,7 @@ def getUserByUsernameDetail(username:str) -> dict:
         cursor.execute(f'''
                        SELECT u.username, u.email, u.biography, u.name, u.created_date, u.birthdate, u.profile_picture
                        FROM {TABLE_USER} u 
-                       WHERE username = "{username}"; 
+                       WHERE BINARY username = "{username}"; 
                        ''')
         row = cursor.fetchall()[0]
         
@@ -285,7 +286,7 @@ def getUserByUsernameLess(username:str) -> dict:
         cursor.execute(f'''
                        SELECT u.username, u.profile_picture 
                        FROM {TABLE_USER} u 
-                       WHERE username = "{username}"; 
+                       WHERE BINARY username = "{username}"; 
                        ''')
         row = cursor.fetchall()[0]
         

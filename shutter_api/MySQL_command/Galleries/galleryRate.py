@@ -54,7 +54,7 @@ def updateLikeGallery(gallery_id:str, username:str, rating:bool) -> bool:
                        UPDATE {RELATION_TABLE_RATE_GALLERY} rg
                        SET rg.rating = {rating}
                        WHERE rg.gallery_id = "{gallery_id}" 
-                       AND rg.username = "{username}";
+                       AND BINARY rg.username = "{username}";
                        ''')
         conn.commit()
         cursor.close()
@@ -81,7 +81,7 @@ def deleteLikeGallery(gallery_id:str, username:str) -> bool:
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_GALLERY} rg
                        WHERE rg.gallery_id = "{gallery_id}" 
-                       AND rg.username = "{username}";
+                       AND BINARY rg.username = "{username}";
                        ''')
         conn.commit()
         

@@ -53,7 +53,7 @@ def updateLikeComment(comment_id:str, username:str, rating:bool) -> bool:
                        UPDATE {RELATION_TABLE_RATE_COMMENT} rc
                        SET rc.rating = {rating}
                        WHERE rc.comment_id = "{comment_id}" 
-                       AND rc.username = "{username}";
+                       AND BINARY rc.username = "{username}";
                        ''')
         conn.commit()
         cursor.close()
@@ -80,7 +80,7 @@ def deleteLikeComment(comment_id:str, username:str) -> bool:
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_COMMENT} rc
                        WHERE rc.comment_id = "{comment_id}" 
-                       AND rc.username = "{username}";
+                       AND BINARY rc.username = "{username}";
                        ''')
         conn.commit()
         

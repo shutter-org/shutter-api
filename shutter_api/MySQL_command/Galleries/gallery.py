@@ -149,7 +149,7 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
                        SELECT g.gallery_id, g.creator_username, u.profile_picture, g.description, g.created_date, g.rating , 
                        get_user_gallery_rating("{username}",g.gallery_id), g.title, g.private
                        FROM {TABLE_GALLERY} g
-                       LEFT JOIN {TABLE_USER} u ON g.creator_username = u.username
+                       LEFT JOIN {TABLE_USER} u ON BINARY g.creator_username = u.username
                        WHERE g.gallery_id = "{gallery_id}"
                        ORDER BY g.created_date DESC;
                        ''')

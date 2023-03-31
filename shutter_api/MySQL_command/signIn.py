@@ -20,7 +20,7 @@ def isUserPasswordValid(username:str, password:str) -> bool:
         cursor.execute(f'''
                        SELECT u.password 
                        FROM {TABLE_USER} u 
-                       WHERE u.username = "{username}"; 
+                       WHERE BINARY u.username = "{username}"; 
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()

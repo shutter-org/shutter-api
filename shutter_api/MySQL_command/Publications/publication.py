@@ -366,7 +366,7 @@ def getPublications(username:str, offset:int=1) -> list or None:
                         SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
                         , get_user_publication_rating("{username}",p.publication_id)
                         FROM {TABLE_PUBLICATION} p
-                        LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
+                        LEFT JOIN {TABLE_USER} u ON BINARY p.poster_username = u.username
                         GROUP BY p.publication_id, p.created_date
                         ORDER BY p.created_date DESC
                         LIMIT 12
@@ -390,10 +390,9 @@ def getPublications(username:str, offset:int=1) -> list or None:
                 "nb_comments":getNumberOfCommentsFromPublication(row[0]),
                 "created_date": getIntervalOdTimeSinceCreation(row[5]),
                 "rating": int(row[6]) if row[6] is not None else 0,
-                "tags":getPublicationTags(row[0])
+                "tags":getPublicationTags(row[0]),
+                "user_rating": getIntFromRating(row[7])
             }
-            if username is not None:
-                publication["user_rating"] = getIntFromRating(row[7])
             
 
             
@@ -423,7 +422,7 @@ def getCommentsOfPublication(publication_id:str, username:str,offset:int = 1) ->
                         SELECT c.comment_id, c.commenter_username, u.profile_picture, c.message, c.created_date, c.rating
                         , get_user_comment_rating("{username}",c.comment_id)
                         FROM {TABLE_COMMENT} c 
-                        LEFT JOIN {TABLE_USER} u ON c.commenter_username = u.username
+                        LEFT JOIN {TABLE_USER} u ON BINARY c.commenter_username = u.username
                         WHERE c.publication_id = "{publication_id}"
                         GROUP BY c.comment_id, c.created_date
                         ORDER BY c.created_date ASC
@@ -446,9 +445,8 @@ def getCommentsOfPublication(publication_id:str, username:str,offset:int = 1) ->
                 "message": row[3],
                 "created_date": getIntervalOdTimeSinceCreation(row[4]),
                 "rating": int(row[5]) if row[5] is not None else 0,
+                "user_rating": getIntFromRating(row[6])
             }
-            if username is not None:
-                comment["user_rating"] = getIntFromRating(row[6])
             data.append(comment)
         
         return data

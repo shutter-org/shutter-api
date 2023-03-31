@@ -16,6 +16,7 @@ def signIn(app) -> None:
             if type(username) is not str:
                 return connectionFail()
             username = username.strip()
+            print(username)
             if not doesUsernameExist(username):
                 return connectionFail()
         except:

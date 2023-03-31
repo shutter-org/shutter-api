@@ -48,7 +48,7 @@ def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
                        ''')
         result = cursor.fetchall()[0]
         cursor.close()
-        return not struct.unpack('?',result[0])[0] or username == result[1].lower()
+        return not struct.unpack('?',result[0])[0] or username == result[1]
     except Exception:
         return False
     

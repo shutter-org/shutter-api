@@ -70,7 +70,7 @@ def didUserRateComment(comment_id:str, username:str) -> bool:
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_COMMENT} rc
                        WHERE rc.comment_id = "{comment_id}" 
-                       AND rc.username = "{username}";
+                       AND BINARY rc.username = "{username}";
                        ''')
         result = cursor.fetchall()
         

@@ -17,7 +17,7 @@ def doesUsernameExist(username:str) -> bool:
         cursor.execute(f'''
                        SELECT username 
                        FROM {TABLE_USER} 
-                       WHERE username = "{username}"; 
+                       WHERE BINARY username = "{username}"; 
                        ''')
         result = cursor.fetchall()
         
@@ -69,8 +69,8 @@ def doesUserFollowUsername(follower:str, followed:str) -> bool:
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_FOLLOW} 
-                       WHERE follower_username = "{follower}"
-                       AND followed_username = "{followed}";
+                       WHERE BINARY follower_username = "{follower}"
+                       AND BINARY followed_username = "{followed}";
                        ''')
         result = cursor.fetchall()
         

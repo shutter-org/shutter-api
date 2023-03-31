@@ -94,7 +94,7 @@ def didUserRatePublication(publication_id:str, username:str) -> bool:
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_PUBLICATION} rp
-                       WHERE rp.publication_id = "{publication_id}" AND rp.username = "{username}";
+                       WHERE rp.publication_id = "{publication_id}" AND BINARY rp.username = "{username}";
                        ''')
         result = cursor.fetchall()
         
