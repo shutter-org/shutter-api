@@ -158,8 +158,12 @@ def user(app) -> None:
                 return connectionSucces(token, user)
             
             if profile_picture is not None:
-                user = getUserByUsernameLess(username)
-                return ok(data={"user":user})
+                user = {
+                    "user":{
+                        "profile_picture": getUserByUsernameLess(username)["profile_picture"]
+                    }
+                }
+                return ok(data=user)
             
             return ok()
         else:
