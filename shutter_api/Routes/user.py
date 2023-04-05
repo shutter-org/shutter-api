@@ -159,7 +159,7 @@ def user(app) -> None:
             
             if profile_picture is not None:
                 user = getUserByUsernameLess(username)
-                return ok(data=user)
+                return ok(data={"user":user})
             
             return ok()
         else:
