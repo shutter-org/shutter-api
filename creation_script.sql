@@ -55,6 +55,10 @@ CREATE TABLE rate_comment(username VARCHAR(50) NOT NULL, comment_id VARCHAR(36) 
   FOREIGN KEY(username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
    FOREIGN KEY(comment_id) REFERENCES comment(comment_id) ON DELETE CASCADE ON UPDATE CASCADE);
 
+/*Index*/
+CREATE INDEX publication_Index ON publication (created_date DESC);
+CREATE INDEX comment_Index ON comment (publication_id ,created_date ASC);
+
 /* Function */
 
 DELIMITER //

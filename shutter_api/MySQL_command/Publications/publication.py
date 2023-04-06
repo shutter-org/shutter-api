@@ -124,8 +124,6 @@ def getPublicationById(publication_id:str, username:str) -> dict or None:
                        FROM publication p
                        LEFT JOIN user u ON p.poster_username = u.username
                        WHERE p.publication_id = "{publication_id}"
-                       GROUP BY p.publication_id, p.created_date
-                       ORDER BY p.created_date DESC;
                        ''')
         
         row = cursor.fetchall()[0]
@@ -170,7 +168,6 @@ def getUserPublications(username:str, offset:int = 1) -> list:
                        SELECT p.publication_id, p.picture, p.created_date
                        FROM publication p
                        WHERE p.poster_username = "{username}"
-                       ORDER BY p.created_date DESC
                        LIMIT 12
                        OFFSET {(offset-1) * 12};
                        ''')
