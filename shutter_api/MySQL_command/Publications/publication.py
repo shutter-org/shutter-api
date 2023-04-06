@@ -168,6 +168,7 @@ def getUserPublications(username:str, offset:int = 1) -> list:
                        SELECT p.publication_id, p.picture, p.created_date
                        FROM publication p
                        WHERE p.poster_username = "{username}"
+                       ORDER BY p.created_date DESC
                        LIMIT 12
                        OFFSET {(offset-1) * 12};
                        ''')
