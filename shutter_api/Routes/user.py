@@ -244,7 +244,7 @@ def user(app) -> None:
        
     @app.route("/users/<username>/following", methods=["GET"])
     @jwt_required()
-    def get_usersusername_following(username:str):
+    def get_users_username_following(username:str):
         
         username = username.strip()
         if not doesUsernameExist(username):
@@ -267,7 +267,7 @@ def user(app) -> None:
         
     @app.route("/users/<username>/followers", methods=["GET"])
     @jwt_required()
-    def get_usersusername_followers(username:str):
+    def get_users_username_followers(username:str):
         
         username = username.strip()
         if not doesUsernameExist(username):
