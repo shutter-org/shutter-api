@@ -25,9 +25,9 @@ poetry run serve
 | GET    | [/comments/«comment_id»](#get-comments«comment_id») |
 | PUT    | [/comments/«comment_id»](#put-comments«comment_id») |
 | DELETE | [/comments/«comment_id»](#delete-comments«comment_id») |
-| POST   | [/commments/«comment_id»/like](#post-comments«comment_id»like) |
-| PUT    | [/commments/«comment_id»/like](#put-comments«comment_id»like) |
-| DELETE | [/commments/«comment_id»/like](#delete-comments«comment_id»like) |
+| POST   | [/comments/«comment_id»/like](#post-comments«comment_id»like) |
+| PUT    | [/comments/«comment_id»/like](#put-comments«comment_id»like) |
+| DELETE | [/comments/«comment_id»/like](#delete-comments«comment_id»like) |
 |||
 | POST   | [/galleries](#post-galleries) |
 | GET    | [/galleries/«gallery_id»](#get-galleries«gallery_id») |
