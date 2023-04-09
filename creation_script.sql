@@ -58,6 +58,13 @@ CREATE TABLE rate_comment(username VARCHAR(50) COLLATE utf8mb4_bin NOT NULL, com
 /*Index*/
 CREATE INDEX publication_Index ON publication (created_date DESC);
 CREATE INDEX comment_Index ON comment (publication_id ,created_date ASC);
+CREATE INDEX gallery_Index On gallery (creator_username DESC);
+CREATE INDEX rate_comment_Index ON rate_comment (comment_id);
+CREATE INDEX rate_gallery_Index On rate_gallery (gallery_id);
+CREATE INDEX rate_publication_Index On rate_publication (publication_id);
+CREATE INDEX save_Index On save (gallery_id);
+CREATE INDEX identify_Index On identify (publication_id);
+
 
 /* Function */
 
