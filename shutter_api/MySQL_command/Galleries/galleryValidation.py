@@ -1,9 +1,10 @@
-from shutter_api import MYSQL
-from shutter_api.Tools import *
 import struct
 
+from shutter_api import MYSQL
+from shutter_api.Tools import *
 
-def doesGalleryExist(gallery_id:str) -> bool:
+
+def doesGalleryExist(gallery_id: str) -> bool:
     """
     Check if the gallery exist
 
@@ -14,23 +15,24 @@ def doesGalleryExist(gallery_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT gallery_id 
                        FROM {TABLE_GALLERY} 
                        WHERE gallery_id = "{gallery_id}"; 
                        ''')
         result = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return len(result) == 1
     except Exception:
         return False
-    
-def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
+
+
+def doesUserHasAccesToGallery(username: str, gallery_id: str) -> bool:
     """
-    Check if the users has accest to the private galleries
+    Check if the users has access to the private galleries
 
     Args:
         username (str): user username
@@ -40,7 +42,7 @@ def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT g.private, g.creator_username
                        FROM {TABLE_GALLERY} g
@@ -48,11 +50,12 @@ def doesUserHasAccesToGallery(username:str, gallery_id:str) -> bool:
                        ''')
         result = cursor.fetchall()[0]
         cursor.close()
-        return not struct.unpack('?',result[0])[0] or username == result[1]
+        return not struct.unpack('?', result[0])[0] or username == result[1]
     except Exception:
         return False
-    
-def doesGalleryBelongToUser(username:str, gallery_id:str) -> bool:
+
+
+def doesGalleryBelongToUser(username: str, gallery_id: str) -> bool:
     """
     Check if the username is the creator of the gallery
 
@@ -64,21 +67,22 @@ def doesGalleryBelongToUser(username:str, gallery_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT g.creator_username
                        FROM {TABLE_GALLERY} g
                        WHERE g.gallery_id = "{gallery_id}"; 
                        ''')
         result = cursor.fetchall()[0][0]
-        
+
         cursor.close()
-        
+
         return username == result
     except Exception:
         return False
-    
-def didUserRateGallery(gallery_id:str, username:str) -> bool:
+
+
+def didUserRateGallery(gallery_id: str, username: str) -> bool:
     """
     Check if the user already rated the gallery
 
@@ -89,7 +93,7 @@ def didUserRateGallery(gallery_id:str, username:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_GALLERY} rg
@@ -97,9 +101,9 @@ def didUserRateGallery(gallery_id:str, username:str) -> bool:
                        AND rg.username = "{username}";
                        ''')
         result = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return len(result) == 1
     except Exception:
         return False

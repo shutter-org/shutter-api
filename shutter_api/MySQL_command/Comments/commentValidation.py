@@ -1,7 +1,8 @@
 from shutter_api import MYSQL
 from shutter_api.Tools import *
 
-def doesCommentExist(comment_id:str) -> bool:
+
+def doesCommentExist(comment_id: str) -> bool:
     """
     Check if the comment exist in the DB
 
@@ -14,21 +15,22 @@ def doesCommentExist(comment_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT c.comment_id 
                        FROM {TABLE_COMMENT} c
                        WHERE c.comment_id = "{comment_id}";
                        ''')
         result = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return len(result) == 1
     except Exception:
         return False
-    
-def doesCommentBelongToUser(username:str, comment_id:str) -> bool:
+
+
+def doesCommentBelongToUser(username: str, comment_id: str) -> bool:
     """
     Check if the comment belong to the user
 
@@ -40,21 +42,22 @@ def doesCommentBelongToUser(username:str, comment_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT c.commenter_username
                        FROM {TABLE_COMMENT} c
                        WHERE c.comment_id = "{comment_id}";
                        ''')
         result = cursor.fetchall()[0][0]
-        
+
         cursor.close()
-        
+
         return username == result
     except Exception:
         return False
-    
-def didUserRateComment(comment_id:str, username:str) -> bool:
+
+
+def didUserRateComment(comment_id: str, username: str) -> bool:
     """
     Check if the user already rated the comment
 
@@ -65,7 +68,7 @@ def didUserRateComment(comment_id:str, username:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_COMMENT} rc
@@ -73,14 +76,15 @@ def didUserRateComment(comment_id:str, username:str) -> bool:
                        AND BINARY rc.username = "{username}";
                        ''')
         result = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return len(result) == 1
     except Exception:
         return False
-    
-def isUserPublicationOwnerFromCommentId(username:str, comment_id:str) -> bool:
+
+
+def isUserPublicationOwnerFromCommentId(username: str, comment_id: str) -> bool:
     """
     Check if the user is the creator of the publication in witch the comment belong
 
@@ -92,7 +96,7 @@ def isUserPublicationOwnerFromCommentId(username:str, comment_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT p.poster_username
                        FROM {TABLE_COMMENT} c
@@ -100,14 +104,15 @@ def isUserPublicationOwnerFromCommentId(username:str, comment_id:str) -> bool:
                        WHERE c.comment_id = "{comment_id}";
                        ''')
         result = cursor.fetchall()[0][0]
-        
+
         cursor.close()
-        
+
         return username == result
     except Exception:
         return False
-    
-def canUserDeleteComment(username:str, comment_id:str) -> bool:
+
+
+def canUserDeleteComment(username: str, comment_id: str) -> bool:
     """
     Check if the user has privilege to delete a comment
 
@@ -119,7 +124,7 @@ def canUserDeleteComment(username:str, comment_id:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT c.commenter_username, p.poster_username
                        FROM {TABLE_COMMENT} c
@@ -127,9 +132,9 @@ def canUserDeleteComment(username:str, comment_id:str) -> bool:
                        WHERE c.comment_id = "{comment_id}" 
                        ''')
         row = cursor.fetchall()[0]
-        
+
         cursor.close()
-        
+
         return username == row[0] or username == row[1]
     except Exception:
         return False

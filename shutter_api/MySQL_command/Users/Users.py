@@ -1,13 +1,14 @@
-from shutter_api import MYSQL
-from shutter_api.Tools import *
-from shutter_api.MySQL_command.Galleries import getGalleryPublications
 import struct
+
+from shutter_api import MYSQL
 from shutter_api.Keys import SQL_ENCRYPTION_KEY
+from shutter_api.MySQL_command.Galleries import getGalleryPublications
+from shutter_api.Tools import *
 
 
-def getUsers(search:str) -> list or None:
+def getUsers(search: str) -> list or None:
     """
-    get Users base on kyword
+    get Users base on keyword
 
     Args:
         search (str): search keyword
@@ -15,10 +16,10 @@ def getUsers(search:str) -> list or None:
     Returns:
         list or None: list of username, None if request fail
     """
-    try:  
+    try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT u.username, u.profile_picture, u.name
                        FROM {TABLE_USER} u
@@ -32,16 +33,17 @@ def getUsers(search:str) -> list or None:
         for row in result:
             data.append({
                 "username": row[0],
-                "profile_picture" : row[1],
-                "name":row[2]
+                "profile_picture": row[1],
+                "name": row[2]
             })
-        
+
         return data
     except Exception:
         return None
-        
 
-def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None, picture:str=None, name:str=None, password:str = None) -> bool:
+
+def updateUser(username: str, newUsername: str = None, email: str = None, bio: str = None, picture: str = None,
+               name: str = None, password: str = None) -> bool:
     """
     update the username base on the param
     
@@ -60,12 +62,12 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         if picture is not None:
-            picture, file_id = addImgToKitioToUsers(picture,username)
+            picture, file_id = addImgToKitioToUsers(picture, username)
         else:
             file_id = None
-            
+
         if newUsername is not None:
             cursor.execute(f'''
                             SELECT u.profile_picture
@@ -73,11 +75,11 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                             WHERE BINARY u.username = "{username}";
                             ''')
             url = str(cursor.fetchall()[0][0])
-            url = url.rsplit("?",1)[0]
+            url = url.rsplit("?", 1)[0]
             picture = updateUserImgToKitio(username, newUsername)
-            
+
         if password:
-            password = encrypt(password,SQL_ENCRYPTION_KEY)
+            password = encrypt(password, SQL_ENCRYPTION_KEY)
 
         cursor.execute(f'''
                        UPDATE {TABLE_USER} u 
@@ -88,17 +90,18 @@ def updateUser(username:str, newUsername:str=None, email:str=None, bio:str=None,
                        {f"""{"," if newUsername is not None or email is not None or bio is not None else ""}u.profile_picture = "{picture}" """ if picture is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None else ""}u.name = "{name}" """ if name is not None else ""}
                        {f""",u.file_id = "{file_id}" """ if file_id is not None else ""}
-                       {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None or name is not None else "" }u.password = "{password}" """ if password is not None else ""}
+                       {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None or name is not None else ""}u.password = "{password}" """ if password is not None else ""}
                        WHERE BINARY u.username = "{username}"; 
                        ''')
         conn.commit()
-        
+
         cursor.close()
         return True
     except ValueError:
         return False
 
-def deleteUserFromDB(username:str) -> bool:
+
+def deleteUserFromDB(username: str) -> bool:
     """
     Delete user from the data base
 
@@ -111,7 +114,7 @@ def deleteUserFromDB(username:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-          
+
         cursor.execute(f'''
                        SELECT p.file_id
                        FROM {TABLE_PUBLICATION} p
@@ -124,22 +127,22 @@ def deleteUserFromDB(username:str) -> bool:
                        WHERE BINARY u.username = "{username}"
                        ''')
         files.append(cursor.fetchall()[0][0])
-        
-        
+
         cursor.execute(f'''
                        DELETE FROM {TABLE_USER} 
                        WHERE BINARY username = "{username}";
                        ''')
-        
+
         deleteImageBulkFromImagekitio(files)
         conn.commit()
-        
+
         cursor.close()
         return True
     except ValueError:
         return False
-        
-def getUserGallery(username:str, private:bool) -> list or None:
+
+
+def getUserGallery(username: str, private: bool) -> list or None:
     """
     get the galleries of a user
 
@@ -153,7 +156,7 @@ def getUserGallery(username:str, private:bool) -> list or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT g.gallery_id, g.title, g.private
                        FROM {TABLE_GALLERY} g
@@ -166,18 +169,18 @@ def getUserGallery(username:str, private:bool) -> list or None:
         for row in result:
             data = {
                 "gallery_id": row[0],
-                "title":row[1],
-                "publications":getGalleryPublications(row[0], username=username),
-                "private": struct.unpack('?',row[2])[0]
+                "title": row[1],
+                "publications": getGalleryPublications(row[0], username=username),
+                "private": struct.unpack('?', row[2])[0]
             }
             galleries.append(data)
-        
-        
+
         return galleries
     except Exception:
         return None
-    
-def getUserByUsername(username:str) -> dict or None:
+
+
+def getUserByUsername(username: str) -> dict or None:
     """
     get a user data 
 
@@ -197,30 +200,31 @@ def getUserByUsername(username:str) -> dict or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT u.username, u.biography, u.name, u.birthdate, u.profile_picture, u.created_date
                        FROM {TABLE_USER} u 
                        WHERE BINARY username = "{username}"; 
                        ''')
         row = cursor.fetchall()[0]
-        
+
         cursor.close()
 
         data = {
             "username": row[0],
-            "biography":row[1],
-            "name":row[2],
-            "age":getAgeFromDate(row[3]),
-            "profile_picture":row[4],
-            "created_date":getIntervalOdTimeSinceCreation(row[5])
+            "biography": row[1],
+            "name": row[2],
+            "age": getAgeFromDate(row[3]),
+            "profile_picture": row[4],
+            "created_date": getIntervalOdTimeSinceCreation(row[5])
         }
-    
+
         return data
     except Exception:
         return None
-    
-def getUserByUsernameDetail(username:str) -> dict:
+
+
+def getUserByUsernameDetail(username: str) -> dict:
     """
     get a user data with more data
 
@@ -241,32 +245,33 @@ def getUserByUsernameDetail(username:str) -> dict:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT u.username, u.email, u.biography, u.name, u.created_date, u.birthdate, u.profile_picture
                        FROM {TABLE_USER} u 
                        WHERE BINARY username = "{username}"; 
                        ''')
         row = cursor.fetchall()[0]
-        
+
         cursor.close()
 
         data = {
             "username": row[0],
-            "email":row[1],
-            "biography":row[2],
-            "name":row[3],
+            "email": row[1],
+            "biography": row[2],
+            "name": row[3],
             "created_date": getIntervalOdTimeSinceCreation(row[4]),
-            "birthdate":row[5].strftime('%Y-%m-%d'),
-            "age":getAgeFromDate(row[5]),
-            "profile_picture":row[6]
+            "birthdate": row[5].strftime('%Y-%m-%d'),
+            "age": getAgeFromDate(row[5]),
+            "profile_picture": row[6]
         }
-    
+
         return data
     except Exception:
         return None
-    
-def getUserByUsernameLess(username:str) -> dict:
+
+
+def getUserByUsernameLess(username: str) -> dict:
     """
     get user with minimum data
 
@@ -282,20 +287,20 @@ def getUserByUsernameLess(username:str) -> dict:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT u.username, u.profile_picture 
                        FROM {TABLE_USER} u 
                        WHERE BINARY username = "{username}"; 
                        ''')
         row = cursor.fetchall()[0]
-        
+
         cursor.close()
         data = {
             "username": row[0],
-            "profile_picture":row[1]
+            "profile_picture": row[1]
         }
-    
+
         return data
     except Exception:
         return None

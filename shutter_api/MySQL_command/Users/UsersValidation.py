@@ -2,7 +2,7 @@ from shutter_api import MYSQL
 from shutter_api.Tools import *
 
 
-def doesUsernameExist(username:str) -> bool:
+def doesUsernameExist(username: str) -> bool:
     """
     Check if username existe
 
@@ -13,22 +13,22 @@ def doesUsernameExist(username:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT username 
                        FROM {TABLE_USER} 
                        WHERE BINARY username = "{username}"; 
                        ''')
         result = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return len(result) == 1
     except Exception:
         return False
-    
 
-def isEmailValid(email:str) -> bool:
+
+def isEmailValid(email: str) -> bool:
     """
     if email is available
 
@@ -39,21 +39,22 @@ def isEmailValid(email:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT email 
                        FROM {TABLE_USER} 
                        WHERE email = "{email}"; 
                        ''')
         result = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return len(result) == 0
     except Exception:
         return False
-    
-def doesUserFollowUsername(follower:str, followed:str) -> bool:
+
+
+def doesUserFollowUsername(follower: str, followed: str) -> bool:
     """
     check if user follow another user
 
@@ -65,7 +66,7 @@ def doesUserFollowUsername(follower:str, followed:str) -> bool:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_FOLLOW} 
@@ -73,9 +74,9 @@ def doesUserFollowUsername(follower:str, followed:str) -> bool:
                        AND BINARY followed_username = "{followed}";
                        ''')
         result = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return len(result) == 1
     except Exception:
         return False

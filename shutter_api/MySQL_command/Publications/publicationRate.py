@@ -1,7 +1,8 @@
 from shutter_api import MYSQL
 from shutter_api.Tools import *
 
-def likePublication(publication_id:str, username:str, rating:bool) -> bool:
+
+def likePublication(publication_id: str, username: str, rating: bool) -> bool:
     """
     Add user rating to db
 
@@ -11,12 +12,12 @@ def likePublication(publication_id:str, username:str, rating:bool) -> bool:
         rating (bool): user rating
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        INSERT INTO {RELATION_TABLE_RATE_PUBLICATION} 
                        (username, publication_id, rating) 
@@ -26,15 +27,16 @@ def likePublication(publication_id:str, username:str, rating:bool) -> bool:
                            {rating}
                        );
                        ''')
-        
+
         cursor.close()
         conn.commit()
-        
+
         return True
     except Exception:
         return False
-    
-def updateLikePublication(publication_id:str, username:str, rating:bool) -> bool:
+
+
+def updateLikePublication(publication_id: str, username: str, rating: bool) -> bool:
     """
     Change user publication rating
 
@@ -44,12 +46,12 @@ def updateLikePublication(publication_id:str, username:str, rating:bool) -> bool
         rating (bool): new rating
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        UPDATE {RELATION_TABLE_RATE_PUBLICATION} rp
                        SET rp.rating = {rating}
@@ -57,12 +59,13 @@ def updateLikePublication(publication_id:str, username:str, rating:bool) -> bool
                        ''')
         conn.commit()
         cursor.close()
-        
+
         return True
     except Exception:
         return False
-    
-def deleteLikePublication(publication_id:str, username:str) -> bool:
+
+
+def deleteLikePublication(publication_id: str, username: str) -> bool:
     """
     remove user publication rating
 
@@ -71,18 +74,18 @@ def deleteLikePublication(publication_id:str, username:str) -> bool:
         username (str): user username
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_PUBLICATION} rp
                        WHERE rp.publication_id = "{publication_id}" and BINARY rp.username = "{username}" 
                        ''')
         conn.commit()
-        
+
         cursor.close()
         return True
     except Exception:

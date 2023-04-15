@@ -1,5 +1,6 @@
 from shutter_api.Routes import *
 
+
 def addRouters(app):
     """
     add All routers to app

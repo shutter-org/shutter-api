@@ -1,10 +1,11 @@
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad,unpad
 from base64 import b64decode, b64encode
 
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 
-def encrypt(raw:str,key:bytes) -> str:
-        """
+
+def encrypt(raw: str, key: bytes) -> str:
+    """
         Function that encrypt a string with a key
         Encrypt algorith AES_ECB
 
@@ -15,12 +16,13 @@ def encrypt(raw:str,key:bytes) -> str:
         Returns:
             str: encrypted message
         """
-        raw = pad(raw.encode(),16)
-        cipher = AES.new(key, AES.MODE_ECB)
-        return b64encode(cipher.encrypt(raw)).decode("utf-8")
+    raw = pad(raw.encode(), 16)
+    cipher = AES.new(key, AES.MODE_ECB)
+    return b64encode(cipher.encrypt(raw)).decode("utf-8")
 
-def decrypt(enc:str, key:bytes) -> str:
-        """
+
+def decrypt(enc: str, key: bytes) -> str:
+    """
         Function that decrypt a encrypted message with a key
         Encryption algorith AES_ECB
 
@@ -31,6 +33,6 @@ def decrypt(enc:str, key:bytes) -> str:
         Returns:
             str: raw message
         """
-        enc = b64decode(enc.encode("utf-8"))
-        cipher = AES.new(key, AES.MODE_ECB)
-        return unpad(cipher.decrypt(enc),16).decode("utf-8")
+    enc = b64decode(enc.encode("utf-8"))
+    cipher = AES.new(key, AES.MODE_ECB)
+    return unpad(cipher.decrypt(enc), 16).decode("utf-8")

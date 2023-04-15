@@ -1,34 +1,36 @@
 from shutter_api import MYSQL
 from shutter_api.Tools import *
 
-def createTag(tag:str) -> bool:
+
+def createTag(tag: str) -> bool:
     """
-    Create a new tafg
+    Create a new tag
     Args:
         tag (str): new tag
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        INSERT INTO {TABLE_TAG} 
                        (value) 
                        VALUES 
                        ("{tag}");
                        ''')
-        
+
         cursor.close()
         conn.commit()
         return True
-    
+
     except Exception:
         return False
-    
-def addTagToPublication(tag:str, publication_id:str) -> bool:
+
+
+def addTagToPublication(tag: str, publication_id: str) -> bool:
     """
     link a tag to a publication
 
@@ -37,13 +39,13 @@ def addTagToPublication(tag:str, publication_id:str) -> bool:
         publication_id (str): publication_id
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
-        
+
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        INSERT INTO {RELATION_TABLE_IDENTIFY} 
                        (publication_id, tag_value) 
@@ -52,14 +54,15 @@ def addTagToPublication(tag:str, publication_id:str) -> bool:
                        ''')
         cursor.close()
         conn.commit()
-        
+
         return True
     except Exception:
         return False
-    
-def getNbpublicationFromTag(tag:str) -> int or None:
+
+
+def getNbpublicationFromTag(tag: str) -> int or None:
     """
-    get the number of publicaiton related to this tag
+    get the number of publication related to this tag
 
     Args:
         tag (str): tag
@@ -78,12 +81,13 @@ def getNbpublicationFromTag(tag:str) -> int or None:
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
-       
+
         return result
     except Exception:
         return None
-    
-def getTags(search:str) -> list or None:
+
+
+def getTags(search: str) -> list or None:
     """
     get tags base on the search param
 
@@ -109,11 +113,10 @@ def getTags(search:str) -> list or None:
         data = []
         for row in result:
             data.append({
-                "tag":row[0],
-                "nb_publications":row[1]
+                "tag": row[0],
+                "nb_publications": row[1]
             })
-        
-        
+
         return data
     except Exception:
         return None

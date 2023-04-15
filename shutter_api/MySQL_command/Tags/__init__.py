@@ -1,2 +1,2 @@
-from .tagsValidation import *
 from .tags import *
+from .tagsValidation import *

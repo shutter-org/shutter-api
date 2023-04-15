@@ -1,10 +1,10 @@
-from shutter_api import MYSQL
-from flask_jwt_extended import JWTManager
-from flask_cors import CORS
 from datetime import timedelta
+
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+
+from shutter_api import MYSQL
 from shutter_api.Keys import SQL_KEY, JWT_KEY
-
-
 
 
 def addConfig(app) -> None:
@@ -13,7 +13,7 @@ def addConfig(app) -> None:
     """
     CORS(app)
     jwt = JWTManager(app)
-    
+
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         user_id = jwt_data["sub"]
@@ -26,5 +26,3 @@ def addConfig(app) -> None:
     app.config['JWT_SECRET_KEY'] = JWT_KEY
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     MYSQL.init_app(app)
-    
-    

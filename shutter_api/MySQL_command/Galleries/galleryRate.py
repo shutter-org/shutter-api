@@ -1,7 +1,8 @@
 from shutter_api import MYSQL
 from shutter_api.Tools import *
 
-def likeGallery(gallery_id:str, username:str, rating:bool) -> bool:
+
+def likeGallery(gallery_id: str, username: str, rating: bool) -> bool:
     """
     Add a user rating to a gallery
 
@@ -11,12 +12,12 @@ def likeGallery(gallery_id:str, username:str, rating:bool) -> bool:
         rating (bool): user rating
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        INSERT INTO {RELATION_TABLE_RATE_GALLERY} 
                        (username, gallery_id, rating) 
@@ -26,15 +27,16 @@ def likeGallery(gallery_id:str, username:str, rating:bool) -> bool:
                            {rating}
                        );
                        ''')
-        
+
         cursor.close()
         conn.commit()
-        
+
         return True
     except Exception:
         return False
-    
-def updateLikeGallery(gallery_id:str, username:str, rating:bool) -> bool:
+
+
+def updateLikeGallery(gallery_id: str, username: str, rating: bool) -> bool:
     """
     Update the rating of a user on a gallery
 
@@ -44,12 +46,12 @@ def updateLikeGallery(gallery_id:str, username:str, rating:bool) -> bool:
         rating (bool): user new rating
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        UPDATE {RELATION_TABLE_RATE_GALLERY} rg
                        SET rg.rating = {rating}
@@ -58,12 +60,13 @@ def updateLikeGallery(gallery_id:str, username:str, rating:bool) -> bool:
                        ''')
         conn.commit()
         cursor.close()
-        
+
         return True
     except Exception:
         return False
-    
-def deleteLikeGallery(gallery_id:str, username:str) -> bool:
+
+
+def deleteLikeGallery(gallery_id: str, username: str) -> bool:
     """
     Remove the rating of a user
 
@@ -72,21 +75,20 @@ def deleteLikeGallery(gallery_id:str, username:str) -> bool:
         username (str): user username
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_GALLERY} rg
                        WHERE rg.gallery_id = "{gallery_id}" 
                        AND BINARY rg.username = "{username}";
                        ''')
         conn.commit()
-        
+
         cursor.close()
         return True
     except Exception:
         return False
-    

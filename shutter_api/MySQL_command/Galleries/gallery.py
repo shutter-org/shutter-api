@@ -1,10 +1,11 @@
+import struct
+
 from shutter_api import MYSQL
 from shutter_api.Tools import *
 from .galleryPublication import getGalleryPublications
-import struct
 
 
-def createGallery(data:dict) -> bool:
+def createGallery(data: dict) -> bool:
     """
     Create a new gallery
 
@@ -18,13 +19,12 @@ def createGallery(data:dict) -> bool:
             title: str
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
-        
+
         cursor.execute(f'''INSERT INTO {TABLE_GALLERY} 
                        (gallery_id, creator_username, description, created_date, private, title) 
                        VALUES (
@@ -36,58 +36,60 @@ def createGallery(data:dict) -> bool:
                            "{data["title"]}"
                        );
                        ''')
-        
+
         cursor.close()
         conn.commit()
-        
+
         return True
     except Exception:
         return False
-    
-def deleteGalleryFromDB(gallery_id:str) -> bool:
+
+
+def deleteGalleryFromDB(gallery_id: str) -> bool:
     """
-    Delete a galley from the data base
+    Delete a galley from the database
 
     Args:
         gallery_id (str): gallery id
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        DELETE FROM {TABLE_GALLERY} 
                        WHERE gallery_id = "{gallery_id}"; 
                        ''')
         conn.commit()
-        
+
         cursor.close()
         return True
     except Exception:
         return False
-    
-def updateGallery(gallery_id:str, description:str = None, title:str = None, private:bool = None) -> bool:
+
+
+def updateGallery(gallery_id: str, description: str = None, title: str = None, private: bool = None) -> bool:
     """
     Update one or more data of a gallery
     
     Args:
         gallery_id (str): gallery id
-        description (str, optionnal): new description
-        title (str, optionnal): new title
+        description (str, optional): new description
+        title (str, optional): new title
         private (bool, optionnal): the new private status of the gallery
         
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     if description is None and title is None and private is None:
         return False
-    
+
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        UPDATE {TABLE_GALLERY} g
                        SET
@@ -98,12 +100,13 @@ def updateGallery(gallery_id:str, description:str = None, title:str = None, priv
                        ''')
         conn.commit()
         cursor.close()
-        
+
         return True
     except Exception:
         return False
 
-def getNumberPublicationsFromGallery(gallery_id:str) -> int or None:
+
+def getNumberPublicationsFromGallery(gallery_id: str) -> int or None:
     """
     Get the total number of publication of a gallery
 
@@ -116,7 +119,7 @@ def getNumberPublicationsFromGallery(gallery_id:str) -> int or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT COUNT(*)
                        FROM {RELATION_TABLE_SAVE} s
@@ -125,12 +128,13 @@ def getNumberPublicationsFromGallery(gallery_id:str) -> int or None:
         result = cursor.fetchall()[0][0]
 
         cursor.close()
-       
+
         return result
     except Exception:
         return None
 
-def getGalleryById(gallery_id:str, username:str) -> dict or None:
+
+def getGalleryById(gallery_id: str, username: str) -> dict or None:
     """
     get gallery data 
 
@@ -144,7 +148,7 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT g.gallery_id, g.creator_username, u.profile_picture, g.description, g.created_date, g.rating , 
                        get_user_gallery_rating("{username}",g.gallery_id), g.title, g.private
@@ -156,21 +160,21 @@ def getGalleryById(gallery_id:str, username:str) -> dict or None:
         row = cursor.fetchall()[0]
 
         cursor.close()
-        
+
         data = {
             "gallery_id": row[0],
-            "creator_user":{
-                "username":row[1],
-                "profile_picture":row[2]
+            "creator_user": {
+                "username": row[1],
+                "profile_picture": row[2]
             },
             "description": row[3],
             "created_date": getIntervalOdTimeSinceCreation(row[4]),
             "rating": int(row[5]),
-            "publications":getGalleryPublications(gallery_id,username=username),
-            "nb_publication":getNumberPublicationsFromGallery(gallery_id),
+            "publications": getGalleryPublications(gallery_id, username=username),
+            "nb_publication": getNumberPublicationsFromGallery(gallery_id),
             "user_rating": getIntFromRating(row[6]),
             "title": row[7],
-            "private": struct.unpack('?',row[8])[0]
+            "private": struct.unpack('?', row[8])[0]
         }
 
         return data

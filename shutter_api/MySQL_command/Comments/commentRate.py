@@ -1,7 +1,8 @@
 from shutter_api import MYSQL
 from shutter_api.Tools import *
 
-def likeComment(comment_id:set, username:str, rating:bool) -> bool:
+
+def likeComment(comment_id: set, username: str, rating: bool) -> bool:
     """
     Add the rating of a user to a comment
 
@@ -11,12 +12,12 @@ def likeComment(comment_id:set, username:str, rating:bool) -> bool:
         rating (bool): rating of the user
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''INSERT INTO {RELATION_TABLE_RATE_COMMENT}
                        (username, comment_id, rating) 
                        VALUES (
@@ -25,15 +26,16 @@ def likeComment(comment_id:set, username:str, rating:bool) -> bool:
                            {rating}
                        );
                        ''')
-        
+
         cursor.close()
         conn.commit()
-        
+
         return True
     except Exception:
         return False
-    
-def updateLikeComment(comment_id:str, username:str, rating:bool) -> bool:
+
+
+def updateLikeComment(comment_id: str, username: str, rating: bool) -> bool:
     """
     Change the rating of a user
 
@@ -43,12 +45,12 @@ def updateLikeComment(comment_id:str, username:str, rating:bool) -> bool:
         rating (bool): new user rating
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        UPDATE {RELATION_TABLE_RATE_COMMENT} rc
                        SET rc.rating = {rating}
@@ -57,12 +59,13 @@ def updateLikeComment(comment_id:str, username:str, rating:bool) -> bool:
                        ''')
         conn.commit()
         cursor.close()
-        
+
         return True
     except Exception:
         return False
-    
-def deleteLikeComment(comment_id:str, username:str) -> bool:
+
+
+def deleteLikeComment(comment_id: str, username: str) -> bool:
     """
     Remove the rating of a user on a comment
 
@@ -71,21 +74,20 @@ def deleteLikeComment(comment_id:str, username:str) -> bool:
         username (str): user username
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_COMMENT} rc
                        WHERE rc.comment_id = "{comment_id}" 
                        AND BINARY rc.username = "{username}";
                        ''')
         conn.commit()
-        
+
         cursor.close()
         return True
     except Exception:
         return False
-    

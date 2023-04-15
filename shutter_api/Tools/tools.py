@@ -1,4 +1,4 @@
-from datetime import date,datetime
+from datetime import date, datetime
 
 TIME_INTERVALS = (
     ('year', 31536000),
@@ -9,9 +9,10 @@ TIME_INTERVALS = (
     ('minute', 60)
 )
 
-def getAgeFromDate(date:date) -> int:
+
+def getAgeFromDate(date: date) -> int:
     """
-    get the age diff between the date and the curretn date
+    get the age diff between the date and the current date
 
     Args:
         date (date): birthdate
@@ -23,7 +24,8 @@ def getAgeFromDate(date:date) -> int:
     age = today.year - date.year - ((today.month, today.day) < (date.month, date.day))
     return age
 
-def getIntFromRating(bytes:bytes) -> int:
+
+def getIntFromRating(bytes: bytes) -> int:
     """
     from bytes to int 0 -> -1, 1 -> 1 and None -> 0
 
@@ -35,7 +37,8 @@ def getIntFromRating(bytes:bytes) -> int:
     """
     return 0 if bytes is None else (1 if bytes == b'\x01' else -1)
 
-def getIntervalOdTimeSinceCreation(date:datetime) -> str:
+
+def getIntervalOdTimeSinceCreation(date: datetime) -> str:
     """
     get the interval of time between the dateTime and now
 
@@ -46,11 +49,10 @@ def getIntervalOdTimeSinceCreation(date:datetime) -> str:
         str: the interval of time like "1 year ago"
     """
     now = datetime.utcnow()
-    timeDiff = now-date
-    
+    timeDiff = now - date
+
     for name, duration in TIME_INTERVALS:
         count = int(timeDiff.total_seconds() / duration)
         if count != 0:
             return f"{count} {name}{'s' if count > 1 else ''} ago"
     return 'now'
-    

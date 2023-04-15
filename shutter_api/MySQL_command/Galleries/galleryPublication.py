@@ -1,7 +1,8 @@
 from shutter_api import MYSQL
 from shutter_api.Tools import *
 
-def addPublicationToGallery(gallery_id:str, publication_id:str) -> bool:
+
+def addPublicationToGallery(gallery_id: str, publication_id: str) -> bool:
     """
     Add a publication to a gallery
 
@@ -10,8 +11,8 @@ def addPublicationToGallery(gallery_id:str, publication_id:str) -> bool:
         publication_id (str): publication id
 
     Returns:
-        bool: if request succes
-    """    
+        bool: if request success
+    """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
@@ -27,12 +28,13 @@ def addPublicationToGallery(gallery_id:str, publication_id:str) -> bool:
 
         cursor.close()
         conn.commit()
-        
+
         return True
     except Exception:
         return False
-    
-def removePublicationFromGallery(gallery_id:str, publication_id:str) -> bool:
+
+
+def removePublicationFromGallery(gallery_id: str, publication_id: str) -> bool:
     """
     Remove a publication from a gallery
 
@@ -41,7 +43,7 @@ def removePublicationFromGallery(gallery_id:str, publication_id:str) -> bool:
         publication_id (str): publication id
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
@@ -54,12 +56,13 @@ def removePublicationFromGallery(gallery_id:str, publication_id:str) -> bool:
                        ''')
         cursor.close()
         conn.commit()
-        
+
         return True
     except Exception:
         return False
-    
-def getGalleryPublications(gallery_Id:str, username:str, offset:int = 1) -> list or None:
+
+
+def getGalleryPublications(gallery_Id: str, username: str, offset: int = 1) -> list or None:
     """
     Get the publications of a gallery by batch of 10
 
@@ -74,7 +77,7 @@ def getGalleryPublications(gallery_Id:str, username:str, offset:int = 1) -> list
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-        
+
         cursor.execute(f'''
                        SELECT p.publication_id, p.picture
                        FROM {RELATION_TABLE_SAVE} s
@@ -84,12 +87,11 @@ def getGalleryPublications(gallery_Id:str, username:str, offset:int = 1) -> list
                        AND (g.private = 0 OR (g.private = 1 AND BINARY g.creator_username = "{username}")) 
                        ORDER BY p.created_date DESC
                        LIMIT 12
-                       OFFSET {(offset-1) * 12};
+                       OFFSET {(offset - 1) * 12};
                        ''')
         result = cursor.fetchall()
         cursor.close()
-        
-        return [{"publication_id": x[0], "picture":x[1]}for x in result]
+
+        return [{"publication_id": x[0], "picture": x[1]} for x in result]
     except Exception:
         return None
-    

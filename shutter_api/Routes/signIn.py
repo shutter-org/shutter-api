@@ -1,13 +1,13 @@
 from flask import request
+from flask_jwt_extended import create_access_token
+
+from shutter_api.Keys import ENCRYPTION_KEY
 from shutter_api.MySQL_command import *
 from shutter_api.Responses import *
-from flask_jwt_extended import create_access_token
 from shutter_api.Tools import decrypt
-from shutter_api.Keys import ENCRYPTION_KEY
 
 
 def signIn(app) -> None:
-    
     @app.route("/signin", methods=["POST"])
     def get_signin():
         data = request.get_json()
@@ -20,12 +20,12 @@ def signIn(app) -> None:
                 return connectionFail()
         except:
             return missingParameterInJson("username")
-        
+
         try:
             password = data["password"]
             if type(password) is not str:
                 return connectionFail()
-            password =  decrypt(password,ENCRYPTION_KEY)
+            password = decrypt(password, ENCRYPTION_KEY)
         except:
             return missingParameterInJson("password")
 
