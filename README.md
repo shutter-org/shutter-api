@@ -9,11 +9,11 @@ poetry run serve
 # Router
 
 |  Type  | Path                                                                                  |
-|:------:|:--------------------------------------------------------------------------------------| 
+| :----: | :------------------------------------------------------------------------------------ |
 |  POST  | [/signup](#post-signup)                                                               |
 |  POST  | [/signin](#post-signin)                                                               |
 |  GET   | [/ping](#get-ping)                                                                    |
-|||
+|        |                                                                                       |
 |  GET   | [/users](#get-users)                                                                  |
 |  GET   | [/users/«username»](#get-users«username»)                                             |
 |  PUT   | [/users/«username»](#put-users«username»)                                             |
@@ -24,14 +24,14 @@ poetry run serve
 |  GET   | [/users/«username»/followers](#get-users«username»followers)                          |
 |  GET   | [/users/«username»/following](#get-users«username»following)                          |
 |  GET   | [/users/followed/publications](#get-users«username»followedpublication)               |
-|||
+|        |                                                                                       |
 |  GET   | [/comments/«comment_id»](#get-comments«comment_id»)                                   |
 |  PUT   | [/comments/«comment_id»](#put-comments«comment_id»)                                   |
 | DELETE | [/comments/«comment_id»](#delete-comments«comment_id»)                                |
 |  POST  | [/comments/«comment_id»/like](#post-comments«comment_id»like)                         |
 |  PUT   | [/comments/«comment_id»/like](#put-comments«comment_id»like)                          |
 | DELETE | [/comments/«comment_id»/like](#delete-comments«comment_id»like)                       |
-|||
+|        |                                                                                       |
 |  POST  | [/galleries](#post-galleries)                                                         |
 |  GET   | [/galleries/«gallery_id»](#get-galleries«gallery_id»)                                 |
 |  PUT   | [/galleries/«gallery_id»](#put-galleries«gallery_id»)                                 |
@@ -42,7 +42,7 @@ poetry run serve
 |  POST  | [/galleries/«gallery_id»/like](#post-galleries«gallery_id»like)                       |
 |  PUT   | [/galleries/«gallery_id»/like](#put-galleries«gallery_id»like)                        |
 | DELETE | [/galleries/«gallery_id»/like](#delete-galleries«gallery_id»like)                     |
-|||
+|        |                                                                                       |
 |  GET   | [/publications](#get-publications)                                                    |
 |  POST  | [/publications](#post-publications)                                                   |
 |  GET   | [/publications/«publication_id»](#get-publications«publication_id»)                   |
@@ -53,7 +53,7 @@ poetry run serve
 |  POST  | [/publications/«publication_id»/like](#post-publications«publication_id»like)         |
 |  PUT   | [/publications/«publication_id»/like](#put-publications«publication_id»like)          |
 | DELETE | [/publications/«publication_id»/like](#delete-publications«publication_id»like)       |
-|||
+|        |                                                                                       |
 |  GET   | [/tags](#get-tags)                                                                    |
 
 ---
@@ -104,7 +104,7 @@ output body connection succes, code 200
     "access_token" : String,
     "user":{
         "username": String,
-        "profile_picture": String (image URL) 
+        "profile_picture": String (image URL)
     }
 
 }
@@ -126,13 +126,7 @@ output body connection fail, code 401
 
 Check if the access token is still valid.
 
-output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
 
 ---
 
@@ -179,7 +173,7 @@ additional requests using the following routes: [GET /users/«username»/followe
 or [GET /users/«username»/following](#get-users«username»following).
 
 The number of publications shown is limited to 12. If you require more, you can make additional requests
-using [GET /users/«username»/publications]((#get-users«username»publications)).Similarly, the number of publications in
+using [GET /users/«username»/publications](<(#get-users«username»publications)>).Similarly, the number of publications in
 a gallery is also limited to 12. If you require more, you can make additional requests
 using [GET /galleries/«gallery_id»/publications](#get-galleries«gallery_id»publications).
 
@@ -318,13 +312,7 @@ input body:
 }
 ```
 
-output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
 
 ---
 
@@ -335,13 +323,7 @@ output body, code 200:
 Access to this route is granted only to the user whose username matches the access token. This route is used to delete
 all data related to the user, including the user account itself.
 
-output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
 
 ---
 
@@ -380,15 +362,7 @@ output body, code 200:
 
 This route is used to follow a user.
 
-output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## output body, code 200.
 
 ### DELETE /users/«username»/follow
 
@@ -396,15 +370,7 @@ output body, code 200:
 
 This route is used to unfollow a user.
 
-output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## output body, code 200.
 
 ### GET /users/«username»/followers
 
@@ -553,15 +519,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### DELETE /comments/«comment_id»
 
@@ -570,15 +528,7 @@ Output body, code 200:
 This route is used to delete a comment. Only the creator of the comment or the creator of the publication to which the
 comment belongs can access this route.
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### POST /comments/«comment_id»/like
 
@@ -594,15 +544,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### PUT /comments/«comment_id»/like
 
@@ -618,15 +560,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### DELETE /comments/«comment_id»/like
 
@@ -634,15 +568,7 @@ Output body, code 200:
 
 The purpose of this route is to enable users to remove their rating on a comment.
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### POST /galleries
 
@@ -661,15 +587,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### GET /galleries/«gallery_id»
 
@@ -724,15 +642,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### DELETE /galleries/«gallery_id»
 
@@ -741,15 +651,7 @@ Output body, code 200:
 The purpose of this route is to enable the creator of a gallery to delete it. Only the user who created the gallery has
 access to this route, and once the gallery is deleted, it cannot be restored.
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### GET /galleries/«gallery_id»/publications
 
@@ -794,15 +696,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### DELETE /galleries/«gallery_id»/publications
 
@@ -819,15 +713,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### POST /galleries/«gallery_id»/like
 
@@ -843,13 +729,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 
 ---
 
@@ -867,15 +747,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### DELETE /galleries/«gallery_id»/like
 
@@ -883,15 +755,7 @@ Output body, code 200:
 
 The purpose of this route is to allow users to remove their rating of a gallery.
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### GET /publications
 
@@ -968,15 +832,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### GET /publications/«publication_id»
 
@@ -985,7 +841,7 @@ Output body, code 200:
 "The purpose of this route is to retrieve data for a specific publication, including its content and associated
 metadata. The list of comments associated with the publication is limited to 12 comments per page, and the user can
 retrieve additional comments by using
-the  [GET /publications/«publication_id»/comments](#get-publications«publication_id»comments)
+the [GET /publications/«publication_id»/comments](#get-publications«publication_id»comments)
 
 Output body, code 200:
 
@@ -1039,15 +895,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### DELETE /publications/«publication_id»
 
@@ -1056,13 +904,7 @@ Output body, code 200:
 The purpose of this route is to allow the creator of a publication to delete it. Only the user who created the
 publication has access to this route.
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 
 ---
 
@@ -1116,15 +958,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### POST /publications/«publication_id»/like
 
@@ -1141,15 +975,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### PUT /publications/«publication_id»/like
 
@@ -1165,15 +991,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### DELETE /publications/«publication_id»/like
 
@@ -1181,15 +999,7 @@ Output body, code 200:
 
 The purpose of this route is to allow a user to remove their rating from a specific publication.
 
-Output body, code 200:
-
-```
-{
-    "msg": "ok"
-}
-```
-
----
+## Output body, code 200.
 
 ### GET /tags
 
