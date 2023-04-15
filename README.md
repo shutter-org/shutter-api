@@ -110,12 +110,7 @@ output body connection fail, code 401
 
 Check if the access token is still valid.
 
-output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
 
 ---
 ### GET /users
@@ -277,24 +272,16 @@ input body:
 }
 ```
 
-output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
+
 ---
 ### DELETE /users/«username»
 **Access_token needed**.
 
 Access to this route is granted only to the user whose username matches the access token. This route is used to delete all data related to the user, including the user account itself.
 
-output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
+
 ---
 ### GET /users/«username»/publications
 **Access_token needed**.
@@ -323,24 +310,14 @@ output body, code 200:
 
 This route is used to follow a user.
 
-output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
 ---
 ### DELETE /users/«username»/follow
 **Access_token needed**.
 
 This route is used to unfollow a user.
 
-output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+output body, code 200.
 ---
 ### GET /users/«username»/followers
 **Access_token needed**.
@@ -461,24 +438,14 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### DELETE /comments/«comment_id»
 **Accesss_token needed**.
 
 This route is used to delete a comment. Only the creator of the comment or the creator of the publication to which the comment belongs can access this route.
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### POST /comments/«comment_id»/like
 **Access_token needed**.
@@ -492,12 +459,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### PUT /comments/«comment_id»/like
 **Access_token needed**.
@@ -511,12 +473,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### DELETE /comments/«comment_id»/like
 **Access_token needed**.
@@ -524,12 +481,7 @@ Output body, code 200:
 The purpose of this route is to enable users to remove their rating on a comment.
 
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### POST /galleries
 **Access_token needed**.
@@ -545,12 +497,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### GET /galleries/«gallery_id»
 **Access_token needed**.
@@ -598,24 +545,14 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### DELETE /galleries/«gallery_id»
 **Access_token needed**.
 
 The purpose of this route is to enable the creator of a gallery to delete it. Only the user who created the gallery has access to this route, and once the gallery is deleted, it cannot be restored.
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### GET /galleries/«gallery_id»/publications
 **Access_token needed**.
@@ -650,12 +587,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### DELETE /galleries/«gallery_id»/publications
 **Access_token needed**.
@@ -669,12 +601,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### POST /galleries/«gallery_id»/like
 **Access_token needed**.
@@ -688,12 +615,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 
 ---
 ### PUT /galleries/«gallery_id»/like
@@ -708,12 +630,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### DELETE /galleries/«gallery_id»/like
 **Access_token needed**.
@@ -721,12 +638,7 @@ Output body, code 200:
 The purpose of this route is to allow users to remove their rating of a gallery.
 
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### GET /publications
 **Access_token needed**.
@@ -791,12 +703,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### GET /publications/«publication_id»
 **Access_token needed**.
@@ -850,24 +757,14 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### DELETE /publications/«publication_id»
 **Access_token needed**.
 
 The purpose of this route is to allow the creator of a publication to delete it. Only the user who created the publication has access to this route.
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 
 ---
 ### GET /publications/«publication_id»/comments
@@ -910,12 +807,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### POST /publications/«publication_id»/like
 **Access_token needed**.
@@ -929,12 +821,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### PUT /publications/«publication_id»/like
 **Access_token needed**.
@@ -948,12 +835,7 @@ Input body:
 }
 ```
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### DELETE /publications/«publication_id»/like
 **Access_token needed**.
@@ -961,12 +843,7 @@ Output body, code 200:
 The purpose of this route is to allow a user to remove their rating from a specific publication.
 
 
-Output body, code 200:
-```
-{
-    "msg": "ok"
-}
-```
+Output body, code 200.
 ---
 ### GET /tags
 **Access_token needed**.
