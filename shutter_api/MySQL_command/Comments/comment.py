@@ -19,7 +19,7 @@ def getCommentById(comment_id: str) -> dict or None:
         cursor.execute(f'''
                        SELECT * 
                        FROM {TABLE_COMMENT} 
-                       WHERE comment_id = "{comment_id}";
+                       WHERE comment_id = '{comment_id}';
                        ''')
         row = cursor.fetchall()[0]
 
@@ -59,11 +59,11 @@ def createComment(data: dict) -> bool:
         cursor = conn.cursor()
 
         cursor.execute(f'''INSERT INTO {TABLE_COMMENT} (comment_id, commenter_username, publication_id, message, created_date) VALUES (
-            "{data["comment_id"]}",
-            "{data["commenter_username"]}",
-            "{data["publication_id"]}",
-            "{data["message"]}",
-            "{data["created_date"]}")''')
+            '{data["comment_id"]}',
+            '{data["commenter_username"]}',
+            '{data["publication_id"]}',
+            '{data["message"]}',
+            '{data["created_date"]}')''')
 
         cursor.close()
         conn.commit()
@@ -89,7 +89,7 @@ def deleteCommentFromDB(comment_id: str) -> bool:
 
         cursor.execute(f'''
                        DELETE FROM {TABLE_COMMENT} 
-                       WHERE comment_id = "{comment_id}";
+                       WHERE comment_id = '{comment_id}';
                        ''')
         conn.commit()
 
@@ -116,8 +116,8 @@ def updateComment(comment_id: str, message: str) -> bool:
 
         cursor.execute(f'''
                        UPDATE {TABLE_COMMENT} c
-                       SET c.message = "{message}"
-                       WHERE c.comment_id = "{comment_id}";
+                       SET c.message = '{message}'
+                       WHERE c.comment_id = '{comment_id}';
                        ''')
         conn.commit()
 
@@ -144,7 +144,7 @@ def getNumberOfCommentsFromPublication(publication_id: str) -> int or None:
         cursor.execute(f'''
                        SELECT COUNT(*) 
                        FROM {TABLE_COMMENT} c
-                       WHERE c.publication_id = "{publication_id}";
+                       WHERE c.publication_id = '{publication_id}';
                        ''')
         result = cursor.fetchall()[0][0]
 

@@ -29,14 +29,14 @@ def createNewUser(data: dict) -> bool:
         cursor = conn.cursor()
 
         cursor.execute(f'''INSERT INTO {TABLE_USER} (username, password, email, name, created_date, birthdate, profile_picture, file_id) VALUES (
-            "{data["username"]}",
-            "{password}",
-            "{data["email"]}",
-            "{data["name"]}",
-            "{data["created_date"]}",
-            "{data["birthdate"]}",
-            "{pictureURL}",
-            "{file_id}")
+            '{data["username"]}',
+            '{password}',
+            '{data["email"]}',
+            '{data["name"]}',
+            '{data["created_date"]}',
+            '{data["birthdate"]}',
+            '{pictureURL}',
+            '{file_id}')
             ''')
         cursor.close()
         conn.commit()

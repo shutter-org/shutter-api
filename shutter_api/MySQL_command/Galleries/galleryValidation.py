@@ -19,7 +19,7 @@ def doesGalleryExist(gallery_id: str) -> bool:
         cursor.execute(f'''
                        SELECT gallery_id 
                        FROM {TABLE_GALLERY} 
-                       WHERE gallery_id = "{gallery_id}"; 
+                       WHERE gallery_id = '{gallery_id}'; 
                        ''')
         result = cursor.fetchall()
 
@@ -46,7 +46,7 @@ def doesUserHasAccesToGallery(username: str, gallery_id: str) -> bool:
         cursor.execute(f'''
                        SELECT g.private, g.creator_username
                        FROM {TABLE_GALLERY} g
-                       WHERE g.gallery_id = "{gallery_id}"; 
+                       WHERE g.gallery_id = '{gallery_id}'; 
                        ''')
         result = cursor.fetchall()[0]
         cursor.close()
@@ -71,7 +71,7 @@ def doesGalleryBelongToUser(username: str, gallery_id: str) -> bool:
         cursor.execute(f'''
                        SELECT g.creator_username
                        FROM {TABLE_GALLERY} g
-                       WHERE g.gallery_id = "{gallery_id}"; 
+                       WHERE g.gallery_id = '{gallery_id}'; 
                        ''')
         result = cursor.fetchall()[0][0]
 
@@ -97,8 +97,8 @@ def didUserRateGallery(gallery_id: str, username: str) -> bool:
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_GALLERY} rg
-                       WHERE rg.gallery_id = "{gallery_id}" 
-                       AND rg.username = "{username}";
+                       WHERE rg.gallery_id = '{gallery_id}' 
+                       AND rg.username = '{username}';
                        ''')
         result = cursor.fetchall()
 

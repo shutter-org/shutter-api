@@ -19,7 +19,7 @@ def doesCommentExist(comment_id: str) -> bool:
         cursor.execute(f'''
                        SELECT c.comment_id 
                        FROM {TABLE_COMMENT} c
-                       WHERE c.comment_id = "{comment_id}";
+                       WHERE c.comment_id = '{comment_id}';
                        ''')
         result = cursor.fetchall()
 
@@ -46,7 +46,7 @@ def doesCommentBelongToUser(username: str, comment_id: str) -> bool:
         cursor.execute(f'''
                        SELECT c.commenter_username
                        FROM {TABLE_COMMENT} c
-                       WHERE c.comment_id = "{comment_id}";
+                       WHERE c.comment_id = '{comment_id}';
                        ''')
         result = cursor.fetchall()[0][0]
 
@@ -72,8 +72,8 @@ def didUserRateComment(comment_id: str, username: str) -> bool:
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_RATE_COMMENT} rc
-                       WHERE rc.comment_id = "{comment_id}" 
-                       AND BINARY rc.username = "{username}";
+                       WHERE rc.comment_id = '{comment_id}'
+                       AND BINARY rc.username = '{username}';
                        ''')
         result = cursor.fetchall()
 
@@ -101,7 +101,7 @@ def isUserPublicationOwnerFromCommentId(username: str, comment_id: str) -> bool:
                        SELECT p.poster_username
                        FROM {TABLE_COMMENT} c
                        LEFT JOIN {TABLE_PUBLICATION} p ON c.publication_id = p.publication_id
-                       WHERE c.comment_id = "{comment_id}";
+                       WHERE c.comment_id = '{comment_id}';
                        ''')
         result = cursor.fetchall()[0][0]
 
@@ -129,7 +129,7 @@ def canUserDeleteComment(username: str, comment_id: str) -> bool:
                        SELECT c.commenter_username, p.poster_username
                        FROM {TABLE_COMMENT} c
                        LEFT JOIN {TABLE_PUBLICATION} p ON c.publication_id = p.publication_id
-                       WHERE c.comment_id = "{comment_id}" 
+                       WHERE c.comment_id = '{comment_id}'
                        ''')
         row = cursor.fetchall()[0]
 

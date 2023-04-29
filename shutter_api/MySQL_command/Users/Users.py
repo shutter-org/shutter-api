@@ -23,8 +23,8 @@ def getUsers(search: str) -> list or None:
         cursor.execute(f'''
                        SELECT u.username, u.profile_picture, u.name
                        FROM {TABLE_USER} u
-                       WHERE u.username LIKE "{search}%"
-                       OR u.name LIKE "{search}%"
+                       WHERE u.username LIKE '{search}%'
+                       OR u.name LIKE '{search}%'
                        LIMIT 12;
                        ''')
         result = cursor.fetchall()
@@ -57,7 +57,7 @@ def updateUser(username: str, newUsername: str = None, email: str = None, bio: s
         password (str, optional) : new password, default None.
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
@@ -72,7 +72,7 @@ def updateUser(username: str, newUsername: str = None, email: str = None, bio: s
             cursor.execute(f'''
                             SELECT u.profile_picture
                             FROM {TABLE_USER} u
-                            WHERE BINARY u.username = "{username}";
+                            WHERE BINARY u.username = '{username}';
                             ''')
             url = str(cursor.fetchall()[0][0])
             url = url.rsplit("?", 1)[0]
@@ -91,7 +91,7 @@ def updateUser(username: str, newUsername: str = None, email: str = None, bio: s
                        {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None else ""}u.name = "{name}" """ if name is not None else ""}
                        {f""",u.file_id = "{file_id}" """ if file_id is not None else ""}
                        {f"""{"," if newUsername is not None or email is not None or bio is not None or picture is not None or name is not None else ""}u.password = "{password}" """ if password is not None else ""}
-                       WHERE BINARY u.username = "{username}"; 
+                       WHERE BINARY u.username = '{username}'; 
                        ''')
         conn.commit()
 
@@ -103,13 +103,13 @@ def updateUser(username: str, newUsername: str = None, email: str = None, bio: s
 
 def deleteUserFromDB(username: str) -> bool:
     """
-    Delete user from the data base
+    Delete user from the database
 
     Args:
         username (str): username
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
@@ -118,19 +118,19 @@ def deleteUserFromDB(username: str) -> bool:
         cursor.execute(f'''
                        SELECT p.file_id
                        FROM {TABLE_PUBLICATION} p
-                       WHERE BINARY p.poster_username = "{username}"
+                       WHERE BINARY p.poster_username = '{username}'
                        ''')
         files = [x[0] for x in cursor.fetchall()]
         cursor.execute(f'''
                        SELECT u.file_id
                        FROM {TABLE_USER} u
-                       WHERE BINARY u.username = "{username}"
+                       WHERE BINARY u.username = '{username}'
                        ''')
         files.append(cursor.fetchall()[0][0])
 
         cursor.execute(f'''
                        DELETE FROM {TABLE_USER} 
-                       WHERE BINARY username = "{username}";
+                       WHERE BINARY username = '{username}';
                        ''')
 
         deleteImageBulkFromImagekitio(files)
@@ -160,7 +160,7 @@ def getUserGallery(username: str, private: bool) -> list or None:
         cursor.execute(f'''
                        SELECT g.gallery_id, g.title, g.private
                        FROM {TABLE_GALLERY} g
-                       WHERE BINARY g.creator_username = "{username}" {f""" AND g.private = false""" if not private else ""}
+                       WHERE BINARY g.creator_username = '{username}' {f""" AND g.private = false""" if not private else ""}
                        ORDER BY g.created_date DESC
                        ''')
         result = cursor.fetchall()
@@ -204,7 +204,7 @@ def getUserByUsername(username: str) -> dict or None:
         cursor.execute(f'''
                        SELECT u.username, u.biography, u.name, u.birthdate, u.profile_picture, u.created_date
                        FROM {TABLE_USER} u 
-                       WHERE BINARY username = "{username}"; 
+                       WHERE BINARY username = '{username}'; 
                        ''')
         row = cursor.fetchall()[0]
 
@@ -249,7 +249,7 @@ def getUserByUsernameDetail(username: str) -> dict:
         cursor.execute(f'''
                        SELECT u.username, u.email, u.biography, u.name, u.created_date, u.birthdate, u.profile_picture
                        FROM {TABLE_USER} u 
-                       WHERE BINARY username = "{username}"; 
+                       WHERE BINARY username = '{username}'; 
                        ''')
         row = cursor.fetchall()[0]
 
@@ -291,7 +291,7 @@ def getUserByUsernameLess(username: str) -> dict:
         cursor.execute(f'''
                        SELECT u.username, u.profile_picture 
                        FROM {TABLE_USER} u 
-                       WHERE BINARY username = "{username}"; 
+                       WHERE BINARY username = '{username}'; 
                        ''')
         row = cursor.fetchall()[0]
 

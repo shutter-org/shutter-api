@@ -22,8 +22,8 @@ def likeGallery(gallery_id: str, username: str, rating: bool) -> bool:
                        INSERT INTO {RELATION_TABLE_RATE_GALLERY} 
                        (username, gallery_id, rating) 
                        VALUES (
-                           "{username}",
-                           "{gallery_id}",
+                           '{username}',
+                           '{gallery_id}',
                            {rating}
                        );
                        ''')
@@ -55,8 +55,8 @@ def updateLikeGallery(gallery_id: str, username: str, rating: bool) -> bool:
         cursor.execute(f'''
                        UPDATE {RELATION_TABLE_RATE_GALLERY} rg
                        SET rg.rating = {rating}
-                       WHERE rg.gallery_id = "{gallery_id}" 
-                       AND BINARY rg.username = "{username}";
+                       WHERE rg.gallery_id = '{gallery_id}' 
+                       AND BINARY rg.username = '{username}';
                        ''')
         conn.commit()
         cursor.close()

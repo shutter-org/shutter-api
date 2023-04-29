@@ -28,12 +28,12 @@ def createGallery(data: dict) -> bool:
         cursor.execute(f'''INSERT INTO {TABLE_GALLERY} 
                        (gallery_id, creator_username, description, created_date, private, title) 
                        VALUES (
-                           "{data["gallery_id"]}",
-                           "{data["creator_username"]}",
-                           "{data["description"]}",
-                           "{data["created_date"]}",
-                           {data["private"]},
-                           "{data["title"]}"
+                           '{data["gallery_id"]}',
+                           '{data["creator_username"]}',
+                           '{data["description"]}',
+                           '{data["created_date"]}',
+                           '{data["private"]}',
+                           '{data["title"]}'
                        );
                        ''')
 
@@ -60,7 +60,7 @@ def deleteGalleryFromDB(gallery_id: str) -> bool:
 
         cursor.execute(f'''
                        DELETE FROM {TABLE_GALLERY} 
-                       WHERE gallery_id = "{gallery_id}"; 
+                       WHERE gallery_id = '{gallery_id}'; 
                        ''')
         conn.commit()
 
@@ -78,7 +78,7 @@ def updateGallery(gallery_id: str, description: str = None, title: str = None, p
         gallery_id (str): gallery id
         description (str, optional): new description
         title (str, optional): new title
-        private (bool, optionnal): the new private status of the gallery
+        private (bool, optional): the new private status of the gallery
         
     Returns:
         bool: if request success
@@ -96,7 +96,7 @@ def updateGallery(gallery_id: str, description: str = None, title: str = None, p
                        {f"""g.description = "{description}" """ if description is not None else ""}
                        {f"""{"," if (description is not None) else ""}g.title = "{title}" """ if title is not None else ""}
                        {f"""{"," if (title is not None or description is not None) else ""}g.private = {private} """ if private is not None else ""}
-                       WHERE g.gallery_id = "{gallery_id}";
+                       WHERE g.gallery_id = '{gallery_id}';
                        ''')
         conn.commit()
         cursor.close()
@@ -123,7 +123,7 @@ def getNumberPublicationsFromGallery(gallery_id: str) -> int or None:
         cursor.execute(f'''
                        SELECT COUNT(*)
                        FROM {RELATION_TABLE_SAVE} s
-                       WHERE s.gallery_id = "{gallery_id}";
+                       WHERE s.gallery_id = '{gallery_id}';
                        ''')
         result = cursor.fetchall()[0][0]
 
@@ -151,10 +151,10 @@ def getGalleryById(gallery_id: str, username: str) -> dict or None:
 
         cursor.execute(f'''
                        SELECT g.gallery_id, g.creator_username, u.profile_picture, g.description, g.created_date, g.rating , 
-                       get_user_gallery_rating("{username}",g.gallery_id), g.title, g.private
+                       get_user_gallery_rating('{username}',g.gallery_id), g.title, g.private
                        FROM {TABLE_GALLERY} g
                        LEFT JOIN {TABLE_USER} u ON BINARY g.creator_username = u.username
-                       WHERE g.gallery_id = "{gallery_id}"
+                       WHERE g.gallery_id = '{gallery_id}'
                        ORDER BY g.created_date DESC;
                        ''')
         row = cursor.fetchall()[0]

@@ -15,13 +15,15 @@ def isUserPasswordValid(username: str, password: str) -> bool:
         bool: if connection success
     """
     try:
+
         conn = MYSQL.get_db()
+
         cursor = conn.cursor()
 
         cursor.execute(f'''
                        SELECT u.password 
                        FROM {TABLE_USER} u 
-                       WHERE BINARY u.username = "{username}"; 
+                       WHERE BINARY u.username = '{username}'; 
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()

@@ -17,8 +17,9 @@ def doesUsernameExist(username: str) -> bool:
         cursor.execute(f'''
                        SELECT username 
                        FROM {TABLE_USER} 
-                       WHERE BINARY username = "{username}"; 
+                       WHERE BINARY username = '{username}'; 
                        ''')
+
         result = cursor.fetchall()
 
         cursor.close()
@@ -43,7 +44,7 @@ def isEmailValid(email: str) -> bool:
         cursor.execute(f'''
                        SELECT email 
                        FROM {TABLE_USER} 
-                       WHERE email = "{email}"; 
+                       WHERE email = '{email}'; 
                        ''')
         result = cursor.fetchall()
 
@@ -70,8 +71,8 @@ def doesUserFollowUsername(follower: str, followed: str) -> bool:
         cursor.execute(f'''
                        SELECT * 
                        FROM {RELATION_TABLE_FOLLOW} 
-                       WHERE BINARY follower_username = "{follower}"
-                       AND BINARY followed_username = "{followed}";
+                       WHERE BINARY follower_username = '{follower}'
+                       AND BINARY followed_username = '{followed}';
                        ''')
         result = cursor.fetchall()
 

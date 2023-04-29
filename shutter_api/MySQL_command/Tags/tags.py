@@ -19,7 +19,7 @@ def createTag(tag: str) -> bool:
                        INSERT INTO {TABLE_TAG} 
                        (value) 
                        VALUES 
-                       ("{tag}");
+                       ('{tag}');
                        ''')
 
         cursor.close()
@@ -50,7 +50,7 @@ def addTagToPublication(tag: str, publication_id: str) -> bool:
                        INSERT INTO {RELATION_TABLE_IDENTIFY} 
                        (publication_id, tag_value) 
                        VALUES 
-                       ("{publication_id}", "{tag}");
+                       ('{publication_id}', '{tag}');
                        ''')
         cursor.close()
         conn.commit()
@@ -77,7 +77,7 @@ def getNbpublicationFromTag(tag: str) -> int or None:
         cursor.execute(f'''
                        SELECT t.nb_publications
                        FROM {TABLE_TAG} t
-                       WHERE t.value = "{tag}"
+                       WHERE t.value = '{tag}'
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()

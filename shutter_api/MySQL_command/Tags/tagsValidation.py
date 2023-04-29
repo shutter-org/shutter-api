@@ -18,7 +18,7 @@ def doesTagExist(tag: str) -> bool:
         cursor.execute(f'''
                        SELECT value 
                        FROM {TABLE_TAG} 
-                       WHERE value = "{tag}"; 
+                       WHERE value = '{tag}'; 
                        ''')
         result = cursor.fetchall()
 

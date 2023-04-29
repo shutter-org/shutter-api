@@ -22,8 +22,8 @@ def likePublication(publication_id: str, username: str, rating: bool) -> bool:
                        INSERT INTO {RELATION_TABLE_RATE_PUBLICATION} 
                        (username, publication_id, rating) 
                        VALUES (
-                           "{username}",
-                           "{publication_id}",
+                           '{username}',
+                           '{publication_id}',
                            {rating}
                        );
                        ''')
@@ -55,7 +55,7 @@ def updateLikePublication(publication_id: str, username: str, rating: bool) -> b
         cursor.execute(f'''
                        UPDATE {RELATION_TABLE_RATE_PUBLICATION} rp
                        SET rp.rating = {rating}
-                       WHERE rp.publication_id = "{publication_id}" AND BINARY rp.username = "{username}";
+                       WHERE rp.publication_id = '{publication_id}' AND BINARY rp.username = '{username}';
                        ''')
         conn.commit()
         cursor.close()
@@ -82,7 +82,7 @@ def deleteLikePublication(publication_id: str, username: str) -> bool:
 
         cursor.execute(f'''
                        DELETE FROM {RELATION_TABLE_RATE_PUBLICATION} rp
-                       WHERE rp.publication_id = "{publication_id}" and BINARY rp.username = "{username}" 
+                       WHERE rp.publication_id = '{publication_id}' and BINARY rp.username = '{username}' 
                        ''')
         conn.commit()
 

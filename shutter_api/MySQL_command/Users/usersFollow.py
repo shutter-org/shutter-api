@@ -78,7 +78,7 @@ def getFollowUserNumber(username: str) -> int or None:
                        SELECT COUNT(*)
                        FROM {RELATION_TABLE_FOLLOW} f
                        LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.followed_username
-                       WHERE BINARY f.follower_username = "{username}"
+                       WHERE BINARY f.follower_username = '{username}'
                        ''')
 
         result = cursor.fetchall()[0][0]
@@ -108,7 +108,7 @@ def getFollowUser(username: str, offset: int = 1) -> list or None:
                        SELECT f.followed_username, u.profile_picture
                        FROM {RELATION_TABLE_FOLLOW} f
                        LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.followed_username
-                       WHERE BINARY f.follower_username = "{username}"
+                       WHERE BINARY f.follower_username = '{username}'
                        LIMIT 50
                        OFFSET {(offset - 1) * 50};
                        ''')
@@ -146,7 +146,7 @@ def getFollowedUserNumber(username: str) -> int or None:
                        SELECT COUNT(*)
                        FROM {RELATION_TABLE_FOLLOW} f
                        LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.follower_username
-                       WHERE BINARY f.followed_username = "{username}";
+                       WHERE BINARY f.followed_username = '{username}';
                        ''')
         result = cursor.fetchall()[0][0]
 
@@ -176,7 +176,7 @@ def getFollowedUser(username: str, offset: int = 1) -> list or None:
                        SELECT f.follower_username, u.profile_picture
                        FROM {RELATION_TABLE_FOLLOW} f
                        LEFT JOIN {TABLE_USER} u ON BINARY u.username = f.follower_username
-                       WHERE BINARY f.followed_username = "{username}"
+                       WHERE BINARY f.followed_username = '{username}'
                        LIMIT 50
                        OFFSET {(offset - 1) * 50};
                        ''')
@@ -213,7 +213,7 @@ def getNbUserFollowedPublications(username: str) -> int or None:
                         SELECT COUNT(*)
                         FROM {TABLE_PUBLICATION} p 
                         JOIN {RELATION_TABLE_FOLLOW} f ON BINARY p.poster_username = f.followed_username
-                        WHERE BINARY f.follower_username = "{username}";
+                        WHERE BINARY f.follower_username = '{username}';
                         ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
@@ -225,7 +225,7 @@ def getNbUserFollowedPublications(username: str) -> int or None:
 
 def getUserFollowedPublication(username: str, offset: int = 1) -> list or None:
     """
-    get the most recent publications of the user being follow
+    get the most recent publications of the user being followed
 
     Args:
         username (str): user username
@@ -238,11 +238,11 @@ def getUserFollowedPublication(username: str, offset: int = 1) -> list or None:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         cursor.execute(f'''
-                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, get_user_publication_rating("{username}",p.publication_id), p.rating
+                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, get_user_publication_rating('{username}',p.publication_id), p.rating
                         FROM {TABLE_PUBLICATION} p 
                         JOIN {RELATION_TABLE_FOLLOW} f ON BINARY p.poster_username = f.followed_username
                         LEFT JOIN {TABLE_USER} u ON BINARY p.poster_username = u.username
-                        WHERE BINARY f.follower_username = "{username}"
+                        WHERE BINARY f.follower_username = '{username}'
                         ORDER BY p.created_date DESC
                         LIMIT 12
                         OFFSET {(offset - 1) * 12};

@@ -160,7 +160,7 @@ def publication(app) -> None:
                     requestFail()
 
         if description is not None:
-            if not updatepublication(publication_id, description):
+            if not updatePublication(publication_id, description):
                 return requestFail()
 
         return ok()
@@ -276,7 +276,6 @@ def publication(app) -> None:
         except KeyError:
             return missingParameterInJson("rating")
 
-        print(publication_id, username)
         if not didUserRatePublication(publication_id, username):
             return noAcces()
 

@@ -3,7 +3,7 @@ from shutter_api.MySQL_command.Comments import *
 
 def createPublication(data: dict) -> bool:
     """
-    requete MySQL to create new publication
+    MySQL request to create new publication
 
     Args:
         data (dict):
@@ -13,7 +13,7 @@ def createPublication(data: dict) -> bool:
             "created_date:str
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         picture, file_id = addImgToKitioToPublications(data["picture"], str(data["publication_id"]))
@@ -24,12 +24,12 @@ def createPublication(data: dict) -> bool:
         cursor.execute(f'''
                        INSERT INTO {TABLE_PUBLICATION} (publication_id, poster_username, description, picture, created_date, file_id) 
                        VALUES (
-                           "{data["publication_id"]}",
-                           "{data["poster_username"]}",
-                           "{data["description"]}",
-                           "{picture}",
-                           "{data["created_date"]}",
-                           "{file_id}"
+                           '{data["publication_id"]}',
+                           '{data["poster_username"]}',
+                           '{data["description"]}',
+                           '{picture}',
+                           '{data["created_date"]}',
+                           '{file_id}'
                        );
                        ''')
 
@@ -49,7 +49,7 @@ def deletePublicationFromDB(publication_id: str) -> bool:
         publication_id (str): id of the publication
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
@@ -57,13 +57,13 @@ def deletePublicationFromDB(publication_id: str) -> bool:
         cursor.execute(f'''
                        SELECT file_id
                        FROM {TABLE_PUBLICATION}
-                       WHERE publication_id = "{publication_id}"; 
+                       WHERE publication_id = '{publication_id}'; 
                        ''')
         file_id = cursor.fetchall()[0][0]
 
         cursor.execute(f'''
                        DELETE FROM {TABLE_PUBLICATION}
-                       WHERE publication_id = "{publication_id}"; 
+                       WHERE publication_id = '{publication_id}'; 
                        ''')
         conn.commit()
 
@@ -75,7 +75,7 @@ def deletePublicationFromDB(publication_id: str) -> bool:
         return False
 
 
-def updatepublication(publication_id: str, description: str) -> bool:
+def updatePublication(publication_id: str, description: str) -> bool:
     """
     Update the publication description
 
@@ -84,7 +84,7 @@ def updatepublication(publication_id: str, description: str) -> bool:
         description (str): new description
 
     Returns:
-        bool: if request succes
+        bool: if request success
     """
     try:
         conn = MYSQL.get_db()
@@ -92,8 +92,8 @@ def updatepublication(publication_id: str, description: str) -> bool:
 
         cursor.execute(f'''
                        UPDATE {TABLE_PUBLICATION} p
-                       SET p.description = "{description}"
-                       WHERE publication_id = "{publication_id}" 
+                       SET p.description = '{description}'
+                       WHERE publication_id = '{publication_id}' 
                        ''')
 
         conn.commit()
@@ -122,10 +122,10 @@ def getPublicationById(publication_id: str, username: str) -> dict or None:
 
         cursor.execute(f'''
                        SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                       , get_user_publication_rating("{username}",p.publication_id)
+                       , get_user_publication_rating('{username}',p.publication_id)
                        FROM publication p
                        LEFT JOIN user u ON p.poster_username = u.username
-                       WHERE p.publication_id = "{publication_id}"
+                       WHERE p.publication_id = '{publication_id}'
                        ''')
 
         row = cursor.fetchall()[0]
@@ -170,7 +170,7 @@ def getUserPublications(username: str, offset: int = 1) -> list:
         cursor.execute(f'''
                        SELECT p.publication_id, p.picture, p.created_date
                        FROM publication p
-                       WHERE p.poster_username = "{username}"
+                       WHERE p.poster_username = '{username}'
                        ORDER BY p.created_date DESC
                        LIMIT 12
                        OFFSET {(offset - 1) * 12};
@@ -208,7 +208,7 @@ def getNumberOfPublicationFromUser(username: str) -> int or None:
         cursor.execute(f'''
                        SELECT COUNT(*)
                        FROM publication p
-                       WHERE p.poster_username = "{username}"
+                       WHERE p.poster_username = '{username}'
                        ''')
         result = cursor.fetchall()[0][0]
         cursor.close()
@@ -235,12 +235,12 @@ def getPublicationTags(publication_id: str) -> list:
         cursor.execute(f"""
                        SELECT i.tag_value
                        FROM {RELATION_TABLE_IDENTIFY} i
-                       WHERE i.publication_id = "{publication_id}";
+                       WHERE i.publication_id = '{publication_id}';
                        """)
-        resultat = cursor.fetchall()
+        result = cursor.fetchall()
         cursor.close()
 
-        return [x[0] for x in resultat]
+        return [x[0] for x in result]
     except Exception:
         return None
 
@@ -253,14 +253,14 @@ def removeTagsFromPublication(publication_id: str) -> bool:
         publication_id (str): id of the publication
 
     Returns:
-        bool : if request succes
+        bool : if request success
     """
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
         cursor.execute(f"""
                         DELETE FROM {RELATION_TABLE_IDENTIFY}
-                        WHERE publication_id = "{publication_id}";
+                        WHERE publication_id = '{publication_id}';
                         """)
         conn.commit()
         cursor.close()
@@ -272,7 +272,7 @@ def removeTagsFromPublication(publication_id: str) -> bool:
 
 def getNbPublications() -> int or None:
     """
-    Get the total number of publicaiton
+    Get the total number of publications
 
     Returns:
         int or None: nb of publications, None of request fail
@@ -310,11 +310,11 @@ def getPublicationsFromTag(tag: str, username: str, offset: int = 1) -> list or 
 
         cursor.execute(f'''
                         SELECT i.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                        , get_user_publication_rating("{username}",p.publication_id)
+                        , get_user_publication_rating('{username}',p.publication_id)
                         FROM {RELATION_TABLE_IDENTIFY} i
                         LEFT JOIN {TABLE_PUBLICATION} p ON i.publication_id = p.publication_id
                         LEFT JOIN {TABLE_USER} u ON p.poster_username = u.username
-                        WHERE i.tag_value = "{tag}"
+                        WHERE i.tag_value = '{tag}'
                         GROUP BY i.publication_id, p.created_date
                         ORDER BY p.created_date DESC
                         LIMIT 12
@@ -366,18 +366,15 @@ def getPublications(username: str, offset: int = 1) -> list or None:
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-
         cursor.execute(f'''
                         SELECT p.publication_id, p.poster_username, u.profile_picture, p.description, p.picture, p.created_date, p.rating
-                        , get_user_publication_rating("{username}",p.publication_id)
+                        , get_user_publication_rating('{username}',p.publication_id)
                         FROM {TABLE_PUBLICATION} p
                         LEFT JOIN {TABLE_USER} u ON BINARY p.poster_username = u.username
-                        GROUP BY p.publication_id, p.created_date
                         ORDER BY p.created_date DESC
                         LIMIT 12
                         OFFSET {(offset - 1) * 12};
                         ''')
-
         result = cursor.fetchall()
         cursor.close()
         data = []
@@ -421,19 +418,16 @@ def getCommentsOfPublication(publication_id: str, username: str, offset: int = 1
     try:
         conn = MYSQL.get_db()
         cursor = conn.cursor()
-
         cursor.execute(f'''
                         SELECT c.comment_id, c.commenter_username, u.profile_picture, c.message, c.created_date, c.rating
-                        , get_user_comment_rating("{username}",c.comment_id)
+                        , get_user_comment_rating('{username}',c.comment_id)
                         FROM {TABLE_COMMENT} c 
                         LEFT JOIN {TABLE_USER} u ON BINARY c.commenter_username = u.username
-                        WHERE c.publication_id = "{publication_id}"
-                        GROUP BY c.comment_id, c.created_date
+                        WHERE c.publication_id = '{publication_id}'
                         ORDER BY c.created_date ASC
                         LIMIT 12
                         OFFSET {(offset - 1) * 12};
                         ''')
-
         result = cursor.fetchall()
 
         cursor.close()
